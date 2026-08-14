@@ -1,6 +1,7 @@
 ---
 name: inclusive-design-patterns
-description: Design accessible and inclusive UI patterns that work for everyone, regardless of ability. Use this skill for accessible color combinations, accessible typography, form patterns with proper labeling, motion and animation safety, icon accessibility, accessible interactive components, multilingual design, and inclusive testing strategies. Triggers include: color contrast and colorblind accessibility, readable typography at all sizes, accessible form design, prefers-reduced-motion handling, accessible icons and buttons, modal and dialog accessibility, internationalization basics, and testing design for accessibility. Essential for UX/UI designers creating products that are usable by people with disabilities, colorblindness, low vision, motor challenges, and different cognitive abilities.
+description: Make the design-time decisions that determine whether an accessible build is even possible — color pairs that survive low vision and colorblindness, type sizes and line lengths that stay readable, form and error patterns, motion and prefers-reduced-motion, icon meaning, and multilingual layout. Use this skill while designing, before code exists: picking accessible color combinations, laying out a form, deciding how an animation should degrade, or choosing how errors are communicated. Do NOT use it to verify conformance in built code — semantic HTML, ARIA, keyboard traps, screen reader behaviour and WCAG audits are the web-accessibility-a11y skill.
+
 ---
 
 # Inclusive Design Patterns

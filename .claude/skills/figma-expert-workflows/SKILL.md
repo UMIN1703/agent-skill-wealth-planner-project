@@ -1,6 +1,7 @@
 ---
 name: figma-expert-workflows
-description: Master advanced Figma workflows for professional design systems and collaborative design. Use this skill for component creation, design tokens, variables, prototyping, design tokens sync with code, collaborative features, performance optimization, plugin recommendations, and handoff processes. Triggers include: Figma component strategy, design token management in Figma, interactive prototypes, design system setup in Figma, collaborative workflows, Figma plugins, component variants, auto layout, design-to-code handoff, and Figma performance. Essential for UX/UI designers building design systems, component libraries, or collaborating with developers.
+description: Work inside Figma itself — components and variants, auto layout, variables, prototyping, libraries, collaboration, plugins, and file performance. Use this skill when the work happens in the Figma file: structuring a component set, setting up variables and modes, building an interactive prototype, organising a team library, or fixing a slow file. Do NOT use it to translate a finished Figma design into code or to write handoff specs — that is design-to-code-workflow; and not for the token transformation and distribution pipeline — that is design-tokens-system.
+
 ---
 
 # Figma Expert Workflows

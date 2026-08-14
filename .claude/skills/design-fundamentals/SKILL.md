@@ -1,6 +1,7 @@
 ---
 name: design-fundamentals
-description: Master universal design principles for UI, web, and applications. Use this skill whenever you need to apply color theory, typography, layout systems, spacing, visual hierarchy, or contrast guidelines. Triggers include design critiques, UI specs, accessibility concerns, design system foundations, responsive layout problems, and questions about why something doesn't look right. Essential for both designers and frontend developers building pixel-perfect, accessible interfaces.
+description: Apply universal visual design principles to a single interface — color theory, typographic scale, spacing rhythm, layout and grid, visual hierarchy, and contrast. Use this skill when deciding or critiquing how something should look: "why does this look wrong", choosing a palette or type scale, fixing cramped or unbalanced layout, establishing hierarchy on a page, or reviewing a screen's visual quality. Do NOT use it to organise a multi-component system, its governance or versioning — that is the design-systems-architecture skill; not for token naming, formats or build pipelines — that is design-tokens-system; and not for verifying WCAG conformance in built code — that is web-accessibility-a11y.
+
 ---
 
 # Design Fundamentals

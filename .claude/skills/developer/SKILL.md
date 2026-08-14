@@ -1,6 +1,7 @@
 ---
 name: developer
 description: Turn an approved technical specification into working, reviewable code — reading the SRS/ADR/interface contracts, planning the change, implementing it, meeting the Definition of Done, and raising a change request instead of guessing when the spec is wrong. Use this skill whenever the user is about to build, is mid-build, or is deciding whether something is finished — "start building this", "implement this story", "ลงมือเขียนโค้ดได้ยัง", "is this done?", "what should I build first", "the spec doesn't say what happens here", "how should I split this into commits", "write the tests for this story". Do NOT use it to decide what to build or why (product-owner), to design the data model or architecture (system-analyst), to schedule the work (project-manager), to judge someone else's code (code-reviewer), or to verify the finished feature against its spec (quality-assurance).
+
 ---
 
 # Developer

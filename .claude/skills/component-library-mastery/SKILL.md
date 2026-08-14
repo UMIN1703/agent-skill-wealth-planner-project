@@ -1,6 +1,7 @@
 ---
 name: component-library-mastery
-description: Build and maintain production component libraries with Storybook. Use this skill for component documentation, Storybook setup and configuration, component publishing, versioning strategies, component distribution via npm, component API documentation, and library maintenance.
+description: Package, document, publish and maintain a component library as a shipped product — Storybook setup and stories, component API documentation, versioning and release strategy, npm distribution, and long-term library maintenance. Use this skill for Storybook configuration, writing component docs, deciding a versioning scheme, publishing and consuming the library, and deprecation paths. Do NOT use it to decide the component architecture or system governance — that is design-systems-architecture; and not for writing the components' styles — that is css-styling-pixel-perfect.
+
 ---
 
 # Component Library Mastery

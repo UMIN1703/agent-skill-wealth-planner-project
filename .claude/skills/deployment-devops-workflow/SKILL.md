@@ -1,6 +1,7 @@
 ---
 name: deployment-devops-workflow
-description: CI/CD pipelines, deployment automation, and monitoring for design systems. Use this skill for GitHub Actions workflow setup, automated testing and building, deployment strategies, versioning and tagging, rollback procedures, performance monitoring, and team collaboration in deployment pipelines.
+description: Design and build the delivery pipeline that releases run through — GitHub Actions workflows, automated build and test stages, environment configuration, deployment strategies, tagging and versioning schemes, and production monitoring setup. Use this skill when constructing or changing the pipeline itself: adding a CI job, configuring environments and secrets, choosing between blue-green and canary, or setting up monitoring. Do NOT use it to decide whether a specific build may go live now, run the go/no-go checklist, rehearse a rollback or write the release record — that is the devops-release skill.
+
 ---
 
 # Deployment & DevOps Workflow

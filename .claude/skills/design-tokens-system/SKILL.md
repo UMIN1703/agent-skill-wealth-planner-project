@@ -1,6 +1,7 @@
 ---
 name: design-tokens-system
-description: Comprehensive design token architecture and system implementation. Use this skill for token definition and structure, token generation and transformation, design token distribution across platforms, Figma Variables, design token sync automation, and multi-platform token consumption (web, mobile, docs).
+description: Build and operate the design token layer as an artifact — naming and tiering, token file formats, transformation and build pipelines, Figma Variables sync, and distribution to web, mobile and docs. Use this skill for token structure and naming schemes, generating platform outputs, automating token sync, theming and mode switching mechanics, and debugging why a token did not reach a consumer. Do NOT use it to decide which colors, sizes or spacing values are right — that is design-fundamentals; and not for system-wide governance, component architecture or the DSN document — that is design-systems-architecture.
+
 ---
 
 # Design Tokens System

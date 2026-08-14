@@ -1,6 +1,7 @@
 ---
 name: web-performance-optimization
-description: Optimize web applications for speed, responsiveness, and efficiency. Use this skill for Core Web Vitals analysis, Lighthouse interpretation, asset optimization strategies, network performance tuning, runtime performance improvements, monitoring setup, and performance budgets. Triggers include: page speed optimization, Lighthouse audit review, Core Web Vitals improvement, image/CSS/JS optimization, bundle size reduction, first-paint delays, layout shifts, interaction delays, performance monitoring questions, and performance budgets. Essential for anyone responsible for user experience, loading speed, or application responsiveness.
+description: Make a web application fast — Core Web Vitals, Lighthouse interpretation, image, CSS and JS optimisation, bundle size, network and runtime tuning, and performance budgets. Use this skill for slow pages, a poor Lighthouse score, layout shift, interaction delay, or setting a performance budget. Do NOT use it to build the CI pipeline or wire up production monitoring — that is deployment-devops-workflow.
+
 ---
 
 # Web Performance Optimization

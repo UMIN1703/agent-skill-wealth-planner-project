@@ -1,6 +1,7 @@
 ---
 name: design-systems-architecture
-description: Build scalable, maintainable design systems that grow with your product. Use this skill for design system foundations, component architecture, token strategies, governance decisions, scaling patterns, documentation standards, versioning, and cross-team collaboration. Triggers include: design system audits, component library structure, design token organization, system governance questions, scaling decisions, component versioning, breaking changes, documentation strategy, multi-brand support, and system health metrics. Essential for anyone architecting or maintaining a design system serving multiple teams or products.
+description: Own the design stage of this pipeline and the structure of a design system across many components and products — foundations, component architecture, governance, documentation standards, versioning and breaking changes, multi-brand support, and the DSN design specification document. Use this skill for design system audits, deciding what belongs in the system versus a product, structuring a component inventory, system health and adoption, and whenever the design stage needs its registered deliverable. Do NOT use it for the visual choices on a single screen — that is design-fundamentals; not for token file formats, transformation or distribution — that is design-tokens-system; and not for packaging and publishing a component library — that is component-library-mastery.
+
 ---
 
 # Design Systems Architecture

@@ -1,6 +1,7 @@
 ---
 name: devops-release
 description: Decide whether a specific build may be released, and run the release — go/no-go against a release checklist, a rehearsed rollback plan, the release record (REL), and what to watch after it is live. Use this skill whenever the question is about shipping this build right now: "can we release", "ปล่อยได้ยัง", "deploy this", "how do we roll back", "what do we watch after release", "write the release notes", "something broke in production", or as the final gate after quality-assurance returns PASS. Do NOT use it to design or configure the CI/CD pipeline itself — GitHub Actions workflows, build automation, versioning strategy and monitoring setup are the deployment-devops-workflow skill; and do NOT use it to verify the feature against its spec — that is quality-assurance.
+
 ---
 
 # DevOps / Release

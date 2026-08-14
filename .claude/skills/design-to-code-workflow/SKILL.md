@@ -1,6 +1,7 @@
 ---
 name: design-to-code-workflow
-description: Bridge the gap between design and development for seamless component creation. Use this skill for design-to-code processes, component specification documentation, developer handoff, component generation strategies, design system implementation in code, Figma → React workflows, automated component generation, design tokens integration, and development team collaboration. Triggers include: converting Figma designs to React components, specifying components for developers, automating component generation, design system implementation, design-to-code handoff documentation, component creation workflows, and bridging designer-developer workflows. Essential for teams implementing design systems and automating the design-to-development pipeline.
+description: Cross the boundary between a finished design and working code — component specifications for developers, handoff documentation, generation strategies, keeping implementation and design in sync, and closing the drift when they diverge. Use this skill for turning a Figma frame into a component spec, automating component scaffolding, defining what a handoff must contain, and auditing where code has drifted from design. Do NOT use it for work done inside the Figma file — that is figma-expert-workflows; not for writing the CSS itself — that is css-styling-pixel-perfect; and not for the token build pipeline — that is design-tokens-system.
+
 ---
 
 # Design to Code Workflow

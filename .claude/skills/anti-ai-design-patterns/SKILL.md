@@ -1,6 +1,7 @@
 ---
 name: anti-ai-design-patterns
-description: Detect and eliminate AI-generated design tells — "AI slop" and generic "AI-alien" aesthetics — so interfaces read as human-crafted and intentional. Use this skill whenever generating or reviewing any UI, component, landing page, email, or design-token set. Triggers include: single-side accent borders / left-rail cards, emoji or emoticons used as icons or section markers, default purple-to-blue gradients, everything-centered layouts, uniform rounded-lg corners everywhere, raw default Tailwind palette colors, Inter/Space-Grotesk-as-the-safe-default, cream + serif + terracotta clichés, lorem ipsum, glassmorphism on everything, uncanny uniform spacing, and any request to "make this not look AI-generated", "de-slop this UI", or "use an icon library instead of emoji". Pairs with design-fundamentals and css-styling-pixel-perfect.
+description: Detect and eliminate AI-generated design tells so an interface reads as human-crafted and intentional. Use this skill whenever generating or reviewing any UI, component, landing page, email, or token set. Triggers include: single-side accent borders and left-rail cards, emoji used as icons or section markers, default purple-to-blue gradients, everything centered, uniform rounded corners everywhere, raw default Tailwind palette colors, Inter or Space-Grotesk as the safe default, cream-serif-terracotta cliches, lorem ipsum, glassmorphism on everything, uncanny uniform spacing, and any request to "make this not look AI-generated" or "de-slop this UI". Do NOT use it to judge whether a design is accessible or on-system — that is inclusive-design-patterns and design-systems-architecture.
+
 ---
 
 # Anti-AI Design Patterns

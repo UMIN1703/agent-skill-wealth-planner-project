@@ -1,6 +1,7 @@
 ---
 name: responsive-universal-design
-description: Master responsive design principles and universal design for mobile-first web and cross-device experiences. Use this skill for mobile-first strategy, responsive breakpoints, flexible layouts, touch-friendly interfaces, device testing, accessibility across devices, performance on mobile, viewport configuration, and responsive images. Triggers include: mobile-first design strategy, breakpoint planning, responsive grids and flexbox, touch targets and spacing, mobile navigation patterns, responsive typography, device testing, viewport settings, performance optimization for mobile, and cross-device design systems. Essential for UX/UI designers creating products that work seamlessly across phones, tablets, and desktops.
+description: Design for every screen size and input method — mobile-first strategy, breakpoint planning, fluid layouts and grids, touch target sizing, mobile navigation patterns, responsive typography and images, and cross-device testing. Use this skill when choosing breakpoints, deciding what changes between sizes, sizing touch targets, or diagnosing a layout that breaks on a particular device. Do NOT use it for WCAG conformance, ARIA or screen readers — that is web-accessibility-a11y; and not for the CSS mechanics of implementing a layout — that is css-styling-pixel-perfect.
+
 ---
 
 # Responsive & Universal Design

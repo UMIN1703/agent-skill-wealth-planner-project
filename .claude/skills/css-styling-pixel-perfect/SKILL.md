@@ -1,6 +1,7 @@
 ---
 name: css-styling-pixel-perfect
-description: Master CSS architecture, styling strategies, and pixel-perfect component implementation. Use this skill for CSS architecture patterns (BEM, OOCSS, atomic), Tailwind CSS configuration and best practices, CSS-in-JS libraries, component styling patterns, CSS modules, responsive styling, performance optimization, and accessibility-aware styling. Triggers include: CSS organization and naming conventions, Tailwind configuration, styled-components or emotion usage, component styling strategies, CSS specificity issues, responsive design implementation, CSS performance, and pixel-perfect design implementation. Essential for frontend developers building maintainable, performant, and accessible stylesheets.
+description: CSS architecture and styling implementation — naming conventions (BEM, OOCSS, atomic), Tailwind configuration, CSS-in-JS and CSS Modules, specificity problems, component styling strategy, and matching a design precisely. Use this skill when writing or restructuring styles, configuring Tailwind, resolving a specificity or cascade problem, or closing the gap between a build and its design. Do NOT use it for component and state architecture — that is frontend-framework-guide; not for defining the token layer — that is design-tokens-system; and not for breakpoint strategy — that is responsive-universal-design.
+
 ---
 
 # CSS Styling & Pixel-Perfect Design

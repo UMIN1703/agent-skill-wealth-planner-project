@@ -1,6 +1,7 @@
 ---
 name: project-manager
 description: Plan and run delivery — sprint planning, estimation, velocity and forecasting, timelines and critical path, risk registers, and stakeholder communication. Use this skill whenever the user is dealing with HOW and WHEN work gets delivered — planning a sprint, sizing or estimating work, working out capacity, forecasting a ship date, building or replanning a timeline, chasing a slipping project, writing a status update or escalation, running a standup/retro/kickoff, tracking risks and dependencies, or reporting to stakeholders. Trigger it on casual phrasings too — "will we make the deadline", "we're behind", "how do I tell the client", "how many points can we take", "what's blocking us", "write the weekly update". Do NOT use for defining what to build, writing PRDs, user stories, or backlog prioritization — that is the product-owner skill.
+
 ---
 
 # Project Manager

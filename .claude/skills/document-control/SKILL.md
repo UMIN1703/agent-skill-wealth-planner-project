@@ -1,6 +1,7 @@
 ---
 name: document-control
 description: Own the controlled-document system every role in this pipeline writes into — document codes, revision numbering, the register, cross-document consistency, and building Thai-formatted PDF/DOCX from Markdown. Use this skill whenever a document is created, renumbered, revised, or released; whenever the user asks about document codes (PRD-XXX-001), revision numbers, the document register, "which documents exist", "how do I issue a revision", "why is my diagram showing as raw code in the PDF", or Thai government document formatting; and whenever a change to one document requires sweeping the others for stale references. Do NOT use it to decide the CONTENT of a document — the owning role skill (product-owner, system-analyst, quality-assurance, developer, code-reviewer, devops-release) writes the content; this skill governs identity, numbering, and production.
+
 ---
 
 # Document Control

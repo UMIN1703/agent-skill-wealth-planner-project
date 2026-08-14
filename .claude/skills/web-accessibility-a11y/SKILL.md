@@ -1,6 +1,7 @@
 ---
 name: web-accessibility-a11y
-description: Build accessible web experiences that work for everyone. Use this skill whenever dealing with WCAG compliance, semantic HTML, ARIA patterns, screen reader testing, keyboard navigation, contrast ratios, accessibility audits, or inclusive design patterns. Triggers include: accessibility concerns, form design, modal dialogs, focus management, live regions, color-only differentiation, keyboard shortcuts, keyboard traps, link/button semantics, landmark navigation, heading hierarchy, skip links, and alt text strategy. Essential for designers, developers, and QA ensuring digital products are usable by people with disabilities.
+description: Verify and fix accessibility in code that exists — semantic HTML, ARIA patterns, keyboard navigation and focus management, screen reader behaviour, live regions, landmarks and heading order, contrast measurement, and WCAG audits. Use this skill when auditing or repairing a built interface: "is this accessible", a failing axe rule, a keyboard trap, a modal that loses focus, an alt-text decision, or preparing for a conformance review. Do NOT use it for design-time choices made before code — accessible color pairs, type sizing, motion safety and form design are the inclusive-design-patterns skill; and not for issuing the ship/no-ship verdict on a change — that is quality-assurance.
+
 ---
 
 # Web Accessibility (a11y)

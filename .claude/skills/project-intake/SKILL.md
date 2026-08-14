@@ -1,6 +1,7 @@
 ---
 name: project-intake
 description: Open a new project by interviewing the student, then write the answers to project/project.yml — the shared memory every other role skill reads before it starts work. Use this skill whenever a project is being started, named, or scoped for the first time — "let's start a project", "เริ่มโปรเจกต์ใหม่", "kickoff", "ตั้งโครงการ", "I want to build X for the bootcamp" — and whenever another skill needs project context that project.yml does not yet contain. Also use it to review or repair an existing project.yml, to fill gaps left as TBD, or to answer "what has this project already decided?". Do NOT use it to write the actual PRD, SRS, sprint plan, or any deliverable document — this skill only gathers and records facts; the owning role skill writes the document.
+
 ---
 
 # Project Intake

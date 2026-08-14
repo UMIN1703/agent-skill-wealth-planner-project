@@ -1,6 +1,7 @@
 ---
 name: qa-testing-visual-regression
-description: Visual regression testing and pixel-perfect quality assurance. Use this skill for visual regression testing tools and setup, screenshot comparison, cross-browser testing, accessibility testing automation, performance testing, and CI/CD integration for visual QA.
+description: Set up and operate automated visual and cross-browser testing infrastructure — screenshot comparison tooling, Playwright visual test configuration, baseline management, cross-browser matrices, automated accessibility scanning, and wiring all of it into CI. Use this skill when building the test harness: choosing a visual regression tool, writing snapshot tests, dealing with flaky baselines, or adding a11y and visual checks to a pipeline. Do NOT use it to run the quality gate on a specific change and issue a PASS/BLOCK verdict — that is the quality-assurance skill.
+
 ---
 
 # QA Testing: Visual Regression

@@ -1,6 +1,7 @@
 ---
 name: quality-assurance
-description: Comprehensive quality-assurance gate that verifies a built implementation against its spec across three dimensions — functional correctness, visual/design-system fidelity, and accessibility — before it ships. Use this whenever a feature, component, or page has been implemented and needs verification, whenever the user mentions QA, testing, "check my implementation", "verify against the design", visual regression, WCAG/accessibility, acceptance criteria, or a pre-merge / pre-deploy review — even if they don't say the word "QA". Run it as the last gate before deployment.
+description: The quality gate that verifies a built implementation against its spec across three dimensions — functional correctness, visual and design-system fidelity, and accessibility — and returns a single verdict of PASS, PASS WITH ADVISORIES, or BLOCK. Use this whenever a feature, component or page has been implemented and needs verification before it ships: "check my implementation", "verify against the design", "is this ready to merge", "does this meet the acceptance criteria", or a pre-deploy review — even when the word QA is not used. Do NOT use it to judge the code itself for correctness, reuse and maintainability — that is the code-reviewer skill; not to build the visual-regression test harness — that is qa-testing-visual-regression; and not to decide whether the release may proceed — that is devops-release.
+
 ---
 
 # Quality Assurance

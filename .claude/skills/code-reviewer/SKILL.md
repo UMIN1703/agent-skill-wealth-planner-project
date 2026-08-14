@@ -1,6 +1,7 @@
 ---
 name: code-reviewer
 description: Review a code change on its own terms — correctness, reuse, clarity, and maintainability — and return findings with severities and a merge decision. Use this skill whenever code is being read rather than written: "review my code", "ทบทวนโค้ดให้หน่อย", "is this ready to merge", "did I do this the right way", "why does this feel wrong", "look at this diff/PR/branch", or after the developer skill reports a story done. Judges the code as written; it does not verify the built feature against its product spec across functional/visual/accessibility dimensions — that is the quality-assurance skill — and it does not write the feature — that is the developer skill.
+
 ---
 
 # Code Reviewer

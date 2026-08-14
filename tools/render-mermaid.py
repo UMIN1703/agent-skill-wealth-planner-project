@@ -2,9 +2,9 @@
 """แปลงบล็อก mermaid ในไฟล์ .md ให้เป็นรูปภาพ แล้วคืนไฟล์ .md ที่อ้างถึงรูปแทน
 
 วิธีใช้
-    python3 tools/render-mermaid.py DAY-FIT-001.md /tmp/DAY-FIT-001.render.md
+    python3 tools/render-mermaid.py project/2-analysis/SRS-BKG-001.md /tmp/SRS-BKG-001.render.md
 
-รูปที่สร้างจะอยู่ในโฟลเดอร์ assets/ ชื่อ <รหัสเอกสาร>-fig<ลำดับ>.png
+รูปที่สร้างจะอยู่ในโฟลเดอร์ project/assets/ ชื่อ <รหัสเอกสาร>-fig<ลำดับ>.png
 ถ้าเนื้อหาของผังไม่เปลี่ยน จะข้ามการเรนเดอร์ใหม่ เพื่อไม่ให้เสียเวลา
 """
 
@@ -15,7 +15,7 @@ import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-ASSETS = ROOT / "assets"
+ASSETS = ROOT / "project" / "assets"
 MMDC = ROOT / "tools" / "node_modules" / ".bin" / "mmdc"
 CONFIG = ROOT / "tools" / "mermaid-config.json"
 SCALE = "3"
@@ -65,7 +65,7 @@ def main() -> None:
             "ไม่พบ mmdc  ติดตั้งด้วย  npm install --prefix tools @mermaid-js/mermaid-cli\n")
         sys.exit(1)
 
-    ASSETS.mkdir(exist_ok=True)
+    ASSETS.mkdir(parents=True, exist_ok=True)
     counter = [0]
 
     def replace(match: "re.Match[str]") -> str:
@@ -74,7 +74,7 @@ def main() -> None:
         png = ASSETS / f"{doc}-fig{n:02d}.png"
         render(match.group(1), png, png.with_suffix(".sha256"))
         # ใช้เส้นทางแบบสัมพัทธ์จากรากโครงการ เพื่อให้ pandoc หาไฟล์เจอ
-        return f"![ผังที่ {n} ของเอกสาร {doc}](assets/{png.name})"
+        return f"![ผังที่ {n} ของเอกสาร {doc}](project/assets/{png.name})"
 
     dst_md.write_text(BLOCK.sub(replace, text), encoding="utf-8")
     print(f"  รวม {counter[0]} ผัง")

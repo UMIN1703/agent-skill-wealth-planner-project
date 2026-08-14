@@ -1,6 +1,7 @@
 ---
 name: frontend-framework-guide
-description: Master modern frontend frameworks for building production-quality web applications. Use this skill for React patterns and best practices, hooks and state management, component architecture, performance optimization, testing strategies, and framework selection. Triggers include: React component patterns, custom hooks development, state management (Redux, Context, Zustand), component composition, performance with useCallback/useMemo, dependency arrays, testing React components, framework comparisons, and architectural decisions. Essential for frontend developers building scalable, maintainable, and performant React applications.
+description: Framework-level implementation patterns for building UI — React component patterns, hooks, state management choices, composition, memoisation and render performance, component testing, and framework selection. Use this skill for questions about how to structure components and state, a hook that misbehaves, a dependency array, or which framework fits. Do NOT use it for styling and CSS architecture — that is css-styling-pixel-perfect; and not for the development process itself, reading a spec, or the Definition of Done — that is the developer skill.
+
 ---
 
 # Frontend Framework Guide

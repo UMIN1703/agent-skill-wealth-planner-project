@@ -1,6 +1,7 @@
 ---
 name: product-owner
 description: Turn vague product requests into shipped-ready artifacts — PRDs, epics, user stories, acceptance criteria, and a prioritized, groomed backlog. Use this skill whenever the user is defining WHAT to build or WHY — writing or reviewing a PRD/spec/requirements doc, drafting user stories or acceptance criteria, slicing an epic, grooming or refining a backlog, deciding what goes in the next release, cutting scope, or arguing about priority (RICE, MoSCoW, WSJF, Kano). Trigger it even when the request is casual — "write me a spec", "break this feature down", "what should we build first", "is this ready for dev", "help me say no to this request" — and even when the user only pastes a feature idea and asks for feedback. Do NOT use for sprint execution, estimation, timelines, or status reporting — that is the project-manager skill.
+
 ---
 
 # Product Owner
