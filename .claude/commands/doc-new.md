@@ -1,32 +1,35 @@
 ---
-description: สร้างเอกสารควบคุมฉบับใหม่จากแม่แบบ พร้อมแทนรหัสโครงการและลงทะเบียน
-argument-hint: "<TYPE> เช่น PRD, SRS, DSN, RVW, QAR, REL"
+description: Create a controlled document from its template, substitute the project code, and register it
+argument-hint: "<TYPE> — e.g. PRD, SRS, DSN, RVW, QAR, REL"
 ---
 
-สร้างเอกสารควบคุมฉบับใหม่ ใช้ skill `document-control` เป็นกติกา
+Create a new controlled document, following the rules in the `document-control`
+skill.
 
-## ขั้นตอน
+## Steps
 
-1. อ่าน `project/project.yml` เอา `meta.code` มาใช้ ถ้าไม่มีไฟล์ ให้บอกให้รัน
-   `/kickoff` ก่อน แล้วหยุด
+1. Read `project/project.yml` and take `meta.code`. If the file does not exist,
+   tell the user to run `/kickoff` first, and stop.
 
-2. ตรวจว่า `TYPE` ที่ขอมาอยู่ในทะเบียนประเภทเอกสารของ skill `document-control`
-   ถ้าไม่อยู่ ให้แสดงตารางประเภทที่ใช้ได้แล้วถามว่าหมายถึงตัวไหน
-   **ห้ามสร้างประเภทใหม่เอง**
+2. Check that the requested `TYPE` is in the document type registry in the
+   `document-control` skill. If it is not, show the table of valid types and ask
+   which one they meant. **Never invent a new type.**
 
-3. หาเลขลำดับ — อ่าน `project/REGISTER.md` แล้วดูว่ามีเอกสารประเภทนี้อยู่แล้วกี่ฉบับ
-   ฉบับแรกคือ `001` **การมีอยู่แล้วไม่ได้แปลว่าต้องออกฉบับแก้ไข** ถ้าเป็นคำถามคนละคำถาม
-   ให้เป็นเอกสารใหม่ `002` ถ้าเป็นเนื้อหาเดิมที่แก้ ให้ใช้ขั้นตอนออกฉบับแก้ไขแทน
-   แล้วอธิบายความต่างให้ผู้ใช้ฟังก่อนตัดสิน
+3. Work out the sequence number — read `project/REGISTER.md` and count existing
+   documents of this type. The first is `001`. **An existing document does not
+   mean this must be a revision:** a different question is a new document (`002`),
+   whereas changed content in the same document is a revision. Explain the
+   difference before deciding.
 
-4. คัดลอกแม่แบบจาก `assets/` ของ skill เจ้าของประเภทนั้น ตามตารางใน
-   `document-control` เช่น `PRD` มาจาก `.claude/skills/product-owner/assets/prd-template.md`
-   ถ้าไม่มีแม่แบบสำหรับประเภทนั้น ให้สร้างจากหัวควบคุมเอกสารมาตรฐาน
-   แล้วบอกผู้ใช้ว่าไม่มีแม่แบบ
+4. Copy the template from the `assets/` directory of the owning skill, per the
+   registry table in `document-control` — for example `PRD` comes from
+   `.claude/skills/product-owner/assets/prd-template.md`. If no template exists
+   for that type, build the document from the standard control header and tell the
+   user there was no template.
 
-5. วางไฟล์ในโฟลเดอร์ตามระยะ
+5. Place the file in the folder for its stage:
 
-   | ระยะ | โฟลเดอร์ |
+   | Stage | Folder |
    |---|---|
    | product | `project/1-product/` |
    | analysis | `project/2-analysis/` |
@@ -34,18 +37,20 @@ argument-hint: "<TYPE> เช่น PRD, SRS, DSN, RVW, QAR, REL"
    | review, quality | `project/5-quality/` |
    | release | `project/6-release/` |
 
-6. แทน `XXX` ทุกจุดด้วย `meta.code` · ตั้งฉบับแก้ไขเป็น `00` · ใส่วันที่วันนี้
-   · สถานะ `ร่าง` · ผู้จัดทำจาก `meta.owner`
-   **เอกสารที่ยังมี `XXX` เหลืออยู่ แปลว่าสร้างไม่สำเร็จ** ให้ตรวจซ้ำก่อนจบ
+6. Replace every `XXX` with `meta.code`, set the revision to `00`, set today's
+   date, set the status to `ร่าง`, and take the author from `meta.owner`.
+   **A document still containing `XXX` was not created properly** — check before
+   finishing.
 
-7. เติมเฉพาะช่องที่ `project.yml` ตอบไว้แล้วจริง ๆ ช่องที่เหลือปล่อยเป็นโครงว่าง
-   **ห้ามเดาเนื้อหาให้** และรวบรวมช่อง `TBD` ที่เกี่ยวข้องไปใส่ในหัวข้อ
-   ประเด็นที่ยังไม่ได้ข้อยุติของเอกสาร
+7. Fill in only the fields `project.yml` genuinely answers. Leave the rest as empty
+   structure. **Do not guess content.** Collect the relevant `TBD` fields into the
+   document's open-questions section.
 
-8. ลงทะเบียนใน `project/REGISTER.md` ในการแก้ไขครั้งเดียวกัน — ทะเบียนที่ปรับทีหลัง
-   คือทะเบียนที่ผิดในช่วงระหว่างนั้น
+8. Register it in `project/REGISTER.md` in the same edit — a register updated later
+   is a register that was wrong in between.
 
-9. รายงานสามบรรทัด — สร้างไฟล์อะไรที่ไหน · เติมได้กี่หัวข้อจาก `project.yml`
-   · หัวข้อไหนที่ผู้ใช้ต้องเขียนเอง และ skill ตัวไหนช่วยเขียนได้
+9. Report three lines — which file was created where, how many sections were filled
+   from `project.yml`, and which sections the student has to write themselves, with
+   the skill that helps.
 
-ประเภทที่ขอ: `$ARGUMENTS`
+Requested type: `$ARGUMENTS`

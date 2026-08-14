@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
-"""สร้างแผนภูมิแกนต์ของโครงการ เป็นไฟล์ SVG และ PNG
+"""Draw the project Gantt chart as SVG and PNG.
 
-ใช้ประกอบเอกสารกำหนดการโครงการ  SCH-XXX-001
+Accompanies the project schedule document, SCH-XXX-001.
 
-วิธีใช้
+Usage
     python3 tools/gen-gantt.py
 
-แก้ไขกำหนดการที่ส่วน "ข้อมูลกำหนดการ" ด้านล่างเท่านั้น
-ส่วนที่เหลือเป็นการวาดภาพ ไม่ต้องแก้
+Edit only the "Schedule data" section below; the rest is drawing code.
 
-ข้อควรระวังเรื่องขนาด
-    ความกว้างภาพต้องไม่เกินประมาณ 950 พิกเซล
-    เนื่องจากพื้นที่เนื้อหาบนกระดาษ A4 กว้าง 160 มม. หรือประมาณ 605 พิกเซล
-    หากภาพกว้างเกินไป ตัวอักษรจะถูกย่อจนอ่านไม่ออกในเอกสารฉบับพิมพ์
-    สคริปต์จะแจ้งเตือนหากขนาดตัวอักษรที่ได้ต่ำกว่า 10 พอยต์
+A note on size
+    Keep the image under roughly 950 pixels wide. The content area of an A4 page
+    is 160mm, about 605 pixels — an image wider than that gets scaled down until
+    the labels are unreadable in print. The script warns when the resulting type
+    size would fall below 10pt.
 """
 
 from datetime import date, timedelta
@@ -22,32 +21,32 @@ import subprocess
 import sys
 
 # ─────────────────────────────────────────────────────────────
-# ข้อมูลกำหนดการ · แก้ไขเฉพาะส่วนนี้
+# Schedule data · edit only this section
 # ─────────────────────────────────────────────────────────────
 
-# วันเริ่มโครงการ ต้องเป็นวันจันทร์ และต้องตรงกับที่ระบุใน SCH-XXX-001
+# Project start date. Must be a Monday, and must match SCH-XXX-001.
 START = date(2026, 1, 5)
 
-# ช่วงเวลาที่แสดงบนแกน กำหนดให้กว้างกว่างานจริงเล็กน้อยเพื่อความสวยงาม
+# Axis range, set slightly wider than the work itself so the chart breathes
 AXIS_FROM = date(2025, 12, 29)
 AXIS_TO = date(2026, 4, 30)
 
-# กลุ่มงาน · (ชื่อย่อ, รอบเริ่ม, รอบสิ้นสุด) — นับรอบเป็นสัปดาห์จาก START
-# ชื่อย่อควรสั้น เนื่องจากพื้นที่ป้ายกว้างเพียง 300 พิกเซล
-# ชื่อเต็มอยู่ในตารางโครงสร้างการแบ่งงานของเอกสาร WBS-XXX-001
+# Work packages · (short label, start week, end week) — weeks counted from START
+# Keep labels short; the label column is only 300 pixels wide.
+# Full names belong in the work breakdown table of WBS-XXX-001.
 #
-# แทนที่ตัวอย่างข้างล่างด้วยงานจริงของโครงการ
+# Replace the example below with the project's real work.
 TASKS = [
-    ("1 ข้อกำหนดและการจัดลำดับ", 1, 3),
-    ("2 วิเคราะห์และออกแบบระบบ", 3, 6),
-    ("3 ระบบออกแบบและหน้าจอ", 5, 8),
-    ("4 พัฒนา", 7, 14),
-    ("5 ทบทวนและประกันคุณภาพ", 13, 16),
-    ("6 เตรียมปล่อยของ", 16, 17),
+    ("1 Requirements and prioritisation", 1, 3),
+    ("2 Analysis and system design", 3, 6),
+    ("3 Design system and screens", 5, 8),
+    ("4 Build", 7, 14),
+    ("5 Review and quality assurance", 13, 16),
+    ("6 Release preparation", 16, 17),
 ]
 
-# หลักหมาย · (รหัส, รอบที่, เป็นจุดตัดสินใจหรือไม่)
-# จุดตัดสินใจจะแสดงด้วยสีเน้น
+# Milestones · (id, week, is it a decision point)
+# Decision points are drawn in the accent colour.
 MILESTONES = [
     ("G1", 3, True),
     ("G2", 6, True),
@@ -58,24 +57,25 @@ MILESTONES = [
 ]
 
 # ─────────────────────────────────────────────────────────────
-# ค่าคงที่ของการวาด · ปกติไม่ต้องแก้
+# Drawing constants · rarely need changing
 # ─────────────────────────────────────────────────────────────
 
-LABEL_W, CHART_W = 300, 600      # ความกว้างคอลัมน์ป้าย และพื้นที่แผนภูมิ
+LABEL_W, CHART_W = 300, 600      # label column width, chart area width
 PAD_L, PAD_T = 14, 12
 HEAD_H, ROW_H, MS_H = 46, 48, 62
 FONT_LABEL, FONT_MONTH = 21, 18
 
-COL_BAR = "#0E6B75"              # สีแถบงาน
-COL_CRIT = "#A33528"             # สีหลักหมายที่เป็นจุดตัดสินใจ
-COL_MS = "#3A4247"               # สีหลักหมายทั่วไป
+COL_BAR = "#0E6B75"              # work bar
+COL_CRIT = "#A33528"             # decision-point milestone
+COL_MS = "#3A4247"               # ordinary milestone
 COL_TEXT = "#15191A"
 COL_GRID = "#DCE0E1"
 COL_STRIPE = "#F3F5F5"
 
-PAGE_W_PX = 605                  # ความกว้างพื้นที่เนื้อหาบน A4 หน่วยพิกเซล
-MIN_PT = 10                      # ขนาดตัวอักษรต่ำสุดที่ยอมรับได้ในเอกสารฉบับพิมพ์
+PAGE_W_PX = 605                  # A4 content-area width in pixels
+MIN_PT = 10                      # smallest type size acceptable in print
 
+# Rendered into the image itself, which goes into a Thai document — keep Thai
 TH_MONTH = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
             "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."]
 
@@ -161,18 +161,18 @@ def main():
     SVG_OUT.write_text(svg)
 
     printed_pt = FONT_LABEL * PAGE_W_PX / width * 0.75
-    print(f"ภาพขนาด {width} x {height} พิกเซล")
-    print(f"ขนาดตัวอักษรป้ายในเอกสารฉบับพิมพ์ {printed_pt:.1f} พอยต์")
+    print(f"image {width} x {height} px")
+    print(f"label type size when printed: {printed_pt:.1f}pt")
     if printed_pt < MIN_PT:
-        print(f"\nคำเตือน ตัวอักษรเล็กกว่า {MIN_PT} พอยต์ จะอ่านได้ยากในเอกสารฉบับพิมพ์")
-        print("แก้ไขโดยลดความกว้างภาพ ย่อชื่อกลุ่มงาน หรือเพิ่มค่า FONT_LABEL")
+        print(f"\nwarning: below {MIN_PT}pt, labels are hard to read in print")
+        print("fix by narrowing the image, shortening the labels, or raising FONT_LABEL")
 
     html = pathlib.Path("/tmp/gantt-render.html")
     html.write_text('<!doctype html><meta charset="utf-8">'
                     '<style>html,body{margin:0;padding:0;background:#fff}</style>' + svg)
 
     if not pathlib.Path(CHROME).exists():
-        print(f"\nไม่พบ Chrome ที่ {CHROME} จึงสร้างเฉพาะไฟล์ SVG")
+        print(f"\nChrome not found at {CHROME} — wrote the SVG only")
         sys.exit(1)
 
     subprocess.run([CHROME, "--headless", "--disable-gpu",
@@ -181,8 +181,8 @@ def main():
                     f"--screenshot={PNG_OUT}", str(html)],
                    capture_output=True)
 
-    print(f"\nสร้างแล้ว\n  {SVG_OUT.relative_to(ROOT)}\n  {PNG_OUT.relative_to(ROOT)}")
-    print("\nขั้นตอนถัดไป ให้สร้างเอกสารใหม่ด้วยคำสั่ง  bash tools/build-docs.sh")
+    print(f"\nwrote\n  {SVG_OUT.relative_to(ROOT)}\n  {PNG_OUT.relative_to(ROOT)}")
+    print("\nnext: rebuild the documents with  bash tools/build-docs.sh")
 
 
 if __name__ == "__main__":

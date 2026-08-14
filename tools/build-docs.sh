@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-# สร้างเอกสารควบคุมในรูปแบบ PDF และ DOCX จากไฟล์ต้นฉบับ .md ในโฟลเดอร์ project/
+# Build controlled documents to PDF and DOCX from the .md sources under project/
 #
-# วิธีใช้
-#     bash tools/build-docs.sh              สร้างทุกฉบับที่มีหัวตารางควบคุมเอกสาร
-#     bash tools/build-docs.sh SRS-BKG-001  สร้างเฉพาะฉบับที่ระบุ
+# Usage
+#     bash tools/build-docs.sh              every document carrying a control header
+#     bash tools/build-docs.sh SRS-BKG-001  one named document
 #
-# ต้องติดตั้งก่อน
+# Prerequisites
 #     brew install pandoc
 #     npm install --prefix tools @mermaid-js/mermaid-cli
 #
-# บล็อก mermaid ในไฟล์ .md จะถูกเรนเดอร์เป็นรูปในโฟลเดอร์ project/assets/ ก่อนส่งให้ pandoc
-# มิฉะนั้นจะปรากฏเป็นรหัสดิบในไฟล์ที่ส่งมอบ ซึ่งอ่านไม่ได้
+# Mermaid blocks are rendered to images under project/assets/ before pandoc sees them.
+# Passed through raw they appear as source code in the delivered file, which is unreadable.
 
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -18,13 +18,13 @@ cd "$(dirname "$0")/.."
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 SRC_DIR="project"
 
-command -v pandoc >/dev/null || { echo "ไม่พบ pandoc ติดตั้งด้วย  brew install pandoc"; exit 1; }
-[ -x "$CHROME" ] || { echo "ไม่พบ Chrome ที่ $CHROME"; exit 1; }
+command -v pandoc >/dev/null || { echo "pandoc not found — install with: brew install pandoc"; exit 1; }
+[ -x "$CHROME" ] || { echo "Chrome not found at $CHROME"; exit 1; }
 [ -x tools/node_modules/.bin/mmdc ] || {
-  echo "ไม่พบ mmdc ติดตั้งด้วย  npm install --prefix tools @mermaid-js/mermaid-cli"; exit 1; }
-[ -d "$SRC_DIR" ] || { echo "ไม่พบโฟลเดอร์ $SRC_DIR  เริ่มโครงการด้วยคำสั่ง /kickoff ก่อน"; exit 1; }
+  echo "mmdc not found — install with: npm install --prefix tools @mermaid-js/mermaid-cli"; exit 1; }
+[ -d "$SRC_DIR" ] || { echo "No $SRC_DIR directory — run /kickoff to start a project first"; exit 1; }
 
-# หาไฟล์ต้นฉบับจากรหัสเอกสาร — เอกสารกระจายอยู่ในโฟลเดอร์ย่อยตามระยะ
+# Resolve a document code to its source file — documents are spread across stage folders
 find_doc() {
   find "$SRC_DIR" -name "$1.md" -not -path '*/assets/*' -print -quit
 }
@@ -32,46 +32,46 @@ find_doc() {
 if [ $# -gt 0 ]; then
   DOCS=("$@")
 else
-  # ค้นหาไฟล์ที่มีหัวตารางควบคุมเอกสาร คือบรรทัดรูปแบบ  | รหัสเอกสาร | ABC-XXX-001 |
-  # รูปแบบนี้แยกเอกสารควบคุมออกจากไฟล์อื่นที่บังเอิญมีคำว่ารหัสเอกสารอยู่ในตาราง
+  # Find files carrying a control header — a row shaped  | รหัสเอกสาร | ABC-XXX-001 |
+  # That shape separates controlled documents from files that merely mention the phrase.
   DOCS=()
   while IFS= read -r F; do DOCS+=("$(basename "$F" .md)"); done < <(
     grep -rlE '^\| รหัสเอกสาร \| [A-Z]{2,4}-[A-Z]+-[0-9]+ \|' "$SRC_DIR" --include='*.md' 2>/dev/null | sort || true
   )
 fi
 
-[ ${#DOCS[@]} -gt 0 ] || { echo "ไม่พบเอกสารที่จะสร้างในโฟลเดอร์ $SRC_DIR"; exit 0; }
+[ ${#DOCS[@]} -gt 0 ] || { echo "No documents to build under $SRC_DIR"; exit 0; }
 
 mkdir -p docs "$SRC_DIR/assets"
 
 for D in "${DOCS[@]}"; do
   SRC=$(find_doc "$D")
-  [ -n "$SRC" ] || { echo "ข้าม $D เนื่องจากไม่พบไฟล์ต้นฉบับใน $SRC_DIR"; continue; }
+  [ -n "$SRC" ] || { echo "Skipping $D — no source file found under $SRC_DIR"; continue; }
 
   echo "$D"
 
   if grep -q 'XXX' <<<"$D"; then
-    echo "  ข้าม  รหัสเอกสารยังเป็น XXX แปลว่ายังไม่ได้แทนรหัสโครงการ"
+    echo "  skipped — the code is still XXX, so the project code was never substituted"
     continue
   fi
 
-  # ขั้นที่ 1  เรนเดอร์ผัง mermaid เป็นรูป แล้วได้ไฟล์ .md ที่อ้างถึงรูปแทน
+  # Step 1 — render mermaid blocks to images, yielding a .md that references them
   python3 tools/render-mermaid.py "$SRC" "/tmp/$D.render.md"
 
-  # ขั้นที่ 2  PDF สร้างผ่าน Chrome เนื่องจากรองรับการตัดคำและการวางสระภาษาไทยได้ถูกต้อง
+  # Step 2 — PDF via Chrome, which gets Thai line breaking and vowel placement right
   pandoc "/tmp/$D.render.md" -f gfm -t html5 -s --embed-resources \
     --resource-path=".:$PWD" --variable pagetitle="$D" \
     -c docs/print-th.css -o "/tmp/$D.html"
   "$CHROME" --headless --disable-gpu --no-pdf-header-footer \
     --virtual-time-budget=12000 --print-to-pdf="docs/$D.pdf" "file:///tmp/$D.html" 2>/dev/null
 
-  # ขั้นที่ 3  DOCX ฝังรูปเดียวกัน
+  # Step 3 — DOCX, embedding the same images
   pandoc "/tmp/$D.render.md" -f gfm --resource-path=".:$PWD" -o "docs/$D.docx"
 
   REV=$(grep -m1 'ฉบับแก้ไขครั้งที่ |' "$SRC" | sed 's/.*| \([0-9]*\) |.*/\1/')
-  echo "  ฉบับแก้ไขครั้งที่ ${REV:-ไม่ระบุ}  สร้าง PDF และ DOCX แล้ว"
+  echo "  revision ${REV:-unknown} — PDF and DOCX built"
 done
 
 echo
-echo "เอกสารทั้งหมดอยู่ในโฟลเดอร์ docs  รูปผังอยู่ในโฟลเดอร์ $SRC_DIR/assets"
-echo "แก้ไขที่ไฟล์ .md เท่านั้น ไฟล์ .pdf และ .docx ถูกเขียนทับทุกครั้งที่สร้างใหม่"
+echo "Documents are in docs/  ·  diagram images are in $SRC_DIR/assets"
+echo "Edit the .md only — .pdf and .docx are overwritten on every build"

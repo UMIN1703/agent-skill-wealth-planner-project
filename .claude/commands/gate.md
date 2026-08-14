@@ -1,17 +1,18 @@
 ---
-description: ตรวจประตูของระยะปัจจุบัน บอกว่าขาดอะไร แล้วบันทึกผลลง project.yml
-argument-hint: "[G1|G2|G3|G4|G5|G6 — เว้นว่างเพื่อตรวจด่านปัจจุบัน]"
+description: Check the current stage's gate, name what is missing, and record the result in project.yml
+argument-hint: "[G1|G2|G3|G4|G5|G6 — leave empty to check the current gate]"
 ---
 
-ตรวจประตูระหว่างระยะ แล้วบันทึกผลไว้ให้ตรวจสอบย้อนหลังได้
+Check the gate between stages, and record the result so it can be audited later.
 
-## ก่อนเริ่ม
+## Before starting
 
-อ่าน `project/project.yml` ถ้าไม่มี ให้บอกผู้ใช้ให้รัน `/kickoff` ก่อน แล้วหยุด
+Read `project/project.yml`. If it does not exist, tell the user to run `/kickoff`
+first, and stop.
 
-ถ้าไม่ได้ระบุด่านมาในข้อโต้แย้ง ให้เลือกด่านจาก `stage:`
+If no gate was named in the arguments, pick one from `stage:`
 
-| stage | ด่านที่ตรวจ |
+| stage | gate |
 |---|---|
 | `intake` | G1 |
 | `product` | G1 |
@@ -20,110 +21,115 @@ argument-hint: "[G1|G2|G3|G4|G5|G6 — เว้นว่างเพื่อ�
 | `build` | G4 |
 | `review` | G5 |
 | `quality` | G6 |
-| `release` | รายงานว่าจบสายงานแล้ว |
+| `release` | report that the pipeline is complete |
 
-## กติกาที่สำคัญที่สุด
+## The rule that matters most
 
-**อย่าให้ผ่านเพราะอยากให้ผ่าน** ประตูที่ผ่านทุกครั้งไม่ใช่ประตู
-ถ้าหาหลักฐานไม่เจอ ให้ถือว่ายังไม่ผ่าน และบอกว่าต้องมีอะไรจึงจะผ่าน
-· ห้ามเดาว่านักเรียนคงทำไปแล้ว — ต้องเห็นไฟล์ เห็นเนื้อหา เห็นการติ๊กจริง
+**Do not pass it because you want it to pass.** A gate that always passes is not a
+gate. If the evidence cannot be found, it has not passed — say what would have to
+exist for it to pass. Never assume the student probably did it: you must see the
+file, the content, the actual tick.
 
-**ตรวจของจริง ไม่ใช่ถามว่าทำหรือยัง** เปิดไฟล์ในโฟลเดอร์ `project/` แล้วอ่าน
+**Check the artifacts, do not ask whether the work was done.** Open the files in
+`project/` and read them.
 
-## ด่านและเกณฑ์
+## The gates
 
-### G1 · Definition of Ready — ข้อกำหนดพร้อมส่งต่อให้นักวิเคราะห์ระบบ
-เกณฑ์เต็มอยู่ใน skill `product-owner` หัวข้อ Definition of Ready
+### G1 · Definition of Ready — requirements ready to hand to the analyst
+The full criteria are in the `product-owner` skill under Definition of Ready.
 
-- [ ] ระบุปัญหาและผู้ใช้ชัดเจน ไม่ใช่คำว่า "ผู้ใช้"
-- [ ] มีเกณฑ์การยอมรับ รวมเส้นทางที่ผิดพลาดอย่างน้อยหนึ่งเคส
-- [ ] มีแบบหรือเนื้อหาแล้ว หรือระบุชัดว่าไม่ต้องใช้
-- [ ] ระบุสิ่งที่ต้องพึ่งพาครบ
-- [ ] ระบุข้อกำหนดที่ไม่ใช่หน้าที่ ที่เกี่ยวข้อง
-- [ ] รู้ว่าจะวัดผลหลังปล่อยยังไง — และ `outcome.metric` ไม่ใช่ตัวเลขที่ลดลงไม่ได้
-- [ ] ประเมินขนาดได้ ไม่มีคำถามวิจัยค้างอยู่
-- [ ] `scope.out` ไม่ว่าง — ขอบเขตที่ไม่มีรายการ "ไม่ทำ" ไม่ใช่ขอบเขต
+- [ ] Problem and users are named specifically, not as "users"
+- [ ] Acceptance criteria written, including at least one unhappy path
+- [ ] Design or content available, or explicitly stated as not needed
+- [ ] Dependencies identified
+- [ ] Relevant non-functional requirements stated
+- [ ] It is known how this will be measured after release — and
+      `outcome.metric` is not a number that can only go up
+- [ ] Sized, with no open research question blocking the estimate
+- [ ] `scope.out` is not empty — a scope with no "not doing" list is not a scope
 
-### G2 · ส่งมอบกลับจากนักวิเคราะห์ระบบ
-เกณฑ์เต็มอยู่ใน `.claude/skills/system-analyst/assets/design-handback-checklist.md`
-ให้อ่านไฟล์นั้นแล้วไล่ตามนั้น แกนหลักคือ
+### G2 · Handback from the system analyst
+Read `.claude/skills/system-analyst/assets/design-handback-checklist.md` and follow
+it. The core of it:
 
-- [ ] ข้อกำหนดทุกข้อสาวไปหาชิ้นส่วนการออกแบบได้ และกลับกันได้
-- [ ] เกณฑ์การยอมรับทุกข้อมีกรณีทดสอบอย่างน้อยหนึ่งกรณี
-- [ ] ข้อกำหนดระดับต้องมี ถูกตรวจกับสถาปัตยกรรมทีละข้อ
-- [ ] การตัดสินใจเชิงโครงสร้างทุกข้อมีทางเลือกที่ถูกปฏิเสธบันทึกไว้พร้อมเหตุผล
-- [ ] สมมติฐานถูกระบุว่าเป็นสมมติฐาน ไม่ใช่ปนมากับข้อเท็จจริง
-- [ ] ใช้รหัสข้อกำหนดเดิมทุกตัว ไม่มีการตั้งเลขใหม่
+- [ ] Every requirement traces to a design element, and every element back to a requirement
+- [ ] Every acceptance criterion has at least one test case
+- [ ] Must-have non-functional requirements are checked against the architecture
+      one at a time, not in aggregate
+- [ ] Every structural decision records the rejected alternatives and why
+- [ ] Assumptions are labelled as assumptions, not mixed in with facts
+- [ ] Requirement IDs are unchanged from the source; no new numbering
 
-### G3 · ระบบออกแบบพร้อมให้เขียนโค้ด
+### G3 · Design system ready to build against
 
-- [ ] มี `DSN-XXX-001` ลงทะเบียนแล้ว
-- [ ] token ครบทั้งสี่หมวด — สี ตัวอักษร ระยะห่าง และค่าอื่น
-- [ ] คู่สีที่เป็นข้อความบนพื้น ระบุค่าความต่างสีจริง ไม่ใช่เขียนว่าผ่าน
-- [ ] ส่วนประกอบทุกตัวมีสถานะครบ ไม่ใช่มีแต่สถานะปกติ
-- [ ] หน้าจอทุกหน้ามีสถานะว่าง กำลังโหลด ผิดพลาด และไม่มีสิทธิ์
-- [ ] ผ่านการทบทวนตาม skill `anti-ai-design-patterns` แล้ว
-- [ ] ตารางสอบทานในเอกสารเชื่อมข้อกำหนดกับหน้าจอครบ
+- [ ] `DSN-XXX-001` exists and is registered
+- [ ] Tokens complete across all four groups — color, type, spacing, and the rest
+- [ ] Every text-on-background pair states its measured contrast ratio, not "passes"
+- [ ] Every component has its full state set, not just the default state
+- [ ] Every screen has empty, loading, error and unauthorized states
+- [ ] Reviewed against the `anti-ai-design-patterns` skill
+- [ ] The document's traceability table links requirements to screens
 
-### G4 · Definition of Done — งานพัฒนาเสร็จ
-เกณฑ์อยู่ใน `project.yml` ช่อง `build.definition_of_done` และแม่แบบเต็มอยู่ที่
-`.claude/skills/developer/assets/definition-of-done.md`
+### G4 · Definition of Done — development complete
+The criteria live in `build.definition_of_done` in `project.yml`, and the full
+template is at `.claude/skills/developer/assets/definition-of-done.md`.
 
-ถ้า `build.definition_of_done` ยังว่าง ให้ถือว่า **ไม่ผ่าน** และบอกว่าต้องตกลง
-เกณฑ์นี้ก่อน — ประตูที่ไม่มีเกณฑ์ไม่ใช่ประตู
+If `build.definition_of_done` is still empty, the gate **fails** — say that the
+criteria have to be agreed first. A gate with no criteria is not a gate.
 
-### G5 · การทบทวนโค้ด
+### G5 · Code review
 
-- [ ] มี `RVW-XXX-001` หรือรายงานการทบทวนที่บันทึกไว้
-- [ ] ไม่มีข้อค้นพบระดับ `BLOCKER` ค้างอยู่
-- [ ] ข้อ `MAJOR` ถูกแก้แล้ว หรือมีบันทึกว่าเลื่อนไปไหนและใครตัดสิน
-- [ ] คำตัดสินไม่ใช่ `REQUEST CHANGES`
+- [ ] `RVW-XXX-001` exists, or a recorded review report does
+- [ ] No `BLOCKER` findings outstanding
+- [ ] `MAJOR` findings are fixed, or recorded as deferred with who decided
+- [ ] The decision is not `REQUEST CHANGES`
 
-### G6 · พร้อมปล่อยของ
+### G6 · Ready to release
 
-- [ ] มีรายงาน QA และคำตัดสินไม่ใช่ `BLOCK`
-- [ ] รายการตรวจก่อนปล่อยครบตาม
-      `.claude/skills/devops-release/assets/release-checklist.md`
-- [ ] **แผนถอยกลับเคยลองจริงแล้ว** — ยังไม่เคยลอง = ไม่ผ่าน
-- [ ] แผนเฝ้าดูระบุสัญญาณ เกณฑ์ตัวเลข ผู้เฝ้า และระยะเวลา ครบทั้งสี่
+- [ ] A QA report exists and its verdict is not `BLOCK`
+- [ ] The release checklist at
+      `.claude/skills/devops-release/assets/release-checklist.md` is complete
+- [ ] **The rollback has actually been rehearsed** — never tried means fail
+- [ ] The watch plan names the signal, a numeric threshold, who is watching, and
+      for how long — all four
 
-## รายงานผล
+## Reporting
 
-พิมพ์ออกมาในรูปแบบนี้
+Print exactly this shape:
 
 ```
-## ประตู <รหัส> · <ชื่อ>
+## Gate <id> · <name>
 
-**ผล:** ผ่าน | ยังไม่ผ่าน
-**ตรวจจาก:** <ไฟล์ที่เปิดอ่านจริง>
+**Result:** PASS | NOT YET
+**Checked against:** <the files actually opened>
 
-### ผ่านแล้ว
-- <ข้อ> — <หลักฐานที่เห็น>
+### Passing
+- <criterion> — <the evidence seen>
 
-### ยังขาด
-- <ข้อ> — <ขาดอะไร และต้องทำอะไรจึงจะผ่าน>
+### Missing
+- <criterion> — <what is absent, and what would make it pass>
 
-### ทำอะไรต่อ
-<คำสั่งหรือ skill ตัวถัดไป>
+### Next
+<the command or skill to run>
 ```
 
-## บันทึกผล
+## Recording the result
 
-เพิ่มรายการใต้ `gates:` ใน `project/project.yml`
+Append an entry under `gates:` in `project/project.yml`:
 
 ```yaml
 - id: G1
   name: Definition of Ready
   checked: YYYY-MM-DD
-  result: pass          # หรือ fail
+  result: pass          # or fail
   missing:
-    - <ข้อที่ขาด>
+    - <what was missing>
 ```
 
-**เลื่อน `stage:` เฉพาะเมื่อผลเป็น `pass` เท่านั้น** ลำดับระยะคือ
-`intake → product → analysis → design → build → review → quality → release`
+**Advance `stage:` only on a `pass`.** The stage order is
+`intake → product → analysis → design → build → review → quality → release`.
 
-ถ้าผลเป็น `fail` ห้ามเลื่อน และห้ามลบรายการ `gates` เดิมทิ้ง — ประวัติว่าเคยไม่ผ่าน
-ด้วยเหตุอะไร คือสิ่งที่นักเรียนเอากลับไปดูได้
+On a `fail`, do not advance, and never delete earlier `gates` entries — the record
+of what failed and why is what the student comes back to.
 
-ข้อโต้แย้ง: `$ARGUMENTS`
+Arguments: `$ARGUMENTS`

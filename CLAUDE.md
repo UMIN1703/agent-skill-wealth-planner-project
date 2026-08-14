@@ -93,6 +93,20 @@ them pass without learning anything.
 
 ## Language
 
-Skills, commands, and repository-level documentation are written in English.
-Document templates, the question bank, and the deliverables students produce are
-in Thai. Commit messages are in English.
+Write everything in English — skills, commands, documentation, tooling, and
+commit messages. When adding a new file, English is the default; do not ask.
+
+Thai belongs in exactly one layer, and adding more of it anywhere else is a
+mistake:
+
+- **Document templates** under each skill's `assets/`, because they become Thai
+  official-format deliverables
+- **Strings the tooling matches against those templates** — the control header row
+  `| รหัสเอกสาร |`, the status values, the `TBD — ต้องการ [คน/ข้อมูล]` marker, and
+  the month labels drawn into the Gantt image. Changing these breaks
+  `build-docs.sh`, which finds documents by that header.
+- **Trigger phrases inside skill descriptions**, because that is what students
+  actually type
+
+Ask the student questions in their own language. The wording in the question bank
+is the intent of each question, not a script to read out.

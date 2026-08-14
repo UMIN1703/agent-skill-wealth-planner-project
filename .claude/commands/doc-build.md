@@ -1,35 +1,39 @@
 ---
-description: สร้างไฟล์ PDF และ DOCX จากเอกสาร .md ในโฟลเดอร์ project/
-argument-hint: "[รหัสเอกสาร เช่น PRD-BKG-001 — เว้นว่างเพื่อสร้างทุกฉบับ]"
+description: Build PDF and DOCX from the .md documents in project/
+argument-hint: "[document code, e.g. PRD-BKG-001 — leave empty to build everything]"
 allowed-tools: Bash(bash tools/build-docs.sh:*), Bash(npm install --prefix tools:*), Bash(which pandoc:*), Read, Glob
 ---
 
-สร้างเอกสารส่งมอบจากไฟล์ต้นฉบับ
+Build the delivery documents from their sources.
 
-## ก่อนรัน
+## Before running
 
-ตรวจสิ่งที่ต้องมี — ถ้าขาด ให้บอกคำสั่งติดตั้งแล้วหยุด อย่ารันแล้วปล่อยให้พังกลางทาง
+Check the prerequisites. If one is missing, give the install command and stop —
+do not start a build that will fail halfway.
 
-- `pandoc` — ติดตั้งด้วย `brew install pandoc`
-- `tools/node_modules/.bin/mmdc` — ติดตั้งด้วย
+- `pandoc` — install with `brew install pandoc`
+- `tools/node_modules/.bin/mmdc` — install with
   `npm install --prefix tools @mermaid-js/mermaid-cli`
 
-## รัน
+## Run
 
 ```sh
 bash tools/build-docs.sh $ARGUMENTS
 ```
 
-## หลังรัน
+## After running
 
-รายงานว่าสร้างไฟล์อะไรบ้าง และเตือนสามข้อนี้ถ้าเป็นการสร้างครั้งแรกของโครงการ
+Report which files were produced, and mention these three the first time a
+project is built:
 
-1. ผัง mermaid ถูกเรนเดอร์เป็นรูปก่อนส่งให้ pandoc — **ถ้าเห็นรหัสดิบของผังในไฟล์ PDF
-   แปลว่าขั้นตอนนี้ไม่ทำงาน** ให้ตรวจว่า `mmdc` ติดตั้งแล้วจริง
-2. ไฟล์ PDF ยังไม่มีเลขหน้าและส่วนท้ายกระดาษ ถ้าจำเป็นต้องมี ให้เพิ่มในไฟล์ `.docx`
-3. ไฟล์ `.docx` ใช้แบบอักษรเริ่มต้นของ pandoc ไม่ใช่ Sarabun
+1. Mermaid blocks are rendered to images before pandoc sees them — **if you see
+   raw diagram source in the PDF, that step did not run.** Check that `mmdc` is
+   actually installed.
+2. The PDF has no page numbers or footers. If they are required, add them in the
+   `.docx`.
+3. The `.docx` uses pandoc's default font, not Sarabun.
 
-## กติกา
+## Rule
 
-แก้ไขที่ไฟล์ `.md` เท่านั้น ไฟล์ `.pdf` และ `.docx` ถูกเขียนทับทุกครั้งที่สร้างใหม่
-การแก้ที่ไฟล์เหล่านั้นจะหายไปเงียบ ๆ
+Edit the `.md` only. The `.pdf` and `.docx` are overwritten on every build, so an
+edit made there is lost silently.

@@ -8,6 +8,10 @@ Thumbs.db
 tools/node_modules/
 node_modules/
 
+# Python bytecode
+__pycache__/
+*.pyc
+
 # เอกสารที่สร้างจากไฟล์ .md ด้วย  bash tools/build-docs.sh
 # เป็นไฟล์ไบนารีที่สร้างใหม่ได้ทุกเมื่อ และเปลี่ยนทุกครั้งที่ออกฉบับแก้ไข
 docs/*.pdf

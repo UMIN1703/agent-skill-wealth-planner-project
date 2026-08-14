@@ -1,45 +1,47 @@
 ---
-description: สรุปสถานะโครงการ — อยู่ระยะไหน เอกสารไหนเสร็จ ค้าง TBD ตรงไหน
+description: Summarise the project — which stage, which documents exist, what is still TBD
 ---
 
-สรุปสถานะโครงการของนักเรียน อ่านของจริงทุกครั้ง ไม่สรุปจากความจำในบทสนทนา
+Summarise the state of the student's project. Read the actual files every time;
+never summarise from memory of the conversation.
 
-## อ่านอะไรบ้าง
+## What to read
 
-1. `project/project.yml` — ระยะ ผลประตู ช่องที่เป็น `TBD` คำถามค้าง สมมติฐาน
-2. `project/REGISTER.md` — เอกสารที่มี ฉบับแก้ไข สถานะ คำขอเปลี่ยนแปลงที่ค้าง
-3. ไฟล์ `.md` ในโฟลเดอร์ `project/` — เพื่อตรวจว่าทะเบียนตรงกับของจริง
+1. `project/project.yml` — stage, gate results, `TBD` fields, open questions, assumptions
+2. `project/REGISTER.md` — documents, revisions, statuses, outstanding change requests
+3. The `.md` files under `project/` — to check the register matches reality
 
-## รายงาน
+## Report
 
 ```
-## สถานะโครงการ — <ชื่อ> (<รหัส>)
+## Project status — <name> (<code>)
 
-**ระยะปัจจุบัน:** <stage>   **ประตูล่าสุด:** <รหัส> <ผ่าน/ยังไม่ผ่าน> เมื่อ <วันที่>
+**Stage:** <stage>   **Last gate:** <id> <pass/not yet> on <date>
 
-### เอกสาร
-| รหัส | ชื่อ | ฉบับ | สถานะ | ตรงกับทะเบียน |
+### Documents
+| Code | Title | Rev | Status | Matches register |
 |---|---|---|---|---|
 
-### ค้างอยู่
-- TBD <จำนวน> ช่อง — <ช่องไหนบ้าง>
-- คำขอเปลี่ยนแปลงที่ยังไม่ได้ข้อยุติ <จำนวน> รายการ
-- สมมติฐานที่ยังไม่มีใครยืนยัน <จำนวน> ข้อ
+### Outstanding
+- <n> TBD fields — <which ones>
+- <n> unresolved change requests
+- <n> assumptions nobody has confirmed
 
-### ไม่ตรงกัน
-<ทะเบียนบอกอย่าง ไฟล์จริงบอกอีกอย่าง — ระบุให้ชัด ถ้าไม่มีให้เขียนว่าตรงกันทั้งหมด>
+### Mismatches
+<where the register and the files disagree — be specific; if there are none, say
+everything matches>
 
-### ทำอะไรต่อ
-<หนึ่งถึงสามข้อ เรียงตามลำดับที่ควรทำ พร้อมคำสั่งหรือชื่อ skill>
+### Next
+<one to three items, in the order they should be done, with the command or skill>
 ```
 
-## สิ่งที่ต้องทักทุกครั้งถ้าเจอ
+## Always flag these when found
 
-- เอกสารในทะเบียนที่ระบุฉบับแก้ไขไม่ตรงกับหัวเอกสารจริง
-- เอกสารในโฟลเดอร์ที่ไม่ได้อยู่ในทะเบียน
-- เอกสารที่ยังมี `XXX` ค้างอยู่ในรหัส
-- ช่อง `TBD` ที่ไม่มีรายการคู่กันใน `open_questions`
-- ระยะที่เลื่อนไปแล้วทั้งที่ประตูล่าสุดผลเป็น `fail`
-- คำขอเปลี่ยนแปลงที่เปิดค้างนานโดยไม่มีความคืบหน้า
+- A register entry whose revision does not match the document's own header
+- A document in the folder that is not in the register
+- A document whose code still contains `XXX`
+- A `TBD` field with no matching entry in `open_questions`
+- A stage that has advanced despite the last gate result being `fail`
+- A change request that has been open a long time with no movement
 
-รายงานให้สั้น โครงการที่เพิ่งเริ่มควรได้รายงานสิบบรรทัด ไม่ใช่หนึ่งหน้า
+Keep it short. A project that just started deserves ten lines, not a page.

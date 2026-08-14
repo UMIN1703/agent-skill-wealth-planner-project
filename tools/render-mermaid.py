@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""แปลงบล็อก mermaid ในไฟล์ .md ให้เป็นรูปภาพ แล้วคืนไฟล์ .md ที่อ้างถึงรูปแทน
+"""Render mermaid blocks in a .md file to images, emitting a .md that references them.
 
-วิธีใช้
+Usage
     python3 tools/render-mermaid.py project/2-analysis/SRS-BKG-001.md /tmp/SRS-BKG-001.render.md
 
-รูปที่สร้างจะอยู่ในโฟลเดอร์ project/assets/ ชื่อ <รหัสเอกสาร>-fig<ลำดับ>.png
-ถ้าเนื้อหาของผังไม่เปลี่ยน จะข้ามการเรนเดอร์ใหม่ เพื่อไม่ให้เสียเวลา
+Images land in project/assets/ as <document-code>-fig<n>.png.
+A diagram whose source has not changed is skipped rather than re-rendered.
 """
 
 import hashlib
@@ -24,10 +24,10 @@ BLOCK = re.compile(r"^```mermaid[ \t]*\n(.*?)^```[ \t]*$", re.S | re.M)
 
 
 def render(code: str, out_png: pathlib.Path, cache: pathlib.Path) -> None:
-    """เรนเดอร์ผังหนึ่งผัง ข้ามถ้าเนื้อหาเดิมและไฟล์รูปยังอยู่"""
+    """Render one diagram; skip it when the source is unchanged and the image still exists."""
     digest = hashlib.sha256(code.encode("utf-8")).hexdigest()
     if out_png.exists() and cache.exists() and cache.read_text().strip() == digest:
-        print(f"  ข้าม  {out_png.name} (ไม่เปลี่ยนแปลง)")
+        print(f"  skipped  {out_png.name} (unchanged)")
         return
 
     src = out_png.with_suffix(".mmd")
@@ -39,11 +39,11 @@ def render(code: str, out_png: pathlib.Path, cache: pathlib.Path) -> None:
         capture_output=True, text=True,
     )
     if result.returncode != 0 or not out_png.exists():
-        sys.stderr.write(f"เรนเดอร์ {out_png.name} ไม่สำเร็จ\n{result.stderr}\n")
+        sys.stderr.write(f"failed to render {out_png.name}\n{result.stderr}\n")
         sys.exit(1)
 
     cache.write_text(digest)
-    print(f"  สร้าง {out_png.name}  ({out_png.stat().st_size // 1024} กิโลไบต์)")
+    print(f"  wrote {out_png.name}  ({out_png.stat().st_size // 1024} KB)")
 
 
 def main() -> None:
@@ -62,7 +62,7 @@ def main() -> None:
 
     if not MMDC.exists():
         sys.stderr.write(
-            "ไม่พบ mmdc  ติดตั้งด้วย  npm install --prefix tools @mermaid-js/mermaid-cli\n")
+            "mmdc not found — install with: npm install --prefix tools @mermaid-js/mermaid-cli\n")
         sys.exit(1)
 
     ASSETS.mkdir(parents=True, exist_ok=True)
@@ -73,11 +73,11 @@ def main() -> None:
         n = counter[0]
         png = ASSETS / f"{doc}-fig{n:02d}.png"
         render(match.group(1), png, png.with_suffix(".sha256"))
-        # ใช้เส้นทางแบบสัมพัทธ์จากรากโครงการ เพื่อให้ pandoc หาไฟล์เจอ
-        return f"![ผังที่ {n} ของเอกสาร {doc}](project/assets/{png.name})"
+        # Path is relative to the repo root so pandoc can resolve it
+        return f"![Figure {n} — {doc}](project/assets/{png.name})"
 
     dst_md.write_text(BLOCK.sub(replace, text), encoding="utf-8")
-    print(f"  รวม {counter[0]} ผัง")
+    print(f"  {counter[0]} diagram(s)")
 
 
 if __name__ == "__main__":

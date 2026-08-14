@@ -1,57 +1,60 @@
-# project — ที่ทำงานของคุณ
+# project — your workspace
 
-โฟลเดอร์นี้ว่างเปล่าตอนเริ่ม และเป็น **ที่เดียวที่คุณแก้ไขระหว่างทำโครงการ**
-ส่วนอื่นของ repo คือความรู้และเครื่องมือ ไม่ใช่งานของคุณ
+This folder starts empty, and it is **the only place you edit while working on
+your project.** The rest of the repo is knowledge and tooling, not your work.
 
 ---
 
-## เริ่มยังไง
+## Start here
 
 ```
 /kickoff
 ```
 
-คำสั่งนี้จะถามคำถามแล้วสร้าง `project.yml` กับ `REGISTER.md` ให้
-· ยังไม่ต้องสร้างไฟล์อะไรเองก่อนหน้านั้น
+That asks the opening questions and creates `project.yml` and `REGISTER.md` for
+you. Do not create any files by hand before that.
 
 ---
 
-## มีอะไรอยู่ในนี้บ้าง
+## What lives here
 
-| ไฟล์ / โฟลเดอร์ | คืออะไร |
+| File / folder | What it is |
 |---|---|
-| `project.yml` | ความจำร่วมของทุกบทบาท — ทุก skill อ่านก่อนเริ่มงาน |
-| `REGISTER.md` | ทะเบียนเอกสาร รหัส ฉบับแก้ไข สถานะ |
+| `project.yml` | Shared memory across every role — each skill reads it before starting |
+| `REGISTER.md` | The document register: codes, revisions, statuses |
 | `1-product/` | PRD · REQ · EST · WBS · SCH · TRN |
 | `2-analysis/` | SRS · ARC · DM · NAV · DAY · TST · CR |
 | `3-design/` | DSN |
-| `4-build/` | โค้ด — ระยะนี้ไม่มีเอกสารควบคุมประจำ |
+| `4-build/` | Code — this stage has no standing controlled document |
 | `5-quality/` | RVW · QAR |
 | `6-release/` | REL |
-| `assets/` | รูปผังที่เรนเดอร์แล้ว สร้างอัตโนมัติ ไม่ต้องแก้ |
+| `assets/` | Rendered diagram images, generated automatically — do not edit |
 
 ---
 
-## กติกา
+## Rules
 
-**สร้างเอกสารด้วย `/doc-new <TYPE>` เท่านั้น** อย่าคัดลอกไฟล์เอง เพราะคำสั่งนี้
-แทนรหัสโครงการและลงทะเบียนให้ในการแก้ไขครั้งเดียวกัน
+**Create documents with `/doc-new <TYPE>` only.** Do not copy template files
+yourself — the command substitutes the project code and writes the register entry
+in the same edit.
 
-**แก้ที่ไฟล์ `.md` เท่านั้น** ไฟล์ `.pdf` และ `.docx` อยู่ในโฟลเดอร์ `docs/`
-และถูกเขียนทับทุกครั้งที่รัน `bash tools/build-docs.sh`
+**Edit the `.md` only.** The `.pdf` and `.docx` live in `docs/` and are
+overwritten every time you run `bash tools/build-docs.sh`.
 
-**ไม่รู้ให้เขียน `TBD — ต้องการ [คน/ข้อมูล]`** อย่าเดา อย่าเว้นว่าง
-· ทุก `TBD` ต้องมีรายการคู่กันใน `open_questions` ของ `project.yml`
+**When you do not know, write `TBD — ต้องการ [คน/ข้อมูล]`.** Do not guess, and do
+not leave it blank. Every `TBD` needs a matching entry in `open_questions` in
+`project.yml`.
 
-**ตัวเลขที่เดา ต้องบอกว่าเดา** บันทึกใน `assumptions` พร้อมที่มา
-· เมื่อคาดการณ์ที่สร้างบนตัวเลขนั้นผิด จะได้รู้ว่าผิดที่ไหน
+**A number you estimated has to say so.** Record it under `assumptions` with where
+it came from — so when a forecast built on it turns out wrong, you can see where
+it went wrong.
 
 ---
 
-## ติดตรงไหน
+## When you get stuck
 
 ```
-/status     ตอนนี้อยู่ระยะไหน เอกสารไหนเสร็จ ค้าง TBD กี่จุด
-/gate       ขาดอะไรถึงจะไปต่อได้
-/cr         เจอเอกสารขัดกันเอง เปิดคำขอเปลี่ยนแปลง
+/status     which stage, which documents are done, how many TBDs remain
+/gate       what is missing before you can move on
+/cr         raise a change request when documents contradict each other
 ```

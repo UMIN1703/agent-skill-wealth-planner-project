@@ -1,4 +1,5 @@
-/* รูปแบบเอกสารราชการไทย · ฟอนต์ Sarabun (ฟอนต์แห่งชาติ) · ระยะขอบตามระเบียบงานสารบรรณ */
+/* Thai official document formatting · Sarabun (a designated national font)
+   · margins per the Thai government correspondence regulation */
 @page { size: A4; margin: 25mm 20mm 20mm 30mm; }
 
 body {

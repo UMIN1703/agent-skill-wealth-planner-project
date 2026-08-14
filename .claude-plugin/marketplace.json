@@ -5,14 +5,14 @@
     "url": "https://github.com/plugin87"
   },
   "metadata": {
-    "description": "เทมเพลตและ skill สำหรับ AI Design System Bootcamp",
+    "description": "Template and skills for the AI Design System Bootcamp",
     "version": "1.0.0"
   },
   "plugins": [
     {
       "name": "design-lazyyy",
       "source": "./",
-      "description": "สายงานสอนครบ 6 ระยะ — product-owner · project-manager · system-analyst · design 15 ตัว · developer · code-reviewer · quality-assurance · devops-release พร้อม project-intake และ document-control"
+      "description": "The full six-stage pipeline — product-owner · project-manager · system-analyst · 15 design skills · developer · code-reviewer · quality-assurance · devops-release, plus project-intake and document-control"
     }
   ]
 }

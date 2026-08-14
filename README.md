@@ -211,9 +211,15 @@ The rules Claude follows in every session are in [`CLAUDE.md`](CLAUDE.md).
 
 ## A note on language
 
-Skills, commands and repository documentation are written in English. The
-document templates, the question bank, and the deliverables students produce are
-in Thai, because that is the language of the work being submitted.
+Everything in the repository is written in English — skills, commands,
+documentation, tooling, and commit messages.
+
+Thai survives in exactly one layer: the **document templates** under each skill's
+`assets/`, because they become Thai official-format deliverables, and the strings
+the tooling has to match against them — the control header row
+(`| รหัสเอกสาร |`), the status values, the `TBD — ต้องการ [คน/ข้อมูล]` marker, and
+the month labels drawn into the Gantt image. Skill descriptions also keep their
+Thai trigger phrases, because that is what students actually type.
 
 ---
 

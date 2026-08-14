@@ -1,45 +1,45 @@
 #!/usr/bin/env bash
-# จัดชุดเอกสารส่งมอบพร้อมแจกจ่าย
+# Package a distributable handoff set
 #
-# วิธีใช้
-#     bash tools/make-handoff.sh                    ทุกฉบับที่มีอยู่
-#     bash tools/make-handoff.sh SRS ARC DM TST     เฉพาะประเภทที่ระบุ
+# Usage
+#     bash tools/make-handoff.sh                    every document that exists
+#     bash tools/make-handoff.sh SRS ARC DM TST     only the named types
 #
-# สร้างเอกสารใหม่ทุกฉบับก่อน แล้วรวบรวม PDF และ DOCX ไว้ในโฟลเดอร์ handoff
-# พร้อมสารบัญที่บอกผู้รับว่าควรเริ่มอ่านที่ไหน
+# Rebuilds every document first, then collects the PDF and DOCX files into handoff/
+# along with a contents listing telling the recipient where to start reading.
 #
-# สารบัญสร้างจากไฟล์ต้นฉบับจริง ไม่ใช่รายการที่เขียนตายไว้ในสคริปต์
-# เอกสารที่เพิ่มเข้ามาใหม่จึงปรากฏในชุดส่งมอบเองโดยไม่ต้องแก้สคริปต์
+# The listing is built from the actual source files rather than a hardcoded list,
+# so a newly added document appears in the set without editing this script.
 
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 SRC_DIR="project"
-[ -d "$SRC_DIR" ] || { echo "ไม่พบโฟลเดอร์ $SRC_DIR  เริ่มโครงการด้วยคำสั่ง /kickoff ก่อน"; exit 1; }
+[ -d "$SRC_DIR" ] || { echo "No $SRC_DIR directory — run /kickoff to start a project first"; exit 1; }
 
-echo "สร้างเอกสารทุกฉบับใหม่"
+echo "Rebuilding every document"
 bash tools/build-docs.sh
 
 rm -rf handoff
 mkdir -p handoff
 
-# ดึงค่าจากหัวตารางควบคุมของไฟล์ต้นฉบับ
-# เอกสารที่ยังไม่ได้เลือกค่า จะมีตัวเลือกทั้งชุดคั่นด้วย / — ย่อให้เหลือคำว่ายังไม่ระบุ
+# Pull a value out of the source file's control header.
+# An unfilled field still lists every option separated by / — collapse that to a marker.
 field() {
   local v
   v=$(grep -m1 "| $2 |" "$1" | sed 's/.*| \([^|]*\) |[[:space:]]*$/\1/' | xargs)
-  case "$v" in *" / "*) echo "ยังไม่ระบุ" ;; *) echo "$v" ;; esac
+  case "$v" in *" / "*) echo "not set" ;; *) echo "$v" ;; esac
 }
 title() { grep -m1 '^# ' "$1" | sed 's/^# //'; }
 
-# รวบรวมเอกสารที่มีหัวควบคุม เรียงตามลำดับระยะของโฟลเดอร์
+# Collect documents carrying a control header, ordered by stage folder
 DOCS=()
 while IFS= read -r F; do DOCS+=("$F"); done < <(
   grep -rlE '^\| รหัสเอกสาร \| [A-Z]{2,4}-[A-Z]+-[0-9]+ \|' "$SRC_DIR" --include='*.md' 2>/dev/null | sort || true
 )
-[ ${#DOCS[@]} -gt 0 ] || { echo "ไม่พบเอกสารที่จะส่งมอบ"; exit 0; }
+[ ${#DOCS[@]} -gt 0 ] || { echo "No documents to hand off"; exit 0; }
 
-# กรองตามประเภทที่ระบุ ถ้ามี
+# Filter to the named types, if any were given
 if [ $# -gt 0 ]; then
   FILTERED=()
   for F in "${DOCS[@]}"; do
@@ -51,15 +51,15 @@ if [ $# -gt 0 ]; then
   DOCS=("${FILTERED[@]}")
 fi
 
-# ตัดคอมเมนต์ท้ายบรรทัดออกด้วย มิฉะนั้นจะได้คำอธิบายช่องติดมากับค่า
+# Strip the trailing YAML comment too, or the field's own explanation comes with the value
 PROJECT=$(grep -m1 '^  name:' "$SRC_DIR/project.yml" 2>/dev/null \
   | sed -e 's/^  name:[[:space:]]*//' -e 's/[[:space:]]*#.*$//' | xargs || true)
 
 {
-  echo "ชุดเอกสารส่งมอบ${PROJECT:+  โครงการ $PROJECT}"
-  echo "สร้างเมื่อ $(date '+%d/%m/%Y %H:%M')"
+  echo "Handoff set${PROJECT:+  ·  project: $PROJECT}"
+  echo "Generated $(date '+%Y-%m-%d %H:%M')"
   echo
-  echo "รายการเอกสาร  ทุกฉบับมีทั้งรูปแบบ PDF และ DOCX"
+  echo "Contents — every document is provided as both PDF and DOCX"
   echo
   for F in "${DOCS[@]}"; do
     CODE=$(basename "$F" .md)
@@ -70,15 +70,15 @@ PROJECT=$(grep -m1 '^  name:' "$SRC_DIR/project.yml" 2>/dev/null \
     done
   done
   echo
-  echo "ข้อควรทราบ"
+  echo "Notes"
   echo
-  echo "  แก้ไขที่ไฟล์ .md ในโฟลเดอร์ $SRC_DIR เท่านั้น"
-  echo "  ไฟล์ในชุดนี้ถูกสร้างใหม่ทุกครั้งที่ออกฉบับแก้ไข การแก้ที่ไฟล์เหล่านี้จะหายไป"
+  echo "  Edit the .md files under $SRC_DIR only."
+  echo "  The files in this set are regenerated on every revision; edits here are lost."
   echo
-  echo "  ประเด็นที่ยังไม่ได้ข้อยุติและสมมติฐานที่ยังไม่มีใครยืนยัน"
-  echo "  อยู่ในหัวข้อท้ายของเอกสารแต่ละฉบับ  ให้พิจารณาก่อนนำไปใช้ต่อ"
+  echo "  Unresolved questions and unconfirmed assumptions are listed at the end"
+  echo "  of each document. Read them before relying on any of this."
 } > handoff/README.txt
 
 echo
-echo "ชุดส่งมอบอยู่ในโฟลเดอร์ handoff"
+echo "Handoff set is in handoff/"
 ls -1 handoff | sed 's/^/  /'

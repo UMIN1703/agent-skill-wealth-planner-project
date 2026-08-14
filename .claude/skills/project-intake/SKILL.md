@@ -45,14 +45,18 @@ run; never invent fields.
 
 Ask exactly these five, together, in one message:
 
-1. โครงการนี้ชื่ออะไร
-2. ขอรหัสสามตัวอักษรสำหรับโครงการ — จะไปอยู่ในรหัสเอกสารทุกฉบับ เช่น `PRD-XXX-001`
-3. โครงการนี้แก้ปัญหาอะไร ในหนึ่งประโยค
-4. ใครคือผู้ใช้ และวันนี้เขาทำยังไงเมื่อยังไม่มีของชิ้นนี้
-5. มีเวลาทำเท่าไหร่ และมีใครทำบ้าง
+1. What is this project called?
+2. Give me a three-letter code for it — it goes into every document code, as in
+   `PRD-XXX-001`
+3. What problem does this solve, in one sentence?
+4. Who are the users, and what do they do today without this?
+5. How much time is there, and who is working on it?
 
 Five is the ceiling, not a target. If the student has already answered some of
 these in conversation, ask only what is left.
+
+Ask in the student's own language. The wording here is the intent of each
+question, not a script to read out.
 
 The rest of the question bank — the rounds each later role runs — is in
 `references/question-bank.md`. Each entry there records why the question is

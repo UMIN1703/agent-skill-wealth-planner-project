@@ -1,52 +1,57 @@
 ---
-description: เปิดคำขอเปลี่ยนแปลงเอกสาร เมื่อพบข้อขัดแย้งในเอกสารต้นทาง
-argument-hint: "[สรุปข้อขัดแย้งสั้น ๆ]"
+description: Raise a change request when source documents contradict each other
+argument-hint: "[short summary of the contradiction]"
 ---
 
-เปิดหรือเพิ่มรายการในคำขอเปลี่ยนแปลงเอกสาร
+Open a change request, or add an entry to an existing one.
 
-## ทำไมต้องมีคำสั่งนี้
+## Why this command exists
 
-เมื่อนักวิเคราะห์ระบบหรือนักพัฒนาเจอว่าเอกสารต้นทางขัดกันเอง มีสามทางเลือก
-เลือกเองแล้วสร้างต่อ · หยุดรอ · **หรือบันทึกเป็นคำขอเปลี่ยนแปลงแล้วทำงานต่อ
-บนสมมติฐานที่ประกาศไว้**
+When the analyst or the developer finds that the source documents contradict each
+other, there are three options: pick one and build on it · stop and wait ·
+**or record it as a change request and keep working on a declared assumption.**
 
-ทางที่สามคือทางที่ถูก และเป็นวงที่ขาดบ่อยที่สุด — คนออกคำขอกันเยอะ
-แต่ไม่มีขั้นตอนรับ คำขอเลยไปกองอยู่เฉย ๆ คำสั่งนี้ปิดวงนั้น
+The third is the right one, and it is the loop most often missing — people raise
+requests, but nothing receives them, so the requests pile up unread. This command
+closes that loop.
 
-## ขั้นตอน
+## Steps
 
-1. อ่าน `project/project.yml` และ `project/REGISTER.md`
+1. Read `project/project.yml` and `project/REGISTER.md`.
 
-2. ตรวจว่ามี `CR-XXX-001` อยู่แล้วไหม
-   - มีแล้ว — เพิ่มรายการใหม่ต่อท้าย และเพิ่มเลขฉบับแก้ไขตามขั้นตอนใน
-     skill `document-control`
-   - ยังไม่มี — สร้างจาก `.claude/skills/system-analyst/assets/change-request-template.md`
-     ไว้ที่ `project/2-analysis/`
+2. Check whether `CR-XXX-001` already exists.
+   - It does — append the new entry and bump the revision per the procedure in the
+     `document-control` skill.
+   - It does not — create it from
+     `.claude/skills/system-analyst/assets/change-request-template.md` in
+     `project/2-analysis/`.
 
-3. ถามผู้ใช้ให้ครบสี่ข้อ ถ้ายังไม่ได้บอกมา — ถามรวมเป็นข้อความเดียว
+3. Ask the user for all four of these, in one message, if they have not already
+   said:
 
-   - เอกสารและข้อไหนที่ขัดกัน (ระบุรหัสเอกสารและเลขข้อ)
-   - อ่านได้สองแบบว่ายังไงบ้าง
-   - ระหว่างรอข้อยุติ จะทำงานต่อบนแบบไหน และเพราะอะไร
-   - เรื่องนี้บล็อกงานอะไรอยู่ หรือไม่บล็อก
+   - Which documents and which sections contradict each other (with document codes
+     and section numbers)
+   - What the two readings are
+   - Which reading the work will proceed on while this is unresolved, and why
+   - What this blocks, or that it blocks nothing
 
-4. เขียนรายการลงในเอกสารคำขอ พร้อมวันที่และผู้ขอ
+4. Write the entry into the change request, with the date and who raised it.
 
-5. บันทึกสมมติฐานที่ใช้ทำงานต่อ ลงใน `project.yml` ใต้ `assumptions`
-   ระบุว่าผูกกับคำขอข้อไหน — เมื่อได้ข้อยุติแล้วจะได้รู้ว่าต้องกลับมาแก้อะไร
+5. Record the working assumption in `project.yml` under `assumptions`, linked to
+   the request entry — so that when it is resolved, it is clear what has to change.
 
-6. เพิ่มรายการในตารางคำขอที่ยังไม่ได้ข้อยุติของ `project/REGISTER.md`
+6. Add a row to the outstanding-requests table in `project/REGISTER.md`.
 
-7. บอกผู้ใช้ว่าใครต้องเป็นคนตัดสิน — ตามช่อง `scope.approver`
-   และคำขอที่ยังไม่ได้ข้อยุติจะปรากฏในผลของ `/status` ทุกครั้งจนกว่าจะปิด
+7. Tell the user who has to decide — per the `scope.approver` field — and that
+   outstanding requests will appear in `/status` until they are closed.
 
-## กติกาที่ห้ามละเมิด
+## Rules that cannot be broken
 
-**ห้ามแก้เอกสารต้นทางเอง** เอกสารมีเจ้าของและมีขั้นตอนออกฉบับแก้ไข
-นักวิเคราะห์ระบบไม่แก้ PRD เอง นักพัฒนาก็ไม่แก้ SRS เอง
+**Never edit the source document yourself.** Documents have owners and a revision
+procedure. The analyst does not edit the PRD; the developer does not edit the SRS.
 
-**ห้ามปิดคำขอด้วยการลบทิ้ง** การปิดคือการบันทึกว่าตัดสินว่าอย่างไร ใครตัดสิน
-และวันไหน คำขอที่หายไปเฉย ๆ คือประวัติการตัดสินใจที่หายไปด้วย
+**Never close a request by deleting it.** Closing means recording what was decided,
+by whom, and on what date. A request that simply disappears takes the record of the
+decision with it.
 
-ข้อขัดแย้งที่พบ: `$ARGUMENTS`
+Contradiction found: `$ARGUMENTS`

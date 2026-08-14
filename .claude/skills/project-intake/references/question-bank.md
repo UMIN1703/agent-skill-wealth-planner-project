@@ -1,222 +1,246 @@
-# คลังคำถาม
+# Question bank
 
-ไฟล์นี้เขียนเป็นภาษาไทยโดยตั้งใจ ต่างจาก reference อื่นในชุด เพราะมันคือ *บทพูด*
-ที่เอาไปถามนักเรียนตรง ๆ และเป็นสื่อการสอนด้วยในตัว
+Every round of questions the pipeline asks, and what each answer is for.
 
-แต่ละคำถามมีสามบรรทัด
+Each entry has three parts:
 
-- **ถามทำไม** — ถ้าตอบไม่ได้ อะไรจะพังทีหลัง
-- **คำตอบที่ใช้ได้ / ใช้ไม่ได้** — ให้เห็นความต่างเป็นตัวอย่าง ไม่ใช่คำอธิบายลอย ๆ
-- **ลงที่ไหน** — ช่องใน `project.yml` และหัวข้อในเอกสารที่จะใช้มัน
+- **Why ask** — what breaks later if this goes unanswered
+- **Good / bad answer** — shown as examples, because the difference is easier to
+  see than to describe
+- **Where it lands** — the field in `project.yml`, and the document section that
+  consumes it
 
-**กติกาการใช้** — ถามครั้งละไม่เกิน 5 ข้อ ยิงรวมเป็นข้อความเดียว
-· ข้ามข้อที่ `project.yml` ตอบไว้แล้ว · ตอบไม่ได้ให้เขียน `TBD` ไม่ใช่เดาแทน
-
----
-
-## รอบ 0 · เปิดโครงการ — `project-intake`
-
-### 0.1 โครงการนี้ชื่ออะไร
-
-- **ถามทำไม** — ทุกเอกสารต้องมีชื่อบนหัวกระดาษ และนักเรียนต้องเรียกงานตัวเองได้
-- **ใช้ได้** `ระบบจองห้องซ้อมดนตรีของชมรม` — **ใช้ไม่ได้** `โปรเจกต์จบ`
-- **ลงที่ไหน** `meta.name` → หัวเอกสารทุกฉบับ
-
-### 0.2 ขอรหัสสามตัวอักษร
-
-- **ถามทำไม** — รหัสเอกสารทั้งระบบสร้างจากตัวนี้ (`PRD-XXX-001`) ถ้าเปลี่ยนทีหลัง
-  ต้องไล่แก้ทุกฉบับพร้อมกัน เพราะเอกสารประกอบอ้างรหัสของเอกสารหลัก
-- **ใช้ได้** `BKG` (จาก booking) — **ใช้ไม่ได้** `PROJECT1`, ตัวเลข, ภาษาไทย
-- **ลงที่ไหน** `meta.code` → รหัสเอกสารทุกฉบับ
-
-### 0.3 โครงการนี้แก้ปัญหาอะไร ในหนึ่งประโยค
-
-- **ถามทำไม** — ถ้าเขียนเป็นวิธีแก้ตั้งแต่ต้น ทั้งสายงานจะออกแบบวิธีแก้ที่ไม่มีใคร
-  ตรวจสอบว่าแก้ถูกปัญหาหรือเปล่า นี่คือความผิดพลาดที่แพงที่สุดและเกิดบ่อยที่สุด
-- **ใช้ได้** `สมาชิกชมรมจองห้องซ้อมชนกันสัปดาห์ละ 3-4 ครั้ง เพราะจดในกลุ่มไลน์`
-  — **ใช้ไม่ได้** `อยากทำเว็บจองห้อง` (นั่นคือวิธีแก้ ไม่ใช่ปัญหา)
-- **ลงที่ไหน** `problem.statement` → PRD ข้อ 2 · SRS ข้อ 1
-- **ถ้านักเรียนตอบเป็นวิธีแก้** อย่าแก้ให้เอง บันทึกไว้ใต้ `assumptions` ว่าเป็น
-  วิธีแก้ที่นักเรียนเสนอ แล้วปล่อยให้ `product-owner` เป็นคนถอยกลับไปหาปัญหา
-
-### 0.4 ใครคือผู้ใช้ และวันนี้เขาทำยังไงเมื่อยังไม่มีของชิ้นนี้
-
-- **ถามทำไม** — สองส่วน ส่วนแรกกันคำว่า "ผู้ใช้" ที่ไม่ให้ข้อมูลอะไรเลย
-  ส่วนที่สองสำคัญกว่า เพราะ **มีทางแก้เดิมเสมอ** ถ้าหาไม่เจอแปลว่ายังไม่เข้าใจปัญหา
-  และทางแก้เดิมคือเส้นฐานที่ใช้วัดว่าของใหม่ดีขึ้นจริงไหม
-- **ใช้ได้** `สมาชิกที่ซ้อมประจำ 20 คน · ตอนนี้พิมพ์ถามในกลุ่มไลน์แล้วรอคนตอบ`
-  — **ใช้ไม่ได้** `ผู้ใช้ทั่วไป · ยังไม่มีอะไร`
-- **ลงที่ไหน** `problem.users` `problem.today_workaround` → PRD ข้อ 2 และ 6
-
-### 0.5 มีเวลาทำเท่าไหร่ และมีใครทำบ้าง
-
-- **ถามทำไม** — ขนาดของงานทั้งหมดถูกจำกัดด้วยข้อนี้ ถ้าไม่รู้ตั้งแต่ต้น
-  จะได้ขอบเขตที่ทำไม่ทันแล้วค่อยมาตัดทีหลังตอนที่ตัดยากแล้ว
-- **ใช้ได้** `8 สัปดาห์ ทำคนเดียว ว่างจริงวันละ 3 ชั่วโมง`
-  — **ใช้ไม่ได้** `เร็วที่สุดเท่าที่ทำได้`
-- **ลงที่ไหน** `delivery.people` `delivery.days_available` → EST · WBS · SCH
+**How to use it** — ask at most five questions per round, in a single message ·
+skip anything `project.yml` already answers · when the student does not know,
+write `TBD`, never a guess.
 
 ---
 
-## รอบ 1 · ก่อนเขียน PRD — `product-owner`
+## Round 0 · Opening the project — `project-intake`
 
-### 1.1 ถ้าทำสำเร็จ ตัวเลขไหนจะขยับ จากเท่าไหร่เป็นเท่าไหร่
+### 0.1 What is this project called
 
-- **ถามทำไม** — เป็นข้อที่นักเรียนพลาดบ่อยที่สุด ตัวชี้วัดที่ *ลดลงไม่ได้*
-  ไม่ใช่ตัวชี้วัด มันคือคำโฆษณา และมันทำให้ไม่มีวันรู้ว่าโครงการล้มเหลว
-- **ใช้ได้** `เวลาจองจาก 15 นาทีเหลือต่ำกว่า 2 นาที` — **ใช้ไม่ได้** `ผู้ใช้พอใจขึ้น`
-- **ลงที่ไหน** `outcome.*` → PRD ข้อ 4 · เป็นเกณฑ์วัดผลหลังปล่อยของ
-- **ไม่รู้ค่าฐาน** ให้เขียน `TBD` แล้วบันทึกว่าต้องวัดก่อน — อย่าเดาตัวเลขฐาน
-  เพราะตัวเลขฐานที่เดาทำให้ผลลัพธ์ทุกอย่างหลังจากนั้นเชื่อถือไม่ได้
+- **Why ask** — every document needs a name in its header, and the student needs
+  to be able to refer to their own work.
+- **Good** `Rehearsal room booking for the music club` — **Bad** `Final project`
+- **Where it lands** `meta.name` → the header of every document
 
-### 1.2 อะไรที่ *ไม่* ทำในรอบนี้
+### 0.2 Give me a three-letter code
 
-- **ถามทำไม** — ขอบเขตที่มีแต่รายการ "จะทำ" ไม่ใช่ขอบเขต เพราะไม่มีอะไรกันของ
-  งอกเพิ่ม รายการ "ไม่ทำ" คือสิ่งที่ทำให้พูดคำว่าไม่ได้ทีหลังโดยไม่ต้องเถียง
-- **ใช้ได้** `รอบนี้ไม่ทำระบบจ่ายเงิน ไม่ทำแอปมือถือ ไม่ทำรายงานสถิติ`
-  — **ใช้ไม่ได้** `ยังไม่แน่ใจ` (ถ้าไม่แน่ใจ แปลว่ามันอยู่ในขอบเขต)
-- **ลงที่ไหน** `scope.out` → PRD ข้อ 5 non-goals
+- **Why ask** — every document code in the system is built from it
+  (`PRD-XXX-001`). Changing it later means sweeping every document at once,
+  because supporting documents cite the main document's requirement IDs.
+- **Good** `BKG` (from booking) — **Bad** `PROJECT1`, digits, non-Latin characters
+- **Where it lands** `meta.code` → every document code
 
-### 1.3 ใครเป็นคนบอกว่างานนี้ถูกต้องแล้ว
+### 0.3 What problem does this solve, in one sentence
 
-- **ถามทำไม** — ประตูทุกด่านต้องมีคนตัดสิน โหมด solo ก็ยังต้องรู้ว่าตัดสินด้วยเกณฑ์ใคร
-  ผู้สอน ลูกค้าสมมติ หรือผู้ใช้จริง — คนละคนให้คำตอบคนละแบบ
-- **ใช้ได้** `ผู้สอนตรวจตามเกณฑ์รายวิชา` — **ใช้ไม่ได้** `ตัวเอง` โดยไม่มีเกณฑ์
-- **ลงที่ไหน** `scope.approver` → PRD หัวเอกสาร · ใช้ตอน `/gate`
+- **Why ask** — a project stated as a solution from the start means the whole
+  pipeline designs a solution nobody ever checks against the problem. This is the
+  most expensive and most common mistake in the entire process.
+- **Good** `Club members double-book the rehearsal room three or four times a
+  week because bookings are tracked in a chat group`
+  — **Bad** `I want to build a booking website` (that is a solution, not a problem)
+- **Where it lands** `problem.statement` → PRD §2 · SRS §1
+- **If the student answers with a solution** do not correct it for them. Record it
+  under `assumptions` as *the solution the student proposed*, and let
+  `product-owner` do the work of pushing back to the problem.
 
-### 1.4 มีข้อจำกัดที่ขยับไม่ได้อะไรบ้าง
+### 0.4 Who are the users, and what do they do today without this
 
-- **ถามทำไม** — ข้อจำกัดที่โผล่ทีหลังทำให้ต้องออกแบบใหม่ ราคาแพงกว่ารู้ตั้งแต่ต้นมาก
-- **ใช้ได้** `ต้องส่งวันที่ 30 · ต้องรันบนมือถือ · ห้ามเก็บเลขบัตรประชาชน`
-- **ลงที่ไหน** `scope.constraints` → PRD ข้อ 9 · SRS ข้อ 4
+- **Why ask** — two parts. The first stops the answer being "users", which carries
+  no information. The second matters more: **there is always an existing
+  workaround.** If you cannot find it, the problem is not understood yet — and the
+  workaround is the baseline the new thing has to beat.
+- **Good** `About 20 members who rehearse regularly · today they post in the chat
+  group and wait for someone to reply`
+  — **Bad** `General users · nothing exists yet`
+- **Where it lands** `problem.users`, `problem.today_workaround` → PRD §2 and §6
 
----
+### 0.5 How much time is there, and who is working on it
 
-## รอบ 2 · ก่อนวางแผน — `project-manager`
-
-### 2.1 หักลา ประชุม และเรียนวิชาอื่นแล้ว เหลือเวลาทำงานจริงกี่วัน
-
-- **ถามทำไม** — ตัวเลขดิบกับตัวเลขจริงต่างกันประมาณครึ่งหนึ่ง แผนที่วางบนตัวเลขดิบ
-  พังทุกครั้ง แล้วคนวางแผนมักโทษว่าทำงานช้า ทั้งที่กำลังวัดเลขคณิตของตัวเอง
-- **ใช้ได้** `8 สัปดาห์ × 5 วัน = 40 วัน หักสอบกลางภาค 5 วัน เหลือ 35 วัน วันละ 3 ชม.`
-- **ลงที่ไหน** `delivery.days_available` → EST · SCH · ใช้คำนวณ capacity
-
-### 2.2 รอบทำงานยาวเท่าไหร่
-
-- **ถามทำไม** — ต้องมีจังหวะที่หยุดดูว่าคาดการณ์ตรงไหม รอบที่ยาวเกินสองสัปดาห์
-  ทำให้รู้ว่าหลุดตอนที่สายเกินแก้แล้ว
-- **ลงที่ไหน** `delivery.iteration_length` → WBS · SCH
-
-### 2.3 มีเดดไลน์ที่ขยับไม่ได้ไหม
-
-- **ถามทำไม** — เดดไลน์ตายตัวเปลี่ยนวิธีจัดลำดับทั้งหมด จาก RICE เป็น MoSCoW
-  เพราะต้องมีของให้ตัดเตรียมไว้ล่วงหน้า ไม่ใช่ไปตัดเอาตอนเหลือสามวัน
-- **ลงที่ไหน** `delivery.hard_deadline` → SCH · กำหนดวิธีจัดลำดับใน PRD
+- **Why ask** — this bounds the size of everything that follows. Unknown at the
+  start means a scope that cannot be delivered, discovered at the point where
+  cutting is hardest.
+- **Good** `8 weeks, working alone, about 3 hours a day`
+  — **Bad** `As fast as possible`
+- **Where it lands** `delivery.people`, `delivery.days_available` → EST · WBS · SCH
 
 ---
 
-## รอบ 3 · ก่อนออกแบบระบบ — `system-analyst`
+## Round 1 · Before the PRD — `product-owner`
 
-### 3.1 ข้อมูลอยู่ที่ไหน เครื่องผู้ใช้ เซิร์ฟเวอร์ หรือทั้งสองที่
+### 1.1 If this succeeds, which number moves, and from what to what
 
-- **ถามทำไม** — เป็นข้อที่ตัดสินสถาปัตยกรรมมากที่สุด และตอบทีหลังไม่ได้
-  ถ้าอยู่ทั้งสองที่ ต้องตอบต่อทันทีว่าข้อมูลชนกันแล้วเอายังไง
-- **ใช้ได้** `เก็บบนเซิร์ฟเวอร์อย่างเดียว ผู้ใช้ต้องมีเน็ต`
-  — **ใช้ไม่ได้** `เก็บในฐานข้อมูล` (ไม่ได้ตอบคำถาม)
-- **ลงที่ไหน** `technical.data_location` → ARC · DM · เป็นหัวข้อ ADR
+- **Why ask** — the most commonly failed question. A metric that **cannot go down**
+  is not a metric, it is marketing, and it makes project failure undetectable.
+- **Good** `Time to book drops from 15 minutes to under 2`
+  — **Bad** `Users are happier`
+- **Where it lands** `outcome.*` → PRD §4 · the post-release measurement
+- **If the baseline is unknown** write `TBD` and note that it has to be measured
+  first. Never guess a baseline — a guessed baseline makes every result downstream
+  of it meaningless.
 
-### 3.2 ต้องใช้งานตอนไม่มีเน็ตไหม
+### 1.2 What are you explicitly *not* doing this round
 
-- **ถามทำไม** — "ได้ก็ดี" ไม่ใช่คำตอบ เพราะออฟไลน์ทำให้ต้องมีกลไกซิงค์
-  ซึ่งมีต้นทุนสูงมากและเพิ่มทีหลังแทบไม่ได้
-- **ใช้ได้** `ไม่ต้อง` หรือ `ต้องดูรายการที่จองไว้ได้ แต่จองใหม่ไม่ต้อง`
-- **ลงที่ไหน** `technical.offline` → ARC · เป็นข้อกำหนดระดับต้องมี
+- **Why ask** — a scope that only lists what is in is not a scope, because nothing
+  holds back growth. The "not doing" list is what lets you say no later without an
+  argument.
+- **Good** `No payments, no mobile app, no usage reports this round`
+  — **Bad** `Not sure yet` (if you are not sure, it is in scope)
+- **Where it lands** `scope.out` → PRD §5, non-goals
 
-### 3.3 ต่อกับระบบอะไรบ้าง
+### 1.3 Who says this is correct
 
-- **ถามทำไม** — ทุกจุดเชื่อมต่อคือจุดที่พังได้และเป็นงานที่ประเมินต่ำเสมอ
-  รวมถึงระบบที่ "แค่ล็อกอินผ่าน" ด้วย
-- **ลงที่ไหน** `technical.integrations` → SRS ข้อ dependency · สัญญาส่วนต่อประสาน
+- **Why ask** — every gate needs a decider. Even in solo mode you need to know
+  whose criteria apply: the instructor, a hypothetical client, or real users —
+  each gives a different answer.
+- **Good** `The instructor, against the course rubric` — **Bad** `Me`, with no criteria
+- **Where it lands** `scope.approver` → PRD header · used by `/gate`
 
----
+### 1.4 What constraints cannot move
 
-## รอบ 4 · ก่อนออกแบบหน้าตา — `full-stack-design`
-
-### 4.1 มีแบรนด์หรือคู่มือสีและตัวอักษรอยู่แล้วไหม
-
-- **ถามทำไม** — ถ้ามี ต้องยึดตามนั้น ถ้าไม่มี ต้องตัดสินใจแล้วบันทึกไว้
-  ไม่ใช่ปล่อยให้แต่ละหน้าจอเลือกสีเอง
-- **ลงที่ไหน** `design.brand` → DSN · design token
-
-### 4.2 ใช้บนอุปกรณ์อะไรเป็นหลัก
-
-- **ถามทำไม** — mobile-first กับ desktop-first ให้โครงคนละแบบ เลือกทีหลังแปลว่าทำสองรอบ
-- **ลงที่ไหน** `design.devices` → DSN · breakpoint
-
-### 4.3 มี design system เดิมไหม หรือเริ่มจากศูนย์
-
-- **ถามทำไม** — ต่อยอดกับสร้างใหม่เป็นงานคนละขนาด และ token ที่ชนกับของเดิม
-  เป็นปัญหาที่แก้ยากมากเมื่อสร้างไปแล้ว
-- **ลงที่ไหน** `design.existing_system` → DSN
+- **Why ask** — a constraint discovered late forces a redesign, which costs far
+  more than knowing at the start.
+- **Good** `Must ship by the 30th · must run on mobile · cannot store national ID numbers`
+- **Where it lands** `scope.constraints` → PRD §9 · SRS §4
 
 ---
 
-## รอบ 5 · ก่อนลงมือเขียนโค้ด — `developer`
+## Round 2 · Before planning — `project-manager`
 
-### 5.1 ใช้ภาษาและเฟรมเวิร์กอะไร และเลือกเพราะอะไร
+### 2.1 After leave, meetings and other coursework, how many working days are actually left
 
-- **ถามทำไม** — เหตุผลสำคัญกว่าตัวเลือก เพราะมันบอกว่าอะไรเปลี่ยนได้ทีหลังบ้าง
-  "เพราะเรียนมา" เป็นเหตุผลที่ใช้ได้จริงและตรงไปตรงมา
-- **ลงที่ไหน** `technical.stack` → ADR
+- **Why ask** — the raw number and the real number differ by roughly half. Plans
+  built on the raw number fail every time, and the planner usually blames the team
+  for being slow when they are in fact measuring their own arithmetic.
+- **Good** `8 weeks × 5 days = 40, minus 5 for midterms, so 35 days at 3 hours`
+- **Where it lands** `delivery.days_available` → EST · SCH · capacity calculation
 
-### 5.2 มีโค้ดเดิมไหม
+### 2.2 How long is one iteration
 
-- **ถามทำไม** — โค้ดเดิมมาพร้อมข้อจำกัดที่ไม่ได้เขียนไว้ที่ไหน
-- **ลงที่ไหน** `technical.existing_code` → SRS ข้อ dependency
+- **Why ask** — you need a rhythm at which you stop and check the forecast against
+  reality. Iterations longer than two weeks mean you find out you are behind at the
+  point where it is too late to act.
+- **Where it lands** `delivery.iteration_length` → WBS · SCH
 
-### 5.3 งานหนึ่งชิ้นเสร็จ แปลว่าอะไร
+### 2.3 Is there a deadline that cannot move
 
-- **ถามทำไม** — ประตูขาออกของการพัฒนา ถ้าไม่ตกลงไว้ก่อน คำว่า "เสร็จ"
-  จะแปลว่า "เขียนโค้ดจบแล้ว" ซึ่งไม่ใช่สิ่งเดียวกันเลย
-- **ใช้ได้** `เขียนเทสต์แล้ว · รันผ่าน · ตรวจ a11y แล้ว · มีคนรีวิว · เอกสารอัปเดต`
-- **ลงที่ไหน** `build.definition_of_done` → ใช้ตอน `/gate` ด่าน G4
-
----
-
-## รอบ 6 · ก่อนตรวจคุณภาพ — `quality-assurance`
-
-### 6.1 ยึด WCAG ระดับไหน
-
-- **ถามทำไม** — ระดับต่างกันเปลี่ยนว่าอะไรนับเป็น blocker ค่าเริ่มต้นคือ AA
-- **ลงที่ไหน** `quality.wcag` → เกณฑ์ตรวจแกน accessibility
-
-### 6.2 รองรับเบราว์เซอร์และรุ่นไหน
-
-- **ถามทำไม** — ไม่ตกลงไว้ก่อน คำว่า "มันพังบน Safari" จะเป็นข้อโต้แย้งที่ไม่มีวันจบ
-- **ลงที่ไหน** `quality.browsers` → ขอบเขตการตรวจ
-
-### 6.3 มีแบบให้เทียบไหม ไฟล์ไหน
-
-- **ถามทำไม** — **ไม่มีข้อกำหนด ไม่ใช่ PASS** ถ้าไม่มีแบบ แกน visual
-  ตรวจไม่ได้ ต้องบันทึกเป็นช่องว่างในรายงาน ไม่ใช่ให้ผ่านไปเงียบ ๆ
-- **ลงที่ไหน** `quality.design_reference` → หัวรายงาน QA
+- **Why ask** — a fixed deadline changes the prioritisation method entirely, from
+  RICE to MoSCoW, because you have to have things ready to cut in advance rather
+  than deciding what to drop with three days left.
+- **Where it lands** `delivery.hard_deadline` → SCH · the prioritisation method in the PRD
 
 ---
 
-## รอบ 7 · ก่อนปล่อยของ — `devops-release`
+## Round 3 · Before system design — `system-analyst`
 
-### 7.1 ปล่อยขึ้นที่ไหน
+### 3.1 Where does the data live — on the user's device, on a server, or both
 
-- **ถามทำไม** — ปลายทางกำหนดขั้นตอนทั้งหมด และกำหนดว่าถอยกลับได้แค่ไหน
-- **ลงที่ไหน** `release.target` → REL
+- **Why ask** — this decides more about the architecture than anything else, and it
+  cannot be answered after the fact. If the answer is "both", the next question
+  follows immediately: what happens when the two disagree.
+- **Good** `Server only, users need a connection`
+  — **Bad** `In a database` (that does not answer the question)
+- **Where it lands** `technical.data_location` → ARC · DM · the subject of an ADR
 
-### 7.2 ถ้าปล่อยแล้วพัง จะถอยกลับยังไง และใช้เวลาเท่าไหร่
+### 3.2 Does it have to work without a connection
 
-- **ถามทำไม** — แผนถอยกลับที่ยังไม่เคยลอง ไม่ใช่แผน · ถ้าตอบไม่ได้
-  แปลว่ายังปล่อยไม่ได้ ไม่ใช่ปล่อยไปก่อนแล้วค่อยคิด
-- **ลงที่ไหน** `release.rollback` → REL · เป็นข้อบังคับของประตู G6
+- **Why ask** — "would be nice" is not an answer. Offline requires a sync mechanism,
+  which is expensive and nearly impossible to add later.
+- **Good** `No`, or `They need to see bookings they already made, but not create new ones`
+- **Where it lands** `technical.offline` → ARC · becomes a must-have requirement
 
-### 7.3 ใครกดปล่อย
+### 3.3 What does it integrate with
 
-- **ถามทำไม** — ประตูสุดท้ายต้องมีชื่อคน ไม่ใช่ "ทีม"
-- **ลงที่ไหน** `release.approver` → REL
+- **Why ask** — every integration point is a failure point, and integrations are
+  underestimated without exception. This includes systems used only for sign-in.
+- **Where it lands** `technical.integrations` → SRS dependencies · interface contracts
+
+---
+
+## Round 4 · Before visual design — `full-stack-design`
+
+### 4.1 Is there already a brand, or a color and type guide
+
+- **Why ask** — if there is, it has to be followed. If there is not, someone has to
+  decide and record it, rather than letting each screen pick its own colors.
+- **Where it lands** `design.brand` → DSN · design tokens
+
+### 4.2 What devices is this primarily used on
+
+- **Why ask** — mobile-first and desktop-first produce different structures.
+  Deciding later means doing the work twice.
+- **Where it lands** `design.devices` → DSN · breakpoints
+
+### 4.3 Is there an existing design system, or is this from zero
+
+- **Why ask** — extending and starting fresh are different-sized jobs, and token
+  collisions with an existing system are very hard to unwind once built on.
+- **Where it lands** `design.existing_system` → DSN
+
+---
+
+## Round 5 · Before writing code — `developer`
+
+### 5.1 What language and framework, and why that one
+
+- **Why ask** — the reason matters more than the choice, because it tells you what
+  can still change later. "Because it is what I have been taught" is a real and
+  honest reason.
+- **Where it lands** `technical.stack` → ADR
+
+### 5.2 Is there existing code
+
+- **Why ask** — existing code brings constraints that are written down nowhere.
+- **Where it lands** `technical.existing_code` → SRS dependencies
+
+### 5.3 What does it mean for one piece of work to be done
+
+- **Why ask** — this is development's exit gate. Without agreeing it up front,
+  "done" comes to mean "I finished typing", which is not the same thing at all.
+- **Good** `Tests written · suite passes · accessibility checked · reviewed · docs updated`
+- **Where it lands** `build.definition_of_done` → used by `/gate` at G4
+
+---
+
+## Round 6 · Before quality assurance — `quality-assurance`
+
+### 6.1 Which WCAG level applies
+
+- **Why ask** — the level changes what counts as a blocker. The default is AA.
+- **Where it lands** `quality.wcag` → the accessibility dimension's criteria
+
+### 6.2 Which browsers and versions are supported
+
+- **Why ask** — without agreeing this first, "it breaks in Safari" becomes an
+  argument with no end.
+- **Where it lands** `quality.browsers` → the scope of the check
+
+### 6.3 Is there a design to compare against, and which file
+
+- **Why ask** — **no spec is not a PASS.** With no design, the visual dimension
+  cannot run, and that has to be recorded as a gap in the report rather than
+  quietly passing.
+- **Where it lands** `quality.design_reference` → the QA report header
+
+---
+
+## Round 7 · Before releasing — `devops-release`
+
+### 7.1 Where does it deploy to
+
+- **Why ask** — the destination determines the whole procedure, and how far back
+  you can roll.
+- **Where it lands** `release.target` → REL
+
+### 7.2 If the release breaks, how do you roll back, and how long does it take
+
+- **Why ask** — a rollback plan that has never been tried is not a plan. If this
+  cannot be answered, the release cannot go ahead — not "ship it and work it out".
+- **Where it lands** `release.rollback` → REL · a hard requirement of gate G6
+
+### 7.3 Who presses the button
+
+- **Why ask** — the final gate needs a person's name. "The team" is not a name.
+- **Where it lands** `release.approver` → REL
