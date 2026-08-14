@@ -6,7 +6,7 @@ description: Open a new project by interviewing the student, then write the answ
 
 # Project Intake
 
-This skill exists because of one failure mode. A student says "make me a fitness
+This skill exists because of one failure mode. A student says "make me a booking
 app" and gets back a twelve-page PRD full of invented users, invented metrics,
 and invented constraints. It looks like work. It teaches nothing, because every
 decision in it was made by the model rather than by the student.
