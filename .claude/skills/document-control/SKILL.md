@@ -30,30 +30,47 @@ properly.
 
 ## Registry of document types
 
-| Stage | Type | Document | Owning skill |
+Every type resolves to a template. `/doc-new` copies from these paths, all
+relative to `.claude/skills/`.
+
+| Stage | Type | Document | Template |
 |---|---|---|---|
-| product | `PRD` | เอกสารข้อกำหนดผลิตภัณฑ์ | product-owner |
-| product | `REQ` | ข้อกำหนดความต้องการและเกณฑ์การยอมรับ | product-owner |
-| product | `EST` | การประมาณปริมาณงานและทะเบียนความเสี่ยง | project-manager |
-| product | `WBS` | โครงสร้างการแบ่งงานและรอบการทำงาน | project-manager |
-| product | `SCH` | กำหนดการโครงการ | project-manager |
-| product | `TRN` | เอกสารส่งมอบงานให้นักวิเคราะห์ระบบ | product-owner |
-| analysis | `SRS` | ข้อกำหนดความต้องการซอฟต์แวร์และการออกแบบระบบ | system-analyst |
-| analysis | `ARC` | สถาปัตยกรรมระบบ | system-analyst |
-| analysis | `DM` | แบบจำลองข้อมูล | system-analyst |
-| analysis | `NAV` | ผังการไหลของหน้าจอ | system-analyst |
-| analysis | `DAY` | กลไกเชิงเวลาหรือกลไกคำนวณเฉพาะ | system-analyst |
-| analysis | `TST` | กรณีทดสอบจากเกณฑ์การยอมรับ | system-analyst |
-| analysis | `CR` | คำขอเปลี่ยนแปลงเอกสาร | ผู้พบข้อขัดแย้ง |
-| design | `DSN` | ระบบออกแบบและข้อกำหนดหน้าจอ | full-stack-design |
-| review | `RVW` | รายงานผลการทบทวนโค้ด | code-reviewer |
-| quality | `QAR` | รายงานผลการประกันคุณภาพ | quality-assurance |
-| release | `REL` | บันทึกการปล่อยของและแผนถอยกลับ | devops-release |
+| product | `PRD` | เอกสารข้อกำหนดผลิตภัณฑ์ | `product-owner/assets/prd-template.md` |
+| product | `REQ` | ข้อกำหนดความต้องการและเกณฑ์การยอมรับ | `product-owner/assets/req-template.md` |
+| product | `EST` | การประมาณปริมาณงานและทะเบียนความเสี่ยง | `project-manager/assets/est-template.md` |
+| product | `WBS` | โครงสร้างการแบ่งงานและรอบการทำงาน | `project-manager/assets/wbs-template.md` |
+| product | `SCH` | กำหนดการโครงการ | `project-manager/assets/sch-template.md` |
+| product | `TRN` | เอกสารส่งมอบงานให้นักวิเคราะห์ระบบ | `product-owner/assets/trn-template.md` |
+| analysis | `SRS` | ข้อกำหนดซอฟต์แวร์และการออกแบบระบบ | `system-analyst/assets/srs-template.md` |
+| analysis | `ARC` | สถาปัตยกรรมระบบ | `system-analyst/assets/arc-template.md` |
+| analysis | `DM` | แบบจำลองข้อมูล | `system-analyst/assets/data-model-template.md` |
+| analysis | `NAV` | ผังการไหลของหน้าจอ | `system-analyst/assets/nav-template.md` |
+| analysis | `DAY` | กลไกเฉพาะที่กฎซับซ้อน | `system-analyst/assets/mechanism-template.md` |
+| analysis | `TST` | กรณีทดสอบจากเกณฑ์การยอมรับ | `system-analyst/assets/test-case-template.md` |
+| analysis | `CR` | คำขอเปลี่ยนแปลงเอกสาร | `system-analyst/assets/change-request-template.md` |
+| design | `DSN` | ระบบออกแบบและข้อกำหนดหน้าจอ | `design-systems-architecture/assets/dsn-template.md` |
+| review | `RVW` | รายงานผลการทบทวนโค้ด | `code-reviewer/assets/review-report-template.md` |
+| quality | `QAR` | รายงานผลการประกันคุณภาพ | `quality-assurance/assets/qa-report-template.md` |
+| release | `REL` | บันทึกการปล่อยของและแผนถอยกลับ | `devops-release/assets/release-record-template.md` |
+
+Supporting templates that are not standalone controlled documents — an ADR lives
+inside `ARC`, a story inside `REQ`, and the rest are working artifacts rather
+than deliverables:
+
+`system-analyst/assets/` — `adr-template.md` · `interface-contract-template.md`
+· `traceability-matrix-template.md` · `design-handback-checklist.md` ·
+`product-owner/assets/story-template.md` ·
+`project-manager/assets/` — `sprint-plan-template.md` ·
+`risk-register-template.md` · `status-update-template.md` ·
+`developer/assets/definition-of-done.md` ·
+`devops-release/assets/release-checklist.md` ·
+`quality-assurance/assets/qa-checklist.md`
 
 `DAY` is the odd one — it exists for a computation whose rules are too intricate
 to bury inside the SRS (date arithmetic, pricing rules, scheduling logic). Use it
 when a mechanism needs its own flowchart and its own test cases; skip it when it
-does not.
+does not. The type code is kept as `DAY` for continuity even when the mechanism
+has nothing to do with dates.
 
 ## Where documents live
 
