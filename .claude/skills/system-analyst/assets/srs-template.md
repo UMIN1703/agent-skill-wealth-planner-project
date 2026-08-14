@@ -1,13 +1,13 @@
 # [System name] — System Requirements and Design Specification
 
-| Item | Value |
+| รายการ | รายละเอียด |
 |---|---|
-| Document code | [SRS-XXX-001] |
-| Revision | [00] |
-| Effective date | [date] |
-| Status | [Draft / For review / Approved] |
-| Source documents | [PRD-XXX-001 rev NN, REQ-XXX-001 rev NN, …] |
-| Author | System analyst |
+| รหัสเอกสาร | SRS-XXX-001 |
+| ฉบับแก้ไขครั้งที่ | 00 |
+| วันที่มีผลบังคับใช้ | YYYY-MM-DD |
+| สถานะ | ร่าง / รอทบทวน / อนุมัติแล้ว |
+| เอกสารอ้างอิง | [PRD-XXX-001 rev NN · REQ-XXX-001 rev NN] |
+| ผู้จัดทำ | นักวิเคราะห์ระบบ |
 
 ---
 

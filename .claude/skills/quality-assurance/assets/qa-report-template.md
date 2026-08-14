@@ -1,5 +1,14 @@
 # Quality Assurance — <component / feature / PR>
 
+| รายการ | รายละเอียด |
+|---|---|
+| รหัสเอกสาร | QAR-XXX-001 |
+| ฉบับแก้ไขครั้งที่ | 00 |
+| วันที่มีผลบังคับใช้ | YYYY-MM-DD |
+| สถานะ | ร่าง / รอทบทวน / อนุมัติแล้ว |
+| เอกสารอ้างอิง | [REQ-XXX-001 rev NN · DSN-XXX-001 rev NN] |
+| ผู้จัดทำ | [ชื่อ] |
+
 **Verdict:** BLOCK | PASS WITH ADVISORIES | PASS
 **Scope:** <what was reviewed — diff, branch, route, component>
 **Spec source:** <ticket / acceptance criteria / Figma frame, or "MISSING">

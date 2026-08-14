@@ -1,6 +1,14 @@
 # [Product / Feature Name]
 
-**Owner:** [name] · **Status:** Draft / In review / Approved · **Last updated:** [date]
+| รายการ | รายละเอียด |
+|---|---|
+| รหัสเอกสาร | PRD-XXX-001 |
+| ฉบับแก้ไขครั้งที่ | 00 |
+| วันที่มีผลบังคับใช้ | YYYY-MM-DD |
+| สถานะ | ร่าง / รอทบทวน / อนุมัติแล้ว |
+| เอกสารอ้างอิง | — |
+| ผู้จัดทำ | [ชื่อ] |
+
 **Engineering:** [name] · **Design:** [name] · **Sign-off:** [name]
 
 ---

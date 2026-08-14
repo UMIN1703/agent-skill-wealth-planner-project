@@ -1,11 +1,14 @@
 # Data model — [system name]
 
-| Item | Value |
+| รายการ | รายละเอียด |
 |---|---|
-| Document code | [DM-XXX-001] |
-| Revision | [00] |
+| รหัสเอกสาร | DM-XXX-001 |
+| ฉบับแก้ไขครั้งที่ | 00 |
+| วันที่มีผลบังคับใช้ | YYYY-MM-DD |
+| สถานะ | ร่าง / รอทบทวน / อนุมัติแล้ว |
+| เอกสารอ้างอิง | [PRD-XXX-001 rev NN · SRS-XXX-001 rev NN] |
+| ผู้จัดทำ | นักวิเคราะห์ระบบ |
 | Schema version described | [1] |
-| Source requirements | [PRD-XXX-001 rev NN §9] |
 
 ---
 

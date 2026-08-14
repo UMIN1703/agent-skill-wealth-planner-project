@@ -24,7 +24,12 @@ rm -rf handoff
 mkdir -p handoff
 
 # ดึงค่าจากหัวตารางควบคุมของไฟล์ต้นฉบับ
-field() { grep -m1 "| $2 |" "$1" | sed 's/.*| \([^|]*\) |[[:space:]]*$/\1/' | xargs; }
+# เอกสารที่ยังไม่ได้เลือกค่า จะมีตัวเลือกทั้งชุดคั่นด้วย / — ย่อให้เหลือคำว่ายังไม่ระบุ
+field() {
+  local v
+  v=$(grep -m1 "| $2 |" "$1" | sed 's/.*| \([^|]*\) |[[:space:]]*$/\1/' | xargs)
+  case "$v" in *" / "*) echo "ยังไม่ระบุ" ;; *) echo "$v" ;; esac
+}
 title() { grep -m1 '^# ' "$1" | sed 's/^# //'; }
 
 # รวบรวมเอกสารที่มีหัวควบคุม เรียงตามลำดับระยะของโฟลเดอร์
@@ -46,10 +51,12 @@ if [ $# -gt 0 ]; then
   DOCS=("${FILTERED[@]}")
 fi
 
-PROJECT=$(grep -m1 '^  name:' "$SRC_DIR/project.yml" 2>/dev/null | sed 's/^  name:[[:space:]]*//' || true)
+# ตัดคอมเมนต์ท้ายบรรทัดออกด้วย มิฉะนั้นจะได้คำอธิบายช่องติดมากับค่า
+PROJECT=$(grep -m1 '^  name:' "$SRC_DIR/project.yml" 2>/dev/null \
+  | sed -e 's/^  name:[[:space:]]*//' -e 's/[[:space:]]*#.*$//' | xargs || true)
 
 {
-  echo "ชุดเอกสารส่งมอบ${PROJECT:+  โครงการ$PROJECT}"
+  echo "ชุดเอกสารส่งมอบ${PROJECT:+  โครงการ $PROJECT}"
   echo "สร้างเมื่อ $(date '+%d/%m/%Y %H:%M')"
   echo
   echo "รายการเอกสาร  ทุกฉบับมีทั้งรูปแบบ PDF และ DOCX"

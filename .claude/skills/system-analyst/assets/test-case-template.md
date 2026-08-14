@@ -1,10 +1,13 @@
 # Test cases — [requirement ID / feature]
 
-| Item | Value |
+| รายการ | รายละเอียด |
 |---|---|
-| Document code | [TC-XXX-001] |
-| Revision | [00] |
-| Source | [REQ-XXX-001 rev NN] |
+| รหัสเอกสาร | TST-XXX-001 |
+| ฉบับแก้ไขครั้งที่ | 00 |
+| วันที่มีผลบังคับใช้ | YYYY-MM-DD |
+| สถานะ | ร่าง / รอทบทวน / อนุมัติแล้ว |
+| เอกสารอ้างอิง | [REQ-XXX-001 rev NN] |
+| ผู้จัดทำ | นักวิเคราะห์ระบบ |
 | Coverage rule | Every acceptance criterion produces at least one case; every requirement gets at least one negative case |
 
 ---
