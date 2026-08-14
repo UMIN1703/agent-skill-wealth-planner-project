@@ -1,15 +1,16 @@
 # design-lazyyy-skills
 
-เทมเพลตสำหรับ **AI Design System Bootcamp** — skill 24 ตัวสำหรับ Claude Code
-ที่ต่อกันเป็นสายงานเดียวตั้งแต่ไอเดียจนถึงปล่อยของ
+A teaching template for the **AI Design System Bootcamp** — 24 Claude Code skills
+wired into one pipeline that runs from an idea to a shipped release.
 
-เทมเพลตนี้ **ว่างเปล่าโดยตั้งใจ แต่รู้วิธีถาม** นักเรียน clone แล้วสั่ง `/kickoff`
-ระบบจะถามคำถาม เอาคำตอบไปเติมแม่แบบเอกสาร แล้วพาเดินผ่านประตูทีละด่าน
-— ไม่มีเนื้อหาโครงการตัวอย่างให้ลอก และไม่มีการเดาเนื้อหาให้
+The template is **deliberately empty, but it knows how to ask.** A student clones
+it, runs `/kickoff`, answers questions, and their answers fill the document
+templates. There is no worked example to copy from, and nothing invents content
+on the student's behalf.
 
 ---
 
-## เริ่มใน 5 นาที
+## Start in five minutes
 
 ```sh
 git clone git@github.com:plugin87/design-lazyyy-skills.git my-project
@@ -17,187 +18,205 @@ cd my-project
 claude
 ```
 
-จากนั้นในหน้าต่าง Claude Code
+Then, in Claude Code:
 
 ```
 /kickoff
 ```
 
-ระบบจะถาม 5 ข้อ — ชื่อโครงการ · รหัสสามตัวอักษร · ปัญหาที่จะแก้ในหนึ่งประโยค
-· ใครคือผู้ใช้และวันนี้เขาทำยังไง · มีเวลาเท่าไหร่
+It asks five questions — project name, a three-letter code, the problem in one
+sentence, who the users are and what they do today instead, and how much time
+there is.
 
-ตอบไม่ได้ให้บอกว่าไม่รู้ ระบบจะบันทึกเป็น `TBD` ไม่ใช่เดาแทน
+Answer "I don't know" freely. That gets recorded as `TBD`, not guessed at.
 
 ```
-/gate            ดูว่าตอนนี้ขาดอะไรถึงจะไปต่อได้
-/doc-new PRD     สร้างเอกสารข้อกำหนดจากแม่แบบ
-/status          สรุปว่าอยู่ตรงไหนแล้ว
+/gate            what is missing before you can move on
+/doc-new PRD     create the requirements document from its template
+/status          where the project stands right now
 ```
 
 ---
 
-## สายงาน
+## The pipeline
 
 ```
-เปิดโครงการ → อะไร/ทำไม → สร้างได้จริงอย่างไร → หน้าตา → สร้าง → ตรวจ → ปล่อย
-              G1            G2                    G3       G4      G5    G6
+intake → what/why → how it's buildable → design → build → review → release
+           G1              G2              G3      G4      G5      G6
 ```
 
-รายละเอียดทั้งหมด ผังสายงาน และเกณฑ์ของแต่ละประตูอยู่ใน [`WORKFLOW.md`](WORKFLOW.md)
+The full flow diagram and every gate's criteria are in [`WORKFLOW.md`](WORKFLOW.md).
 
 ---
 
-## skill ทั้งหมด
+## The skills
 
-### แกนกลาง
+### Core
 
-| skill | ทำอะไร |
+| Skill | What it does |
 |---|---|
-| `project-intake` | ถามคำถามแล้วเขียน `project/project.yml` ซึ่งเป็นความจำร่วมของทุกบทบาท |
-| `document-control` | รหัสเอกสาร ฉบับแก้ไข ทะเบียน และการสร้าง PDF/DOCX ตามรูปแบบเอกสารไทย |
+| `project-intake` | Interviews the student and writes `project/project.yml`, the shared memory every role reads |
+| `document-control` | Document codes, revisions, the register, and building Thai-formatted PDF/DOCX |
 
-### บทบาทในสายงาน
+### Pipeline roles
 
-| skill | ตอบคำถามว่า |
+| Skill | Answers the question |
 |---|---|
-| `product-owner` | ทำอะไร และทำไม |
-| `project-manager` | อย่างไร และเมื่อไหร่ |
-| `system-analyst` | สร้างได้จริงอย่างไร |
-| `developer` | สร้างเสร็จหรือยัง |
-| `code-reviewer` | โค้ดนี้ควรเข้า repo ไหม |
-| `quality-assurance` | พร้อมส่งมอบหรือยัง |
-| `devops-release` | ปล่อยได้ตอนนี้ไหม |
+| `product-owner` | What are we building, and why |
+| `project-manager` | How, and by when |
+| `system-analyst` | How is it actually buildable |
+| `developer` | Is it built, and is it done |
+| `code-reviewer` | Should this code enter the codebase |
+| `quality-assurance` | Is it ready to ship |
+| `devops-release` | May this build go live now |
 
-### UX/UI และ frontend — 15 skill
+### UX/UI and frontend — 15 skills
 
-**รากฐาน** `design-fundamentals` · `web-accessibility-a11y`
+**Foundations** `design-fundamentals` · `web-accessibility-a11y`
 · `design-systems-architecture` · `web-performance-optimization`
 · `anti-ai-design-patterns`
 
-**ออกแบบ** `figma-expert-workflows` · `responsive-universal-design`
+**Design** `figma-expert-workflows` · `responsive-universal-design`
 · `inclusive-design-patterns`
 
-**พัฒนา** `frontend-framework-guide` · `css-styling-pixel-perfect`
+**Build** `frontend-framework-guide` · `css-styling-pixel-perfect`
 
-**เชื่อมต่อและส่งมอบ** `design-to-code-workflow` · `design-tokens-system`
+**Integrate and ship** `design-to-code-workflow` · `design-tokens-system`
 · `component-library-mastery` · `qa-testing-visual-regression`
 · `deployment-devops-workflow`
 
 ---
 
-## พูดแบบไหน เรียก skill ตัวไหน
+## Say this, get that
 
-| พูดแบบนี้ | ได้ตัวนี้ |
+| When the student says | The skill that runs |
 |---|---|
-| "เริ่มโปรเจกต์ใหม่" · "ตั้งโครงการ" | `project-intake` |
-| "เขียน spec ให้หน่อย" · "ควรทำอะไรก่อน" | `product-owner` |
-| "ทันเดดไลน์ไหม" · "รับได้กี่งาน" | `project-manager` |
-| "ออกแบบแบบจำลองข้อมูล" · "spec นี้สร้างได้จริงไหม" | `system-analyst` |
-| "สีนี้เข้ากันไหม" · "ทำไมหน้านี้ดูไม่ลงตัว" | `design-fundamentals` |
-| "ทำ design token" · "ซิงค์ token กับ Figma" | `design-tokens-system` |
-| "ลงมือเขียนโค้ดได้ยัง" · "งานนี้เสร็จหรือยัง" | `developer` |
-| "ทบทวนโค้ดให้หน่อย" · "merge ได้ยัง" | `code-reviewer` |
-| "ตรวจงานให้ที" · "ตรงกับแบบไหม" | `quality-assurance` |
-| "ปล่อยได้ยัง" · "ถอยกลับยังไง" | `devops-release` |
-| "รหัสเอกสารตั้งยังไง" · "ออกฉบับแก้ไขยังไง" | `document-control` |
+| "start a new project" · "เริ่มโปรเจกต์ใหม่" | `project-intake` |
+| "write me a spec" · "what should we build first" | `product-owner` |
+| "will we make the deadline" · "how much can we take on" | `project-manager` |
+| "design the data model" · "is this spec buildable" | `system-analyst` |
+| "why does this look wrong" · "pick a palette" | `design-fundamentals` |
+| "set up design tokens" · "sync tokens with Figma" | `design-tokens-system` |
+| "start building this" · "is this story done" | `developer` |
+| "review my code" · "can I merge this" | `code-reviewer` |
+| "check my implementation" · "does it match the design" | `quality-assurance` |
+| "can we release" · "how do we roll back" | `devops-release` |
+| "how are document codes formed" · "how do I issue a revision" | `document-control` |
 
-skill ทุกตัวมีบรรทัด "Do NOT use for… — that is the X skill" ใน description
-เพื่อให้ Claude เลือกตัวเดิมทุกครั้งเมื่อถามคำถามเดียวกัน
+Every skill's description ends with a `Do NOT use for… — that is the X skill`
+line, so the same question routes to the same skill every time. Unstable routing
+means two students ask the same thing and get different answers, which teaches
+them the tool cannot be trusted.
 
 ---
 
-## คำสั่ง
+## Commands
 
-| คำสั่ง | ทำอะไร |
+| Command | What it does |
 |---|---|
-| `/kickoff` | เปิดโครงการ ถามคำถาม เขียน `project.yml` |
-| `/gate` | ตรวจประตูของระยะปัจจุบัน บอกว่าขาดอะไร บันทึกผล |
-| `/doc-new <TYPE>` | สร้างเอกสารจากแม่แบบ แทนรหัสโครงการ ลงทะเบียนให้ |
-| `/doc-build` | สร้าง PDF และ DOCX จากไฟล์ `.md` |
-| `/cr` | เปิดคำขอเปลี่ยนแปลงเมื่อเอกสารขัดกันเอง |
-| `/status` | สรุปสถานะโครงการ |
+| `/kickoff` | Opens a project, asks the questions, writes `project.yml` |
+| `/gate` | Checks the current gate, names what is missing, records the result |
+| `/doc-new <TYPE>` | Creates a document from its template, substitutes the project code, registers it |
+| `/doc-build` | Builds PDF and DOCX from the `.md` sources |
+| `/cr` | Opens a change request when source documents contradict each other |
+| `/status` | Summarises where the project stands |
 
 ---
 
-## โครงสร้าง
+## Layout
 
 ```
-.claude/skills/       skill 24 ตัว
-.claude/commands/     คำสั่ง 6 ตัว
-project/              งานของนักเรียน — ที่เดียวที่แก้ตอนทำโครงการ
-  project.yml         ความจำร่วมของทุกบทบาท
-  REGISTER.md         ทะเบียนเอกสาร
+.claude/skills/       24 skills
+.claude/commands/     6 commands
+project/              the student's work — the only place they edit
+  project.yml         shared memory across every role
+  REGISTER.md         the document register
   1-product/ … 6-release/
-templates/role-skill/ โครงเปล่าสำหรับเพิ่มบทบาทใหม่
-tools/                สคริปต์สร้างเอกสารและเรนเดอร์ผัง
-docs/                 print-th.css และ PDF/DOCX ที่สร้างขึ้น
-examples/             ตัวอย่าง design system หนึ่งแบรนด์ สามระบบภาพ
+templates/role-skill/ scaffold for adding a new role
+tools/                document build and diagram rendering scripts
+docs/                 print-th.css, and generated PDF/DOCX
+examples/             one brand, three visual systems, as design-system reference
 ```
 
 ---
 
-## สร้างเอกสาร PDF และ DOCX
+## Building PDF and DOCX
 
 ```sh
 brew install pandoc
 npm install --prefix tools @mermaid-js/mermaid-cli
 
-bash tools/build-docs.sh              # ทุกฉบับ
-bash tools/build-docs.sh PRD-BKG-001  # เฉพาะฉบับที่ระบุ
-bash tools/make-handoff.sh            # จัดชุดส่งมอบ
+bash tools/build-docs.sh              # every document
+bash tools/build-docs.sh PRD-BKG-001  # one document
+bash tools/make-handoff.sh            # package a handoff set
 ```
 
-เอกสารใช้รูปแบบเอกสารราชการไทย — Sarabun 16 พอยต์ · ตาราง 14 พอยต์ · A4
-· ระยะขอบตามระเบียบงานสารบรรณ กำหนดไว้ใน `docs/print-th.css`
+Documents follow Thai official document formatting — Sarabun 16pt body, 14pt
+tables, A4, margins per the Thai government correspondence regulation, defined in
+`docs/print-th.css`.
 
-**ผัง mermaid ต้องเรนเดอร์เป็นรูปก่อน** ถ้าส่งเข้า pandoc ตรง ๆ ผังจะกลายเป็น
-รหัสดิบในไฟล์ที่ส่งมอบ `build-docs.sh` จึงเรียก `render-mermaid.py` ก่อนเสมอ
+**Mermaid blocks are rendered to images first.** Passed to pandoc raw, a diagram
+appears as source code in the delivered PDF, which is worse than no diagram —
+`build-docs.sh` calls `render-mermaid.py` before every build for exactly this
+reason.
 
 ---
 
-## ติดตั้งเป็น plugin เพื่อใช้ข้ามโปรเจกต์
+## Install as a plugin, to use across projects
 
 ```
 /plugin marketplace add plugin87/design-lazyyy-skills
 /plugin install design-lazyyy@design-lazyyy-skills
 ```
 
-แบบ clone ได้ทั้ง skill คำสั่ง แม่แบบ และเครื่องมือ · แบบ plugin ได้ skill
-กับคำสั่ง ใช้ได้ทุกโปรเจกต์ แต่ไม่มีโฟลเดอร์ `project/` และเครื่องมือสร้างเอกสาร
+Cloning gives you the skills, commands, templates and tooling. Installing as a
+plugin gives you the skills and commands anywhere, but not the `project/`
+workspace or the document build scripts.
 
 ---
 
-## เพิ่มบทบาทใหม่
+## Adding a role
 
-1. คัดลอก `templates/role-skill/` ไปเป็น `.claude/skills/<ชื่อบทบาท>/`
-2. ชื่อโฟลเดอร์ต้องตรงกับ `name` ใน frontmatter เสมอ
-3. เขียน `description` ให้จบด้วย `Do NOT use for… — that is the X skill`
-   แล้วไล่ตรวจว่าไม่ทับกับ skill ที่มีอยู่
-4. เพิ่มหัวข้อ `## Intake` ที่อ่าน `project.yml` ก่อนเริ่มงาน
-5. ถ้าบทบาทนี้ผลิตเอกสาร ให้เพิ่มประเภทลงทะเบียนใน `document-control`
-   พร้อมชี้ path ของแม่แบบ
-6. ถ้าบทบาทนี้มีประตู ให้เพิ่มเกณฑ์ใน `.claude/commands/gate.md`
-7. เพิ่มลงตารางใน `WORKFLOW.md` และ `README.md`
+1. Copy `templates/role-skill/` to `.claude/skills/<role-name>/`
+2. The folder name must match `name` in the frontmatter exactly
+3. End the `description` with `Do NOT use for… — that is the X skill`, then check
+   it against every neighbouring skill
+4. Add an `## Intake` section that reads `project.yml` before starting work
+5. If the role produces a document, register its type and template path in
+   `document-control`
+6. If the role owns a gate, add its criteria to `.claude/commands/gate.md`
+7. Add it to the tables in `WORKFLOW.md` and this README
 
----
-
-## หลักการที่เทมเพลตนี้ยึด
-
-**ห้ามแต่งข้อมูลที่ไม่รู้** — ตอบไม่ได้ให้เขียน `TBD` ไม่ใช่เดา
-เพราะข้อกำหนดที่แต่งขึ้นแย่กว่าช่องว่าง มันถูกเอาไปสร้างจริง
-
-**ประตูต้องปฏิเสธได้จริง** — ประตูที่ผ่านทุกครั้งไม่ใช่ประตู
-
-**สาวกลับได้ทั้งสองทาง** — ข้อกำหนด → ออกแบบ → หน้าจอ → กรณีทดสอบ → โค้ด
-ทุกลูกศรเดินได้สองทาง
-
-**รายงานปัญหา ไม่ใช่แก้เงียบ ๆ** — เจอเอกสารขัดกันให้ออกคำขอเปลี่ยนแปลง
-ไม่ใช่เลือกเองแล้วสร้างต่อ
-
-รายละเอียดกติกาที่ Claude ยึดทุก session อยู่ใน [`CLAUDE.md`](CLAUDE.md)
+The full checklist is in [`templates/role-skill/README.md`](templates/role-skill/README.md).
 
 ---
 
-## สัญญาอนุญาต
+## What this template holds to
 
-MIT — ดู [`LICENSE`](LICENSE)
+**Never invent what you do not know.** An unanswered field becomes
+`TBD — ต้องการ [คน/ข้อมูล]`, never a plausible guess. A fabricated requirement is
+worse than a blank one, because it gets built.
+
+**A gate must be able to refuse.** A gate that always passes is not a gate.
+
+**Traceability runs both ways.** requirement → design → screen → test case → code,
+and back again.
+
+**Report the problem, do not silently fix it.** A contradiction between documents
+becomes a change request, not a private decision.
+
+The rules Claude follows in every session are in [`CLAUDE.md`](CLAUDE.md).
+
+---
+
+## A note on language
+
+Skills, commands and repository documentation are written in English. The
+document templates, the question bank, and the deliverables students produce are
+in Thai, because that is the language of the work being submitted.
+
+---
+
+## License
+
+MIT — see [`LICENSE`](LICENSE)

@@ -1,57 +1,60 @@
 ---
-name: <ชื่อโฟลเดอร์ต้องตรงกับบรรทัดนี้เป๊ะ>
-description: <ทำอะไร — ประโยคเดียว บอกผลลัพธ์ ไม่ใช่หัวข้อ>. Use this skill whenever <สถานการณ์ที่ควรเรียก — เขียนเป็นคำพูดจริงที่นักเรียนจะพิมพ์ ทั้งไทยและอังกฤษ>. Do NOT use it for <งานที่ใกล้เคียงแต่ไม่ใช่> — that is the <ชื่อ skill อื่น> skill.
+name: <must match this folder's name exactly>
+description: <what it does — one sentence, stating the outcome rather than the topic>. Use this skill whenever <the situations that should trigger it — write the actual phrasings a student would type, in Thai and English>. Do NOT use it for <the neighbouring work that is not this> — that is the <other skill> skill.
 ---
 
-# <ชื่อบทบาท>
+# <Role name>
 
-<หนึ่งหรือสองย่อหน้า — บทบาทนี้ตอบคำถามอะไร และทำไมมันถึงต้องแยกออกมา
-เขียนให้เห็นว่าถ้าไม่มีบทบาทนี้ อะไรจะพลาด ไม่ใช่แค่บอกว่ามันทำอะไร>
+<One or two paragraphs — what question this role answers, and why it is separate.
+Write it so the reader can see what would be missed if the role did not exist,
+not merely what the role does.>
 
 ## Intake
 
-หัวข้อนี้คือสิ่งที่ทำให้บทบาทถามก่อนเดา ต้องมีทุกบทบาท
+This section is what makes the role ask instead of guess. Every role needs it.
 
 1. Read `project/project.yml` first. If it does not exist, run `project-intake`.
-2. Ask only what is still blank for this role. <ระบุว่าถามอะไร ไม่เกิน 3-4 ข้อ
-   และเพิ่มชุดคำถามนั้นลงใน `project-intake/references/question-bank.md>
-3. Write the answers back to `project.yml` under `<ช่องที่บทบาทนี้เป็นเจ้าของ>`
-   so the next role does not have to ask again.
+2. Ask only what is still blank for this role — <name the three or four questions,
+   and add that set to `project-intake/references/question-bank.md`>.
+3. Write the answers back to `project.yml` under `<the fields this role owns>` so
+   the next role does not have to ask again.
 
 ## Workflow
 
-<ลำดับขั้นที่ต้องทำตาม ข้อละหนึ่งประโยคสั่ง ตามด้วยเหตุผลสั้น ๆ ว่าทำไมลำดับนี้
-ขั้นตอนที่ข้ามแล้วเกิดอะไร สำคัญกว่ารายการขั้นตอนเฉย ๆ>
+<The order to work in, one imperative per step, each followed by a short reason.
+Why this order matters — and what breaks when a step is skipped — is more useful
+than the list of steps on its own.>
 
-1. **<คำสั่ง>** — <ทำไม>
-2. **<คำสั่ง>** — <ทำไม>
+1. **<Imperative>** — <why>
+2. **<Imperative>** — <why>
 
-## <กติกาหรือเกณฑ์ที่บทบาทนี้เป็นเจ้าของ>
+## <The rule or standard this role owns>
 
-<เช่น Definition of Done ของ developer หรือ severity scale ของ code-reviewer
-ถ้าบทบาทนี้เป็นประตู ต้องมีเกณฑ์ที่ปฏิเสธได้จริง และเกณฑ์นั้นต้องไปอยู่ใน
-`.claude/commands/gate.md` ด้วย>
+<For example, developer owns the Definition of Done, and code-reviewer owns the
+severity scale. If this role is a gate, its criteria must be able to refuse, and
+they must also appear in `.claude/commands/gate.md`.>
 
 ## Anti-patterns to catch and call out
 
-<สิ่งที่บทบาทนี้ควรทักแม้ไม่มีใครถาม — ข้อละบรรทัด เขียนให้เจาะจงพอที่จะจับได้จริง
-ไม่ใช่หลักการลอย ๆ>
+<What this role should flag even when nobody asked. One per line, specific enough
+to actually recognise — not a general principle.>
 
-- <สิ่งที่ผิดที่เจอบ่อย>
+- <a mistake that shows up often>
 
 ## Output conventions
 
-- ส่งมอบตัวงาน ไม่ใช่คำอธิบายว่าจะทำงานอย่างไร
-- ไม่รู้ให้เขียน `TBD — ต้องการ [คน/ข้อมูล]` ห้ามเดา
-- ตัดสินใจแทนได้ แต่เขียนไว้หนึ่งบรรทัดท้ายงานให้แย้งได้
+- Deliver the work itself, not a description of how you would do it
+- When you do not know, write `TBD — ต้องการ [คน/ข้อมูล]`; never guess
+- You may decide on the user's behalf, but say so in one line at the end so it
+  can be overruled
 
 ## How this fits the pipeline
 
-<รับงานมาจากบทบาทไหน ด้วยเอกสารอะไร · ส่งต่อให้ใคร · ประตูไหนคั่นอยู่
-· เมื่อเจอปัญหาแล้วส่งกลับทางไหน>
+<Which role hands work in, and via which document · who receives it · which gate
+sits between them · and the route back when a problem is found.>
 
 ## Files in this skill
 
-- `references/<ชื่อ>.md` — <ความรู้เชิงลึกที่ไม่ควรอยู่ใน SKILL.md
-  โหลดเฉพาะตอนที่ต้องใช้จริง>
-- `assets/<ชื่อ>-template.md` — <แม่แบบเอกสารหรือเช็คลิสต์>
+- `references/<name>.md` — <deeper knowledge that does not belong in SKILL.md;
+  loaded only when it is actually needed>
+- `assets/<name>-template.md` — <a document template or checklist>

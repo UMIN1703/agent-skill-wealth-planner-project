@@ -1,168 +1,171 @@
-# สายงาน
+# Workflow
 
-เอกสารฉบับนี้อธิบายว่า skill ทั้ง 24 ตัวต่อกันเป็นสายเดียวได้อย่างไร
-ประตูแต่ละด่านตรวจอะไร และงานส่งต่อกันด้วยอะไร
+How the 24 skills form a single pipeline, what each gate checks, and what the
+roles hand to each other.
 
 ---
 
-## ภาพรวม
+## The flow
 
 ```mermaid
 flowchart TB
-    IDEA(["ไอเดีย / คำขอ"])
+    IDEA(["Idea / request"])
 
-    subgraph I["0 · เปิดโครงการ"]
-        I1["project-intake<br/>ถาม 5 ข้อ → project.yml"]
+    subgraph I["0 · Intake"]
+        I1["project-intake<br/>five questions → project.yml"]
     end
 
-    subgraph P["1 · อะไร / ทำไม"]
-        P1["product-owner<br/>PRD · REQ · story · AC"]
+    subgraph P["1 · What and why"]
+        P1["product-owner<br/>PRD · REQ · stories · AC"]
         P2["project-manager<br/>EST · WBS · SCH"]
         P1 --- P2
     end
 
     G1{"G1<br/>Definition of Ready"}
 
-    subgraph A["2 · สร้างได้จริงอย่างไร"]
+    subgraph A["2 · How it's buildable"]
         A1["system-analyst<br/>SRS · ARC · DM · NAV · TST"]
     end
 
-    G2{"G2<br/>ส่งมอบกลับ"}
+    G2{"G2<br/>Design handback"}
 
-    subgraph D["3 · หน้าตาเป็นอย่างไร"]
-        D1["full-stack-design 15 skill<br/>DSN · token · ส่วนประกอบ"]
+    subgraph D["3 · What it looks like"]
+        D1["full-stack-design, 15 skills<br/>DSN · tokens · components"]
     end
 
-    G3{"G3<br/>ระบบออกแบบพร้อม"}
+    G3{"G3<br/>Design system ready"}
 
-    subgraph B["4 · สร้าง"]
-        B1["developer<br/>โค้ด · เทสต์"]
+    subgraph B["4 · Build"]
+        B1["developer<br/>code · tests"]
     end
 
     G4{"G4<br/>Definition of Done"}
 
-    subgraph R["5 · ตรวจ"]
+    subgraph R["5 · Check"]
         R1["code-reviewer<br/>RVW"]
         R2["quality-assurance<br/>QAR"]
     end
 
-    G5{"G5<br/>ทบทวนผ่าน"}
-    G6{"G6<br/>QA ไม่ BLOCK"}
+    G5{"G5<br/>Review clear"}
+    G6{"G6<br/>QA not BLOCK"}
 
-    subgraph S["6 · ปล่อย"]
+    subgraph S["6 · Release"]
         S1["devops-release<br/>REL"]
     end
 
-    LIVE(["ใช้งานจริง"])
-    CR["/cr คำขอเปลี่ยนแปลง"]
+    LIVE(["In production"])
+    CR["/cr change request"]
 
     IDEA --> I --> P --> G1
-    G1 -->|ยังไม่ผ่าน| P
-    G1 -->|ผ่าน| A --> G2
-    G2 -->|ยังไม่ผ่าน| A
-    G2 -->|ผ่าน| D --> G3
-    G3 -->|ผ่าน| B --> G4
-    G4 -->|ผ่าน| R1 --> G5
-    G5 -->|ผ่าน| R2 --> G6
-    G6 -->|ผ่าน| S --> LIVE
+    G1 -->|not yet| P
+    G1 -->|pass| A --> G2
+    G2 -->|not yet| A
+    G2 -->|pass| D --> G3
+    G3 -->|pass| B --> G4
+    G4 -->|pass| R1 --> G5
+    G5 -->|pass| R2 --> G6
+    G6 -->|pass| S --> LIVE
     G6 -->|BLOCK| B
 
-    A -.->|เจอข้อขัดแย้ง| CR
-    B -.->|เจอ spec ผิด| CR
-    CR -.->|ตัดสิน| P
-    LIVE -.->|วัดผลจริงเทียบ outcome| P
+    A -.->|contradiction found| CR
+    B -.->|spec is wrong| CR
+    CR -.->|decision| P
+    LIVE -.->|measure against the promised outcome| P
 ```
 
-**เส้นประคือส่วนที่คนมองข้ามบ่อยที่สุด** — วงคำขอเปลี่ยนแปลง และการวัดผลจริง
-กลับไปเทียบกับตัวเลขที่สัญญาไว้ใน PRD สายงานที่ไม่มีสองเส้นนี้คือสายงานที่
-เดินหน้าอย่างเดียวโดยไม่มีใครรู้ว่าถูกหรือเปล่า
+**The dotted lines are the parts most pipelines are missing** — the change-request
+loop, and measuring the real outcome against the number the PRD promised. Without
+them the pipeline only moves forward, and nobody ever learns whether it was right.
 
 ---
 
-## บทบาทตอบคำถามคนละคำถาม
+## Each role answers a different question
 
-| บทบาท | ตอบคำถามว่า | ส่งมอบอะไร | วัดความสำเร็จจาก |
+| Role | Answers | Delivers | Succeeds when |
 |---|---|---|---|
-| `project-intake` | **เรารู้อะไรแล้วบ้าง** | project.yml | ไม่มีใครต้องถามซ้ำ |
-| `product-owner` | **ทำอะไร และทำไม** | PRD REQ TRN | ทีมสร้างของที่ถูกต้อง |
-| `project-manager` | **อย่างไร และเมื่อไหร่** | EST WBS SCH | ของออกตรงเวลาโดยไม่มีใครตกใจ |
-| `system-analyst` | **สร้างได้จริงอย่างไร** | SRS ARC DM NAV TST | นักพัฒนาลงมือได้โดยไม่ต้องเดา |
-| `full-stack-design` | **หน้าตาเป็นอย่างไร** | DSN token ส่วนประกอบ | ตรงกันทุกหน้าจอ และทุกคนใช้ได้ |
-| `developer` | **สร้างเสร็จหรือยัง** | โค้ด เทสต์ | ตรงกับ spec และรีวิวได้ |
-| `code-reviewer` | **โค้ดนี้ควรเข้า repo ไหม** | RVW | คนถัดไปแก้ต่อได้อย่างปลอดภัย |
-| `quality-assurance` | **พร้อมส่งมอบหรือยัง** | QAR | ของที่ผ่านไม่ย้อนกลับมาเป็นข้อบกพร่อง |
-| `devops-release` | **ปล่อยได้ตอนนี้ไหม** | REL | ปล่อยแล้วถอยกลับได้จริงถ้าต้องถอย |
-| `document-control` | **เอกสารฉบับนี้คือฉบับไหน** | ทะเบียน | ไม่มีใครอ่านของเก่าโดยไม่รู้ตัว |
+| `project-intake` | **What do we already know** | project.yml | Nobody is asked the same thing twice |
+| `product-owner` | **What, and why** | PRD REQ TRN | The team builds the right thing |
+| `project-manager` | **How, and when** | EST WBS SCH | It ships on time with nobody surprised |
+| `system-analyst` | **How is it buildable** | SRS ARC DM NAV TST | Developers start without guessing |
+| `full-stack-design` | **What does it look like** | DSN, tokens, components | Every screen agrees, and everyone can use it |
+| `developer` | **Is it done** | code, tests | It matches the spec and can be reviewed |
+| `code-reviewer` | **Should this code land** | RVW | The next person can change it safely |
+| `quality-assurance` | **Is it ready to ship** | QAR | What passes does not come back as a defect |
+| `devops-release` | **May it go live now** | REL | If it must be rolled back, it can be |
+| `document-control` | **Which revision am I reading** | the register | Nobody reads a stale document unknowingly |
 
-**เส้นแบ่งสั้นที่สุด** — เนื้องาน = PO · เวลาคนความเสี่ยง = PM
-· โครงสร้างและข้อมูล = SA · หน้าตา = design · โค้ด = dev
-· โค้ดดีไหม = reviewer · ของตรง spec ไหม = QA · ปล่อยได้ไหม = release
+**The short version** — subject matter is PO · time, people and risk is PM ·
+structure and data is SA · appearance is design · code is dev · code quality is
+reviewer · does it match the spec is QA · may it ship is release.
 
 ---
 
-## ประตูทั้งหกด่าน
+## The six gates
 
-รันด้วย `/gate` ซึ่งตรวจของจริงและบันทึกผลลง `project.yml`
+Run with `/gate`, which reads the actual files and records the result in
+`project.yml`.
 
-| ด่าน | จาก → ไป | คำถามที่ตอบ | เกณฑ์อยู่ที่ไหน |
+| Gate | From → to | Question | Criteria live in |
 |---|---|---|---|
-| G1 | PO → SA | ข้อกำหนดพร้อมให้ออกแบบหรือยัง | `product-owner` หัวข้อ Definition of Ready |
-| G2 | SA → design/dev | แบบสาวกลับหาข้อกำหนดได้ครบไหม | `system-analyst/assets/design-handback-checklist.md` |
-| G3 | design → dev | ระบบออกแบบพร้อมให้เขียนโค้ดไหม | `/gate` หัวข้อ G3 |
-| G4 | dev → review | งานเสร็จจริงหรือแค่หยุดพิมพ์ | `developer/assets/definition-of-done.md` |
-| G5 | review → QA | โค้ดควรเข้า repo ไหม | `code-reviewer` หัวข้อ Merge decision |
-| G6 | QA → release | ปล่อยได้ไหม | `devops-release/assets/release-checklist.md` |
+| G1 | PO → SA | Are the requirements ready to design against | `product-owner`, Definition of Ready |
+| G2 | SA → design/dev | Does every design element trace to a requirement | `system-analyst/assets/design-handback-checklist.md` |
+| G3 | design → dev | Is the design system ready to code against | `/gate`, section G3 |
+| G4 | dev → review | Is it done, or did you just stop typing | `developer/assets/definition-of-done.md` |
+| G5 | review → QA | Should this code land | `code-reviewer`, merge decision |
+| G6 | QA → release | May it ship | `devops-release/assets/release-checklist.md` |
 
-**ประตูสองด่านที่คนมักไม่มี** คือ G4 กับ G5 ทั้งที่เป็นด่านที่ราคาถูกที่สุด
-และจับปัญหาได้เยอะที่สุด — Definition of Ready มีกันเกือบทุกที่
-ส่วน Definition of Done แทบไม่มีใครมี
-
----
-
-## งานส่งต่อกันด้วยอะไร
-
-**สองทาง** — `project.yml` เป็นความจำร่วม เอกสารเป็นของส่งมอบเป็นทางการ
-
-```
-project.yml   ทุกบทบาทอ่านก่อนเริ่ม เขียนกลับเมื่อได้คำตอบใหม่
-              → ทำให้ไม่มีใครถูกถามเรื่องเดิมสองครั้ง
-              → ทำให้เห็นว่าบทบาทก่อนหน้าทิ้ง TBD ไว้ตรงไหน
-
-เอกสาร        ลงทะเบียนใน REGISTER.md มีรหัส มีเลขฉบับแก้ไข
-              → ทำให้รู้ว่ากำลังอ่านฉบับไหน
-              → ทำให้รหัสข้อกำหนดสาวกลับได้ตลอดสาย
-```
-
-**สายสอบทานย้อนกลับ** คือสิ่งที่ผูกทั้งหมดเข้าด้วยกัน
-
-```
-ข้อกำหนด → การออกแบบ → หน้าจอ → กรณีทดสอบ → โค้ด
-```
-
-ทุกลูกศรต้องเดินได้ทั้งสองทาง · ชิ้นส่วนที่ไม่มีข้อกำหนดรองรับคือขอบเขตที่งอกเอง
-· ข้อกำหนดที่ไม่มีการทดสอบคือความหวัง · โค้ดที่ไม่รู้ว่าทำตามข้อกำหนดข้อไหน
-คือโค้ดที่ไม่มีใครกล้าลบ
+**G4 and G5 are the two gates most teams do not have**, despite being the cheapest
+to run and the ones that catch the most. Almost everyone has a Definition of
+Ready; almost nobody has a Definition of Done.
 
 ---
 
-## เมื่ออะไรผิดพลาด
+## How work is handed over
 
-| เกิดอะไร | ทำอะไร | ห้ามทำอะไร |
+**Two channels** — `project.yml` is shared memory; documents are the formal
+deliverables.
+
+```
+project.yml   Every role reads it before starting, writes back what it learns
+              → nobody gets asked the same question twice
+              → the TBDs an earlier role left behind are visible
+
+Documents     Registered in REGISTER.md, with a code and a revision number
+              → you always know which revision you are reading
+              → requirement IDs stay traceable end to end
+```
+
+**The traceability chain** is what holds it together:
+
+```
+requirement → design → screen → test case → code
+```
+
+Every arrow must walk in both directions. A component with no requirement behind
+it is scope that grew on its own. A requirement with no test is a hope. Code that
+cannot say which requirement it implements is code nobody dares delete.
+
+---
+
+## When something goes wrong
+
+| Situation | Do this | Never do this |
 |---|---|---|
-| เอกสารต้นทางขัดกันเอง | `/cr` แล้วทำงานต่อบนสมมติฐานที่ประกาศไว้ | เลือกเองเงียบ ๆ · แก้เอกสารต้นทางเอง |
-| ค่าประมาณเปลี่ยนหลังออกแบบ | บอก PM ทันทีที่รู้ | รอใส่ในรายงานฉบับหน้า |
-| ประตูไม่ผ่าน | แก้ให้ครบแล้วรัน `/gate` ใหม่ | เลื่อน `stage` เอง |
-| QA ตัดสิน BLOCK | ส่งกลับไปที่การพัฒนา | ปล่อยไปก่อนแล้วค่อยแก้ |
-| ปล่อยแล้วพัง | กู้บริการก่อน แล้วค่อยหาสาเหตุ | ไล่แก้บนระบบจริงขณะที่ผู้ใช้เดือดร้อน |
-| กำหนดการหลุด | วัดช่องว่าง หาสาเหตุ เสนอสามทาง แล้วตั้งฐานใหม่ครั้งเดียว | ตั้งฐานใหม่ทุกสัปดาห์ |
+| Source documents contradict each other | `/cr`, then keep working on a declared assumption | Pick one silently · edit the source document yourself |
+| The estimate changes after design | Tell the PM the moment you know | Save it for the next status report |
+| A gate fails | Fix what is missing, run `/gate` again | Advance `stage` by hand |
+| QA returns BLOCK | Send it back to development | Ship it and fix it later |
+| A release breaks production | Restore service first, diagnose second | Debug in production while users are affected |
+| The schedule slips | Measure the gap, find the cause, offer three options, rebaseline once | Rebaseline every week |
 
 ---
 
-## หลักการร่วมของทุก skill
+## Principles every skill shares
 
-1. **ส่งมอบตัวงาน ไม่ใช่คำอธิบายว่าจะทำงานอย่างไร**
-2. **ห้ามแต่งข้อมูลที่ไม่รู้** — ใช้ `TBD — ต้องการ [คน/ข้อมูล]`
-3. **ทำสมมติฐานให้เห็น** และระบุว่าตัวเลขไหนเป็นการเดา
-4. **ตัดสินใจแทนได้ แต่ต้องบอก** — เขียนหนึ่งบรรทัดท้ายงานให้แย้งได้
-5. **รายงานปัญหา ไม่ใช่แก้เงียบ ๆ** — คุณค่าของแต่ละด่านคือจับได้เร็ว
-   ไม่ใช่แก้เก่ง
+1. **Deliver the work, not a description of how you would do the work.**
+2. **Never invent what you do not know** — write `TBD — ต้องการ [คน/ข้อมูล]`.
+3. **Make assumptions visible**, and say which numbers are guesses.
+4. **You may decide on the user's behalf, but you must say so** — one line at the
+   end, so it can be overruled.
+5. **Report the problem rather than quietly fixing it** — each stage earns its
+   place by catching things early, not by being clever about repairs.

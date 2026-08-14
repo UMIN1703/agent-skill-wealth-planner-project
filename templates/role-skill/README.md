@@ -1,41 +1,46 @@
-# โครงเปล่าสำหรับเพิ่มบทบาทใหม่
+# Scaffold for adding a new role
 
-โฟลเดอร์นี้ **ไม่ใช่ skill** และไม่ถูกโหลดโดย Claude Code เพราะไม่ได้อยู่ใน
-`.claude/skills/` เป็นแค่จุดตั้งต้นให้คัดลอกไปใช้
+This folder is **not a skill** and is not loaded by Claude Code, because it does
+not live under `.claude/skills/`. It is a starting point to copy.
 
-## วิธีใช้
+## Use it
 
 ```sh
-cp -R templates/role-skill .claude/skills/<ชื่อบทบาท>
+cp -R templates/role-skill .claude/skills/<role-name>
 ```
 
-แล้วไล่แก้ตามช่องว่างใน `SKILL.md` และเช็คลิสต์ข้างล่าง
+Then fill in the placeholders in `SKILL.md` and work through the checklist below.
 
-## เช็คลิสต์
+## Checklist
 
-- [ ] ชื่อโฟลเดอร์ตรงกับ `name` ใน frontmatter เป๊ะ — ไม่ตรงแล้ว skill จะไม่โหลด
-- [ ] `description` ยาวไม่เกิน 1024 ตัวอักษร
-- [ ] `description` มีคำพูดจริงที่นักเรียนจะพิมพ์ ทั้งไทยและอังกฤษ
-- [ ] `description` จบด้วย `Do NOT use for… — that is the X skill`
-- [ ] ไล่อ่าน description ของ skill ที่ใกล้เคียงแล้ว และแน่ใจว่าเส้นแบ่ง
-      พูดเป็นประโยคได้ — routing ที่ไม่แน่นอนแปลว่านักเรียนสองคนถามเหมือนกัน
-      แต่ได้คนละคำตอบ
-- [ ] มีหัวข้อ `## Intake` ที่อ่าน `project/project.yml` ก่อนเริ่มงาน
-- [ ] เพิ่มชุดคำถามของบทบาทนี้ลงใน
+- [ ] The folder name matches `name` in the frontmatter exactly — if it does not,
+      the skill will not load
+- [ ] `description` is under 1024 characters
+- [ ] `description` contains the actual phrasings a student would type, in both
+      Thai and English
+- [ ] `description` ends with `Do NOT use for… — that is the X skill`
+- [ ] You have read the descriptions of every neighbouring skill and can state the
+      boundary in a sentence — unstable routing means two students ask the same
+      thing and get different answers
+- [ ] There is an `## Intake` section that reads `project/project.yml` before
+      starting work
+- [ ] The role's questions are added to
       `.claude/skills/project-intake/references/question-bank.md`
-- [ ] เพิ่มช่องที่บทบาทนี้เป็นเจ้าของลงใน
+- [ ] The fields the role owns are added to
       `.claude/skills/project-intake/assets/project.yml.template`
-- [ ] ถ้าผลิตเอกสาร — เพิ่มประเภทและ path ของแม่แบบลงในทะเบียนของ
+- [ ] If it produces a document — the type and template path are registered in
       `.claude/skills/document-control/SKILL.md`
-- [ ] ถ้าเป็นประตู — เพิ่มเกณฑ์และลำดับระยะลงใน `.claude/commands/gate.md`
-- [ ] เพิ่มลงตารางใน `WORKFLOW.md` และ `README.md`
+- [ ] If it owns a gate — the criteria and stage order are added to
+      `.claude/commands/gate.md`
+- [ ] It appears in the tables in `WORKFLOW.md` and `README.md`
 
-## สิ่งที่ทำให้ skill ในชุดนี้ต่างจาก skill ทั่วไป
+## What makes the skills in this set different
 
-**มันปฏิเสธได้** — บทบาทที่ตอบว่า "ได้ครับ" ทุกครั้งไม่มีค่า
-บทบาทที่บอกได้ว่าอะไรยังขาดและทำไมถึงยังไปต่อไม่ได้ คือสิ่งที่นักเรียนต้องเรียน
+**They can refuse.** A role that answers "sure, here you go" every time is worth
+nothing. A role that can say what is missing and why the work cannot move on is
+the thing the student is here to learn.
 
-**มันบอกว่าไม่รู้** — ทุก skill ในชุดนี้ห้ามเดา และเขียน `TBD` แทน
+**They say when they do not know.** No skill in this set guesses; they write `TBD`.
 
-**มันรู้ว่าตัวเองไม่ใช่ใคร** — บรรทัด `Do NOT use for` ไม่ใช่พิธีกรรม
-มันคือสิ่งที่ทำให้ 24 skill อยู่ด้วยกันได้โดยไม่แย่งงานกัน
+**They know who they are not.** The `Do NOT use for` line is not ceremony — it is
+what lets 24 skills coexist without competing for the same request.

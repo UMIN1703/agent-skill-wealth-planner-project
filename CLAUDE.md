@@ -1,83 +1,98 @@
-# กติกาของ repo นี้
+# Rules for this repository
 
-repo นี้เป็น **เทมเพลตสำหรับสอน** ไม่ใช่โปรเจกต์ของตัวเอง ผู้ใช้คือนักเรียน
-AI Design System Bootcamp ที่กำลังเดินโครงการของตัวเองผ่านสายงาน 6 ระยะ
-
----
-
-## กติกาที่สำคัญที่สุด — ห้ามแต่งข้อมูลที่ยังไม่รู้
-
-ทุก skill ในชุดนี้ประกาศกติกาข้อนี้ไว้เอง และมันเป็นเหตุผลที่กลไก Q&A มีอยู่
-
-นักเรียนตอบไม่ได้ ⇒ เขียน `TBD — ต้องการ [คน/ข้อมูล]` และเพิ่มรายการใน
-`open_questions` ของ `project/project.yml`
-· ตัวเลขที่นักเรียนเดา ⇒ บันทึกใน `assumptions` พร้อมที่มา
-
-**ข้อกำหนดที่แต่งขึ้นแย่กว่าช่องว่าง เพราะมันถูกเอาไปสร้างจริง**
-ช่องว่างมองเห็นได้และมีคนมาเติม ส่วนสิ่งที่แต่งขึ้นมองไม่เห็นและถูกสร้างต่อ
-
-เมื่อขาดบริบท ให้ **ถาม** ไม่ใช่เดา — ถามครั้งละไม่เกิน 5 ข้อ ยิงรวมเป็นข้อความเดียว
+This repo is a **teaching template**, not a project of its own. The user is a
+student on the AI Design System Bootcamp, running their own project through a
+six-stage pipeline.
 
 ---
 
-## งานของนักเรียนอยู่ใน `project/` เท่านั้น
+## The rule everything else rests on — never invent what you do not know
 
-| ที่ | เก็บอะไร | แก้ได้ไหม |
+Every skill in this set declares this rule itself, and it is the reason the Q&A
+mechanism exists at all.
+
+The student cannot answer ⇒ write `TBD — ต้องการ [คน/ข้อมูล]` and add an entry to
+`open_questions` in `project/project.yml`.
+A number the student estimated rather than knew ⇒ record it under `assumptions`
+with its source.
+
+**A fabricated requirement is worse than a blank one, because it gets built.**
+A gap is visible and someone fills it; an invention is invisible and gets built on.
+
+When context is missing, **ask** — up to five questions, in a single message,
+never one at a time.
+
+---
+
+## The student's work lives in `project/` only
+
+| Location | Holds | Editable |
 |---|---|---|
-| `project/` | เอกสารและงานของนักเรียน | ใช่ — ที่เดียวที่นักเรียนแก้ |
-| `.claude/skills/` | ความรู้และแม่แบบ | แก้เมื่อปรับปรุงเทมเพลต ไม่ใช่ตอนทำโครงการ |
-| `.claude/commands/` | คำสั่ง | เหมือนกัน |
-| `tools/` `docs/print-th.css` | เครื่องมือ | เหมือนกัน |
-| `docs/*.pdf` `docs/*.docx` `handoff/` | ผลลัพธ์ที่สร้างขึ้น | **ห้ามแก้** ถูกเขียนทับทุกครั้ง |
+| `project/` | The student's documents and work | Yes — the only place they edit |
+| `.claude/skills/` | Knowledge and templates | Only when improving the template itself |
+| `.claude/commands/` | Commands | Same |
+| `tools/`, `docs/print-th.css` | Tooling | Same |
+| `docs/*.pdf`, `docs/*.docx`, `handoff/` | Generated output | **Never** — overwritten on every build |
 
-**ห้ามใส่เนื้อหาโครงการตัวอย่างกลับเข้าไปใน `.claude/skills/`** เทมเพลตนี้ว่างเปล่า
-โดยตั้งใจ นักเรียนต้องคิดเนื้อหาเอง แม่แบบมีแต่โครงกับคำอธิบายว่าแต่ละช่องต้องการอะไร
-
----
-
-## เอกสาร
-
-- แก้ที่ไฟล์ `.md` เท่านั้น · ไฟล์ `.pdf` และ `.docx` สร้างจาก `.md`
-  และถูกเขียนทับทุกครั้งที่รัน `bash tools/build-docs.sh`
-- รหัสเอกสารมาจาก `meta.code` ใน `project/project.yml` — เอกสารที่ยังมี `XXX`
-  ค้างอยู่ แปลว่าสร้างไม่สำเร็จ
-- สร้างเอกสารด้วย `/doc-new <TYPE>` เท่านั้น เพื่อให้ลงทะเบียนใน
-  `project/REGISTER.md` ไปพร้อมกัน
-- กติกาการออกฉบับแก้ไข การกวาดหาข้อความตกค้าง และการดูแลทะเบียน
-  อยู่ใน skill `document-control`
-- เนื้อความเอกสารเขียนเป็นภาษาไทย แม่แบบใน `assets/` ใช้หัวข้อภาษาอังกฤษเป็นโครง
-  ให้แปลหัวข้อตอนเขียนจริง และคงเลขข้อไว้
+**Do not put example project content back into `.claude/skills/`.** The template
+is empty by design; the student has to think of the content. The templates carry
+structure and an explanation of what each field wants, and nothing else.
 
 ---
 
-## ประตู
+## Documents
 
-`/gate` ตรวจของจริง ไม่ใช่ถามว่าทำหรือยัง — ต้องเปิดไฟล์อ่าน
-· ประตูที่ผ่านทุกครั้งไม่ใช่ประตู หาหลักฐานไม่เจอ = ยังไม่ผ่าน
-· เลื่อน `stage:` เฉพาะเมื่อผ่านจริง และห้ามลบประวัติ `gates` ที่เคยไม่ผ่าน
-
----
-
-## บทบาทแยกกัน อย่ารวบ
-
-สายงานนี้แบ่งบทบาทเพื่อให้แต่ละคำถามมีเจ้าของ การรวบบทบาททำให้ข้อผิดพลาด
-ที่ควรถูกจับได้ หลุดไปเงียบ ๆ
-
-- นักวิเคราะห์ระบบเจอข้อกำหนดขัดกัน ⇒ ออกคำขอเปลี่ยนแปลง (`/cr`)
-  **ไม่ใช่เลือกเองแล้วสร้างต่อ** และไม่ใช่แก้เอกสารต้นทางเอง
-- นักพัฒนาเจอ spec ผิด ⇒ เหมือนกัน
-- ผู้ทบทวนโค้ดไม่แก้โค้ดเอง รายงานก่อน แก้เมื่อถูกสั่ง
-- ผู้ประกันคุณภาพไม่เขียนฟีเจอร์ใหม่ให้
-- นักเรียนเล่นครบทุกบทบาทได้ (โหมด solo) แต่ต้องเล่นทีละบทบาท
-  ไม่ใช่เป็นทุกบทบาทพร้อมกัน
+- Edit the `.md` only. The `.pdf` and `.docx` are generated from it and
+  overwritten by every `bash tools/build-docs.sh`.
+- Document codes come from `meta.code` in `project/project.yml`. A document still
+  containing `XXX` was not created properly.
+- Create documents with `/doc-new <TYPE>` only, so the register entry is written
+  in the same edit.
+- Revision procedure, the stale-reference sweep, and register upkeep are in the
+  `document-control` skill.
+- Document body text is written in Thai. The templates in `assets/` carry English
+  headings as structural scaffolding — translate the headings when writing the
+  real document, and keep the numbering.
 
 ---
 
-## เมื่อนักเรียนขอให้ "ทำให้หน่อย"
+## Gates
 
-ทำได้ แต่ทำในฐานะบทบาทนั้น ไม่ใช่ทำแทนแล้วข้ามขั้นตอน — อ่าน `project.yml`
-ก่อน ถามสิ่งที่ยังไม่รู้ ทำตาม workflow ของ skill นั้น แล้วบอกว่าตัดสินใจแทน
-ตรงไหนบ้างเพื่อให้นักเรียนแย้งได้
+`/gate` checks the actual files; it does not ask whether something was done. A
+gate that always passes is not a gate — if the evidence cannot be found, it has
+not passed. Advance `stage:` only on a real pass, and never delete the history of
+a gate that previously failed.
 
-การส่งเอกสารที่สมบูรณ์แบบซึ่งนักเรียนไม่ได้คิดเอง คือการทำให้เขาสอบผ่าน
-โดยไม่ได้เรียนอะไรเลย
+---
+
+## Roles stay separate
+
+The pipeline splits into roles so that every question has an owner. Collapsing
+them lets mistakes that should have been caught slip through silently.
+
+- The analyst finds contradicting requirements ⇒ raise a change request (`/cr`).
+  **Not** pick one and build on it, and not edit the source document.
+- The developer finds a wrong spec ⇒ the same.
+- The code reviewer does not fix the code. Report first; fix only when asked.
+- Quality assurance does not write new features.
+- The student may play every role (solo mode), but one at a time — not all of
+  them at once.
+
+---
+
+## When the student says "just do it for me"
+
+That is fine, but do it *as that role* rather than skipping the process: read
+`project.yml` first, ask what is still unknown, follow that skill's workflow, and
+close by saying which decisions you made for them so they can overrule.
+
+Handing back a flawless document the student did not think through is helping
+them pass without learning anything.
+
+---
+
+## Language
+
+Skills, commands, and repository-level documentation are written in English.
+Document templates, the question bank, and the deliverables students produce are
+in Thai. Commit messages are in English.
