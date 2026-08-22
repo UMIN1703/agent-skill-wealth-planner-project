@@ -1,228 +1,134 @@
-# design-lazyyy-skills
+<div align="center">
 
-A teaching template for the **AI Design System Bootcamp** — 24 Claude Code skills
-wired into one pipeline that runs from an idea to a shipped release.
+# 💰 WealthPlaner
 
-The template is **deliberately empty, but it knows how to ask.** A student clones
-it, runs `/kickoff`, answers questions, and their answers fill the document
-templates. There is no worked example to copy from, and nothing invents content
-on the student's behalf.
+### ระบบจัดการ Personal Wealth & Asset Allocation
 
----
+รวมสินทรัพย์จากทุกพอร์ตการลงทุนไว้ที่เดียว — ทำ asset allocation และติดตาม income/outcome ได้ด้วยตัวเอง<br/>
+เหมือนมีทีม personal wealth ส่วนตัว โดยไม่ต้องมีสินทรัพย์ถึงเกณฑ์ 2 ล้าน หรือผูกกับโบรกเดียว
 
-## Start in five minutes
+<br/>
 
-```sh
-git clone git@github.com:plugin87/design-lazyyy-skills.git my-project
-cd my-project
-claude
-```
+![stage](https://img.shields.io/badge/stage-design-0d7c66?style=for-the-badge)
+![G1](https://img.shields.io/badge/G1_Definition_of_Ready-✓_passed-2ea44f?style=for-the-badge)
+![G2](https://img.shields.io/badge/G2_Design_handback-✓_passed-2ea44f?style=for-the-badge)
+![license](https://img.shields.io/badge/license-MIT-9a6a1c?style=for-the-badge)
 
-Then, in Claude Code:
-
-```
-/kickoff
-```
-
-It asks five questions — project name, a three-letter code, the problem in one
-sentence, who the users are and what they do today instead, and how much time
-there is.
-
-Answer "I don't know" freely. That gets recorded as `TBD`, not guessed at.
-
-```
-/gate            what is missing before you can move on
-/doc-new PRD     create the requirements document from its template
-/status          where the project stands right now
-```
+</div>
 
 ---
 
-## The pipeline
+## 🎯 ปัญหาที่แก้
 
+> วันนี้ต้องจดราคาต้นทุนและราคาตลาดเองใน Excel รวบรวม **เดือนละครั้ง** ปรับพอร์ตทุก **6 เดือน–1 ปี** — เสียเวลาและเสี่ยงพลาด และเข้าไม่ถึงที่ปรึกษามืออาชีพเพราะถูกล็อกไว้กับผู้มีสินทรัพย์ 2 ล้าน+ ในโบรกเดียว
+
+**เป้าหมาย:** ลดเวลารวบรวม+อัปเดตพอร์ตจาก ~30–60 นาที/เดือน เหลือ **< 10 นาที/เดือน**
+
+---
+
+## ✨ ความสามารถ
+
+| | ฟีเจอร์ | ระดับ |
+|---|---|---|
+| 📥 | บันทึกสินทรัพย์ข้ามโบรก + ระบุ/แสดง **broker channel** | ต้องมี |
+| 📊 | พอร์ตรวม + สัดส่วน **asset allocation** | ต้องมี |
+| 🔄 | ดึงราคาตลาดอัตโนมัติ + สถานะ **online/offline** + ปุ่ม refresh | ต้องมี |
+| 💹 | คำนวณ **income/outcome** (กำไร/ขาดทุน) | ต้องมี |
+| 📗 | นำเข้าข้อมูลเดิมจาก Excel | ควรมี |
+| ⚖️ | ส่วนต่าง allocation กับเป้าหมาย (rebalance gap) | ควรมี |
+| 🧭 | **แบบประเมินความเสี่ยง** → เสนอ allocation ตัวอย่าง | ควรมี |
+
+<sub>🔒 ราคาถือว่า *stale* เมื่อเก่ากว่า 15 นาที · สินทรัพย์ ตปท. แปลงค่าเงินจาก Google source ทุก 15 นาที</sub>
+
+---
+
+## 🏗️ สถาปัตยกรรม (ไฮบริด · ADR-001)
+
+```mermaid
+flowchart TB
+    subgraph CLIENT["ฝั่งผู้ใช้"]
+      W["Web responsive<br/>mobile · tablet · desktop"]
+      L["LINE OA"]
+    end
+    AUTH{{"ยืนยันตัวตน<br/>LINE + Google"}}
+    API["Backend API<br/>+ business rules"]
+    DB[("ฐานข้อมูลเฉพาะ")]
+    GS[/"Google Sheet<br/>import / export"/]
+    JOB["งานพื้นหลัง<br/>ดึงราคา + FX ทุก 15 นาที"]
+    EXT["settrade · investing.com<br/>ราคาทอง · Google FX"]
+
+    W --> AUTH --> API
+    L --> AUTH
+    GS -. "import" .-> API
+    API --> DB
+    JOB -->|"เขียนราคา"| DB
+    JOB -->|"ขอราคา"| EXT
+    API --> W & L
 ```
-intake → what/why → how it's buildable → design → build → review → release
-           G1              G2              G3      G4      G5      G6
-```
 
-The full flow diagram and every gate's criteria are in [`WORKFLOW.md`](WORKFLOW.md).
+<sub>เลือกฐานข้อมูลเฉพาะแทน Google Sheet ล้วน เพราะ Sheet ตก NFR-01 (2 วิ) และ NFR-03 (สิทธิ์เฉพาะเจ้าของ) — คง Google Sheet ไว้เป็นสะพาน import/export</sub>
 
 ---
 
-## The skills
+## 🗃️ โครงสร้างข้อมูล
 
-### Core
-
-| Skill | What it does |
-|---|---|
-| `project-intake` | Interviews the student and writes `project/project.yml`, the shared memory every role reads |
-| `document-control` | Document codes, revisions, the register, and building Thai-formatted PDF/DOCX |
-
-### Pipeline roles
-
-| Skill | Answers the question |
-|---|---|
-| `product-owner` | What are we building, and why |
-| `project-manager` | How, and by when |
-| `system-analyst` | How is it actually buildable |
-| `developer` | Is it built, and is it done |
-| `code-reviewer` | Should this code enter the codebase |
-| `quality-assurance` | Is it ready to ship |
-| `devops-release` | May this build go live now |
-
-### UX/UI and frontend — 15 skills
-
-**Foundations** `design-fundamentals` · `web-accessibility-a11y`
-· `design-systems-architecture` · `web-performance-optimization`
-· `anti-ai-design-patterns`
-
-**Design** `figma-expert-workflows` · `responsive-universal-design`
-· `inclusive-design-patterns`
-
-**Build** `frontend-framework-guide` · `css-styling-pixel-perfect`
-
-**Integrate and ship** `design-to-code-workflow` · `design-tokens-system`
-· `component-library-mastery` · `qa-testing-visual-regression`
-· `deployment-devops-workflow`
-
----
-
-## Say this, get that
-
-| When the student says | The skill that runs |
-|---|---|
-| "start a new project" · "เริ่มโปรเจกต์ใหม่" | `project-intake` |
-| "write me a spec" · "what should we build first" | `product-owner` |
-| "will we make the deadline" · "how much can we take on" | `project-manager` |
-| "design the data model" · "is this spec buildable" | `system-analyst` |
-| "why does this look wrong" · "pick a palette" | `design-fundamentals` |
-| "set up design tokens" · "sync tokens with Figma" | `design-tokens-system` |
-| "start building this" · "is this story done" | `developer` |
-| "review my code" · "can I merge this" | `code-reviewer` |
-| "check my implementation" · "does it match the design" | `quality-assurance` |
-| "can we release" · "how do we roll back" | `devops-release` |
-| "how are document codes formed" · "how do I issue a revision" | `document-control` |
-
-Every skill's description ends with a `Do NOT use for… — that is the X skill`
-line, so the same question routes to the same skill every time. Unstable routing
-means two students ask the same thing and get different answers, which teaches
-them the tool cannot be trusted.
-
----
-
-## Commands
-
-| Command | What it does |
-|---|---|
-| `/kickoff` | Opens a project, asks the questions, writes `project.yml` |
-| `/gate` | Checks the current gate, names what is missing, records the result |
-| `/doc-new <TYPE>` | Creates a document from its template, substitutes the project code, registers it |
-| `/doc-build` | Builds PDF and DOCX from the `.md` sources |
-| `/cr` | Opens a change request when source documents contradict each other |
-| `/status` | Summarises where the project stands |
-
----
-
-## Layout
-
-```
-.claude/skills/       24 skills
-.claude/commands/     6 commands
-project/              the student's work — the only place they edit
-  project.yml         shared memory across every role
-  REGISTER.md         the document register
-  1-product/ … 6-release/
-templates/role-skill/ scaffold for adding a new role
-tools/                document build and diagram rendering scripts
-docs/                 print-th.css, and generated PDF/DOCX
-examples/             one brand, three visual systems, as design-system reference
+```mermaid
+erDiagram
+    User ||--o{ Asset : owns
+    User ||--o{ TargetAllocation : sets
+    User ||--o{ RiskAssessment : takes
+    User ||--o{ BrokerChannel : uses
+    AssetType ||--o{ Asset : classifies
+    BrokerChannel ||--o{ Asset : holds
+    PriceSource ||--o{ Asset : "priced by"
+    AssetType ||--o{ FXRate : "if foreign"
 ```
 
 ---
 
-## Building PDF and DOCX
+## 📚 เอกสาร (`project/`)
 
-```sh
-brew install pandoc
-npm install --prefix tools @mermaid-js/mermaid-cli
+| เอกสาร | Stage | เนื้อหา |
+|---|---|---|
+| [`PRD-WPN-001`](project/1-product/PRD-WPN-001.md) | product | Product Requirements — อะไร/ทำไม |
+| [`REQ-WPN-001`](project/1-product/REQ-WPN-001.md) | product | ข้อกำหนด + เกณฑ์การยอมรับ (AC 36 ข้อ) |
+| [`SRS-WPN-001`](project/2-analysis/SRS-WPN-001.md) | analysis | data model · ADR-001 · behaviour · traceability |
+| [`CR-WPN-001`](project/2-analysis/CR-WPN-001.md) | analysis | change request (data storage → ไฮบริด · auth) |
+| [`TST-WPN-001`](project/2-analysis/TST-WPN-001.md) | analysis | test cases 38 + traceability matrix |
 
-bash tools/build-docs.sh              # every document
-bash tools/build-docs.sh PRD-BKG-001  # one document
-bash tools/make-handoff.sh            # package a handoff set
-```
-
-Documents follow Thai official document formatting — Sarabun 16pt body, 14pt
-tables, A4, margins per the Thai government correspondence regulation, defined in
-`docs/print-th.css`.
-
-**Mermaid blocks are rendered to images first.** Passed to pandoc raw, a diagram
-appears as source code in the delivered PDF, which is worse than no diagram —
-`build-docs.sh` calls `render-mermaid.py` before every build for exactly this
-reason.
+📄 ไฟล์ PDF (ฟอร์แมตส่งมอบ) อยู่ใน [`docs/`](docs/)
 
 ---
 
-## Install as a plugin, to use across projects
+## 🚦 สถานะ Pipeline
 
 ```
-/plugin marketplace add plugin87/design-lazyyy-skills
-/plugin install design-lazyyy@design-lazyyy-skills
+intake ──► product ──► analysis ──► design ──► build ──► review ──► release
+  ✓          ✓ G1        ✓ G2        ▶ ตอนนี้
 ```
 
-Cloning gives you the skills, commands, templates and tooling. Installing as a
-plugin gives you the skills and commands anywhere, but not the `project/`
-workspace or the document build scripts.
+| Gate | ผล | หมายเหตุ |
+|---|---|---|
+| **G1** · Definition of Ready | ✅ passed | PRD + REQ (AC ครบ, unhappy path ครบ) |
+| **G2** · Design handback | ✅ passed | SRS + TST (trace 2 ทาง, AC 36/36) |
+| **G3** · Design system ready | ⏳ ถัดไป | DSN + tokens + components |
 
 ---
 
-## Adding a role
+## 🔭 สิ่งที่เลื่อน / ต้องตรวจก่อน build
 
-1. Copy `templates/role-skill/` to `.claude/skills/<role-name>/`
-2. The folder name must match `name` in the frontmatter exactly
-3. End the `description` with `Do NOT use for… — that is the X skill`, then check
-   it against every neighbouring skill
-4. Add an `## Intake` section that reads `project.yml` before starting work
-5. If the role produces a document, register its type and template path in
-   `document-control`
-6. If the role owns a gate, add its criteria to `.claude/commands/gate.md`
-7. Add it to the tables in `WORKFLOW.md` and this README
-
-The full checklist is in [`templates/role-skill/README.md`](templates/role-skill/README.md).
+- 🤖 **AI ที่ปรึกษา** (REQ-07) — เลื่อน รอตรวจกรอบ ก.ล.ต.
+- 🚫 ซื้อ/ขายอัตโนมัติ · วางแผนภาษี · เชื่อมต่ออัตโนมัติทุกโบรก — นอกขอบเขตรอบนี้
+- ⚖️ ตรวจ **ToS/ลิขสิทธิ์** ข้อมูลราคา (settrade · investing.com · Google FX)
+- 🛠️ เลือกตัว **DB + ภาษา/เฟรมเวิร์ก** (stack)
 
 ---
 
-## What this template holds to
+## 🧰 สร้างด้วย
 
-**Never invent what you do not know.** An unanswered field becomes
-`TBD — ต้องการ [คน/ข้อมูล]`, never a plausible guess. A fabricated requirement is
-worse than a blank one, because it gets built.
+โปรเจ็คนี้เดินผ่าน pipeline ของ [**design-lazyyy-skills**](https://github.com/plugin87/design-lazyyy-skills) —
+ชุด Claude Code skills 24 ตัวที่พาโปรเจ็คจากไอเดียสู่ release ผ่าน 6 gate ที่ปฏิเสธได้จริง
 
-**A gate must be able to refuse.** A gate that always passes is not a gate.
-
-**Traceability runs both ways.** requirement → design → screen → test case → code,
-and back again.
-
-**Report the problem, do not silently fix it.** A contradiction between documents
-becomes a change request, not a private decision.
-
-The rules Claude follows in every session are in [`CLAUDE.md`](CLAUDE.md).
-
----
-
-## A note on language
-
-Everything in the repository is written in English — skills, commands,
-documentation, tooling, and commit messages.
-
-Thai survives in exactly one layer: the **document templates** under each skill's
-`assets/`, because they become Thai official-format deliverables, and the strings
-the tooling has to match against them — the control header row
-(`| รหัสเอกสาร |`), the status values, the `TBD — ต้องการ [คน/ข้อมูล]` marker, and
-the month labels drawn into the Gantt image. Skill descriptions also keep their
-Thai trigger phrases, because that is what students actually type.
-
----
-
-## License
-
-MIT — see [`LICENSE`](LICENSE)
+<div align="center">
+<sub>License: MIT · สร้างจาก template design-lazyyy-skills</sub>
+</div>
