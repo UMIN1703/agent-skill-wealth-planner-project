@@ -1,0 +1,153 @@
+# project.yml — ความจำร่วมของทุกบทบาทในสายงาน
+#
+# ทุก skill อ่านไฟล์นี้ก่อนเริ่มงาน และเขียนกลับเมื่อได้คำตอบใหม่
+# กติกา — ไม่รู้ให้เขียน  TBD — ต้องการ [คน/ข้อมูล]  ห้ามเว้นว่าง ห้ามเดา
+# ตัวเลขที่เดา ให้บันทึกไว้ใต้ assumptions ด้วย
+
+meta:
+  name: WealthPlaner           # ชื่อโครงการ
+  code: WPN                    # รหัสสามตัวอักษรพิมพ์ใหญ่ ใช้แทน XXX ในรหัสเอกสาร
+  owner: TBD — ต้องการ [ชื่อเจ้าของโครงการ]   # ชื่อนักเรียนเจ้าของโครงการ
+  mode: solo                   # solo = คนเดียวเล่นครบทุกบทบาท
+  started: 2026-08-22          # YYYY-MM-DD
+  language: th                 # ภาษาของเอกสารส่งมอบ
+
+# ระยะปัจจุบันของโครงการ — มีเพียง /gate เท่านั้นที่เลื่อนค่านี้
+# intake → product → analysis → design → build → review → quality → release
+stage: design
+
+problem:
+  statement: รวบรวมสินทรัพย์จากทุกพอร์ตการลงทุนไว้ที่เดียว เพื่อทำ asset allocation และดูภาพ income/outcome   # ปัญหาในหนึ่งประโยค เขียนเป็นปัญหา ไม่ใช่วิธีแก้
+  users: บุคคลที่ต้องการเห็นภาพรวมพอร์ตการลงทุนรวมของตนเอง   # ใครเจอปัญหานี้ ระบุให้เจาะจงกว่าคำว่า "ผู้ใช้"
+  frequency: รวบรวมข้อมูลพอร์ตเดือนละ 1 ครั้ง และปรับ/rebalance allocation ทุก 6 เดือน–1 ปี   # เจอบ่อยแค่ไหน
+  today_workaround: จดและติดตามพอร์ตด้วย Excel เอง (ไฟล์เก็บบน Google Drive) จดทั้งราคาต้นทุนและราคาตลาดด้วยมือ   # วันนี้เขาทำยังไงเมื่อยังไม่มีของชิ้นนี้
+  cost: ต้องทำ manual ทุกอย่าง — จดราคาต้นทุนและราคาตลาดเอง รวบรวมเดือนละครั้ง เสียเวลาและเสี่ยงผิดพลาด และเข้าไม่ถึงคำปรึกษามืออาชีพ เพราะที่ปรึกษา personal wealth ของโบรกจะให้บริการเฉพาะผู้มีสินทรัพย์ ~2 ล้านบาทขึ้นไปในโบรกนั้น ทำให้คนที่กระจายพอร์ตหลายโบรกหรือเงินยังไม่ถึงเกณฑ์ ไม่มีที่ปรึกษาที่มองพอร์ตรวมได้   # ไม่แก้แล้วเสียอะไร
+
+outcome:
+  metric: เวลาที่ใช้รวบรวมและอัปเดตพอร์ตรวมต่อเดือน (นาที/เดือน)   # วัดด้วยอะไร ต้องเป็นตัวเลขที่ลดลงได้ ไม่ใช่ "engagement เพิ่ม"
+  baseline: 30–60 นาที/เดือน (ประมาณการ ยังไม่จับเวลาจริง — ดู assumptions)   # วันนี้ค่าเท่าไหร่
+  target: < 10 นาที/เดือน ([ข้อเสนอ PO] overrule ได้)     # อยากให้เป็นเท่าไหร่
+  measured_by: เจ้าของโครงการ วัดเองก่อน-หลังใช้ระบบ       # ใครวัด วัดเมื่อไหร่
+
+scope:
+  in:                         # อยู่ในขอบเขตรอบนี้ (ข้อเสนอ PO ใน PRD-WPN-001 รอ sign-off)
+    - บันทึกสินทรัพย์หลายรายการข้ามโบรก พร้อมระบุ+แสดง broker channel (REQ-01)
+    - แสดงพอร์ตรวมและสัดส่วน asset allocation (REQ-02)
+    - ดึง/อัปเดตราคาตลาดที่รองรับ + กรอกมือส่วนที่เหลือ (REQ-03)
+    - คำนวณ income/outcome เทียบราคาต้นทุน (REQ-04)
+  out:                        # ตัดออกอย่างชัดเจน (ข้อเสนอ PO)
+    - ซื้อ/ขายหลักทรัพย์อัตโนมัติ และการเชื่อมบัญชีเพื่อทำธุรกรรมจริง
+    - ผู้ช่วย AI ที่ปรึกษา (REQ-07) — เลื่อนออกจากรอบนี้ตามที่เจ้าของโครงการตัดสิน
+    - การวางแผนภาษี/มรดก
+    - การรับประกันเชื่อมต่ออัตโนมัติกับทุกโบรก
+  constraints:
+    - ไม่มีเดดไลน์ตายตัว
+    - ทำคนเดียว (solo)
+  approver: TBD — ต้องการ [ผู้อนุมัติขอบเขต]         # ใครเซ็นอนุมัติขอบเขต
+
+delivery:
+  people: 1 คน (ทำคนเดียว)                          # มีใครทำบ้าง กี่คน
+  days_available: TBD — ต้องการ [วันทำงานจริงต่อสัปดาห์]   # วันทำงานจริงที่มี หักลาและประชุมแล้ว
+  iteration_length: TBD — ต้องการ [ความยาวรอบทำงาน]   # รอบทำงานยาวเท่าไหร่
+  hard_deadline: ไม่มี                              # เดดไลน์ที่ขยับไม่ได้ ถ้าไม่มีให้เขียนว่าไม่มี
+
+technical:
+  data_location: ฐานข้อมูลเฉพาะ (ไฮบริดตาม ADR-001) + Google Sheet เป็น import/export · auth ผ่าน LINE+Google (CR-WPN-001)   # ข้อมูลอยู่ที่ไหน เครื่องผู้ใช้ เซิร์ฟเวอร์ หรือทั้งสอง
+  offline: ไม่จำเป็น — ใช้ผ่านเว็บ/LINE OA ต้องออนไลน์ ([ข้อเสนอ PO] จากบริบทการใช้งาน)   # ต้องใช้งานตอนไม่มีเน็ตไหม
+  integrations:               # ต่อกับระบบอะไรบ้าง
+    - ราคาหุ้นไทย — settrade (SET)
+    - ราคาหุ้นต่างประเทศ — investing.com
+    - ราคาทองไทย
+    - อัตราแลกเปลี่ยน — Google source (อัปเดตทุก 15 นาที)
+    - LINE OA (ช่องทางเข้าใช้งาน)
+  stack: Web responsive (รองรับ mobile/tablet) เข้าใช้งานผ่าน LINE OA — ยังไม่ระบุภาษา/เฟรมเวิร์ก   # ภาษาและเฟรมเวิร์ก
+  existing_code: ไม่มี — ปัจจุบันใช้ Excel/Google Sheet   # มีโค้ดเดิมไหม อยู่ที่ไหน
+
+design:
+  brand: TBD — ต้องการ [โทน สี ตัวอักษร]             # โทน สี ตัวอักษร ถ้ามีคู่มือแบรนด์ให้ชี้ที่อยู่
+  devices:                    # อุปกรณ์เป้าหมาย
+    - mobile
+    - tablet
+    - desktop (web responsive)
+  existing_system: TBD — ต้องการ [มี design system เดิมหรือเริ่มจากศูนย์]   # มี design system เดิมไหม หรือเริ่มจากศูนย์
+
+build:
+  definition_of_done: []      # เกณฑ์ว่างานหนึ่งชิ้นเสร็จ — ดู skill developer
+  branch_convention: TBD — ต้องการ [รูปแบบการตั้งชื่อ branch]   # ตั้งชื่อ branch ยังไง
+
+quality:
+  wcag: AA                    # ระดับที่ยึด
+  browsers: []                # เบราว์เซอร์และรุ่นที่รองรับ — TBD
+  design_reference: TBD — ต้องการ [ไฟล์แบบที่ใช้เทียบ]   # ไฟล์แบบที่ใช้เทียบ ถ้าไม่มีให้ระบุว่าไม่มี
+
+release:
+  target: TBD — ต้องการ [ปล่อยขึ้นที่ไหน]            # ปล่อยขึ้นที่ไหน
+  approver: TBD — ต้องการ [ใครกดปล่อย]               # ใครกดปล่อย
+  rollback: TBD — ต้องการ [วิธีถอยกลับ]              # ถอยกลับยังไง ใช้เวลาเท่าไหร่
+
+# ผลการตรวจประตู — เขียนโดย /gate เท่านั้น
+gates:
+  - id: G1
+    name: Definition of Ready
+    checked: 2026-08-22
+    result: fail
+    missing:
+      - ยังไม่มี acceptance criteria และ unhappy path อย่างน้อย 1 (ยังไม่มี PRD-WPN-001)
+      - scope.out มีแค่ TBD ยังไม่ใช่รายการ "ไม่ทำ" จริง โดยเฉพาะจะให้ AI แนะนำซื้อ/ขายหรือไม่
+      - ยังไม่ระบุ non-functional requirements ด้านความปลอดภัย/ความเป็นส่วนตัวของข้อมูลการเงิน และกรอบ ก.ล.ต.
+      - dependencies ยังไม่ชัด — technical.integrations ระบุแค่ "โบรกบางค่า" ไม่ระบุว่าค่าใด/แหล่ง open source ใด
+      - ยังประเมินขนาดงานไม่ได้ — technical.stack ยังไม่เลือก และมี open research ค้าง
+      - ยังไม่ระบุว่ามี design/content หรือ "ไม่ต้องใช้"
+  - id: G1
+    name: Definition of Ready
+    checked: 2026-08-22
+    result: pass
+    missing: []
+    note: ปิดครบหลังสร้าง PRD-WPN-001 + REQ-WPN-001 (AC 4/4 พร้อม unhappy path), เลือก stack/แพลตฟอร์ม, ระบุ dependencies และ NFR แล้ว
+  - id: G2
+    name: Design handback
+    checked: 2026-08-22
+    result: fail
+    missing:
+      - ยังไม่มี test case จริง (TST-WPN-001) และ traceability matrix requirement→design→test — เกณฑ์บังคับทุก AC ต้องมี test case
+      - interface contracts (settrade/investing/Google FX รวม timeout) ยัง STAGED รอ ToS (O1) + stack (B3)
+    note: screen-state grid/screen flow เป็น known gap ที่เลื่อนไป stage design โดยชอบธรรม (ยังไม่มี visual design)
+  - id: G2
+    name: Design handback
+    checked: 2026-08-22
+    result: pass
+    missing: []
+    note: ปิดหลังสร้าง TST-WPN-001 (AC 36/36 + traceability 2 ทาง) · known gaps ยกไปข้างหน้า — interface contracts (รอ O1 ToS + B3 stack), screen flow (งาน stage design)
+
+# ช่องที่ยังไม่มีคำตอบ — ทุกช่องที่เป็น TBD ต้องมีรายการที่นี่
+open_questions:
+  - field: meta.owner
+    note: TBD — ต้องการชื่อเจ้าของโครงการ
+    raised: 2026-08-22
+  - field: scope.approver
+    note: TBD — scope.in/out ร่างแล้วใน PRD-WPN-001 แต่ยังไม่มีผู้ sign-off (solo อาจเซ็นเอง)
+    raised: 2026-08-22
+  - field: technical.stack
+    note: TBD — web responsive + LINE OA + ไฮบริด DB (ADR-001) ตัดสินแล้ว แต่ยังไม่เลือกภาษา/เฟรมเวิร์ก/ตัว DB ให้ system-analyst/developer สรุป
+    raised: 2026-08-22
+  - field: technical.integrations
+    note: "TBD — investing.com/settrade มีเงื่อนไขการใช้ข้อมูล (ToS/ลิขสิทธิ์ราคา) ต้องตรวจว่าดึงมาแสดงได้ถูกกฎหมายไหม"
+    raised: 2026-08-22
+  - field: problem.users
+    note: TBD — ยังไม่ระบุผู้ใช้รอง (คู่สมรส/ที่ปรึกษา?)
+    raised: 2026-08-22
+  - field: scope.in
+    note: "TBD — F007 แบบประเมินเสนอ allocation อาจเข้าข่ายคำแนะนำการลงทุนตามกรอบ ก.ล.ต. ต้องกำหนด disclaimer/frame ก่อนสร้าง"
+    raised: 2026-08-22
+
+# ตัวเลขหรือข้อเท็จจริงที่เป็นการเดา ไม่ใช่ของที่รู้จริง
+assumptions:
+  - text: "baseline เวลารวบรวมพอร์ต 30–60 นาที/เดือน เป็นการประมาณจากความจำ ยังไม่ได้จับเวลาจริง — ต้องจับจริงก่อนสรุปผลลัพธ์หลัง release"
+    source: เจ้าของโครงการประมาณเอง (intake)
+    raised: 2026-08-22
+  - text: "SA ออกแบบ data model โดยสมมติ ~50–200 assets/user, single-user ต่อบัญชี, เก็บราคาล่าสุดไม่เก็บ history (MVP) — รอยืนยัน (SRS A1–A3)"
+    source: นักวิเคราะห์ระบบ (analysis)
+    raised: 2026-08-22
+  - text: "วิธีแก้ที่เจ้าของโครงการเสนอ — ให้ AI เป็นที่ปรึกษาช่วยจัด asset allocation เสมือนมีทีม personal wealth ดูแล โดยอ้างอิงสถานการณ์เศรษฐกิจปัจจุบันและเชื่อมโยงข้อมูลข้ามโบรกได้ เพื่อ 'ทำให้คำปรึกษาเข้าถึงได้' สำหรับคนที่ยังไม่ถึงเกณฑ์ 2 ล้าน หรือไม่อยากผูกกับโบรกเดียว (ยังไม่ผ่านการทบทวนโดย product-owner ว่าใช่วิธีที่ควรสร้าง และยังไม่ได้ประเมินความเสี่ยง/ความรับผิดของการให้คำแนะนำการลงทุนโดย AI)"
+    source: เจ้าของโครงการเสนอเอง (intake)
+    raised: 2026-08-22
