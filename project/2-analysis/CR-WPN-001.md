@@ -79,9 +79,9 @@ Google Sheet บังคับ constraint/สิทธิ์ระดับแ�
 
 ---
 
-## 5. Combined impact and recommended order
+## 4. Combined impact and recommended order
 
-### 5.1 Combined impact
+### 4.1 Combined impact
 
 | Dimension | Effect |
 |---|---|
@@ -90,15 +90,16 @@ Google Sheet บังคับ constraint/สิทธิ์ระดับแ�
 | Metrics | ไม่กระทบ |
 | Schedule | ยังไม่มี deadline (solo) — PM ยังไม่ประเมิน |
 
-### 5.2 Recommended order
+### 4.2 Recommended order
 
 | # | Request | Why this position |
 |---|---|---|
 | 1 | CR-01 | กำหนด physical schema ทั้งหมด ต้องปิดก่อน |
 | 2 | CR-02 | นิยาม User entity |
 
-## 6. Revision history
+## 5. Revision history
 
 | Rev | Date | Clauses | Substance and reason | Author | Approver |
 |---|---|---|---|---|---|
 | 00 | 2026-08-22 | All | First issue — ปิด C1/B2 หลังเจ้าของตัดสิน ADR-001 (ไฮบริด) + auth (LINE+Google) | system-analyst | เจ้าของโครงการ |
+| 00 | 2026-08-29 | §4, §5 | renumber section §5→§4, §6→§5 ให้ต่อเนื่อง (เดิมข้าม §4) · cosmetic ไม่กระทบเนื้อหา/การอนุมัติ | system-analyst | — |

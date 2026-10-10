@@ -169,3 +169,58 @@ cannot say which requirement it implements is code nobody dares delete.
    end, so it can be overruled.
 5. **Report the problem rather than quietly fixing it** — each stage earns its
    place by catching things early, not by being clever about repairs.
+
+---
+
+## Running it automatically — the commander
+
+Everything above is the pipeline a person walks by hand, one `/`-command at a time.
+The **commander** walks it for you: one command, `/next`, reads the state, decides
+the next move, dispatches the role that owns it, runs the gate, and advances — until
+it reaches something it must not invent.
+
+```mermaid
+flowchart LR
+    U(["/next"]) --> C{{"commander<br/>reads project.yml + REGISTER"}}
+    C -->|dispatch role| SA["role sub-agent<br/>PO · SA · design · dev · …"]
+    SA -->|loads| K["knowledge skills<br/>tokens · a11y · anti-ai · …"]
+    SA -->|deliverable| C
+    C -->|/gate| G{"gate"}
+    G -->|pass| C
+    G -->|not yet| SA
+    C -.->|"Class B: must not invent"| U
+```
+
+Three layers, three jobs:
+
+| Layer | Where it lives | Job |
+|---|---|---|
+| Command | `.claude/commands/next.md` | the entry point — one cycle per call, or full-auto |
+| Commander | `.claude/agents/commander.md` | reads state, decides, dispatches, gates, advances |
+| Role sub-agents | `.claude/agents/<role>.md` | one per pipeline role; produces that stage's deliverable |
+| Knowledge skills | `.claude/skills/<name>` | consulted by the sub-agents; never dispatched on their own |
+
+Ten role sub-agents mirror the ten roles in the table above; the other thirteen
+skills stay skills, because knowledge is not a decision-maker — a sub-agent *loads*
+them, it does not become them.
+
+### What lets it decide without inventing
+
+The commander may decide on your behalf, but every unknown is sorted into one of
+three classes — and one of them is a wall it will not climb.
+
+| Class | What it is | What the commander does |
+|---|---|---|
+| **A · decide-and-log** | a design choice, a default, an estimate, an ordering | decides, labels it `[commander]`, records it so you can overrule |
+| **B · hard stop** | a fact only a person or an outside source holds — the owner's name, a ToS answer, a really-measured baseline, a sign-off, a production secret, an empty Definition of Done | **stops and asks** — inventing it would be lying |
+| **C · gate evidence** | the deliverable a gate must see | has the sub-agent produce it for real; never fakes it |
+
+Class A keeps it moving. Class B keeps it honest. Class C keeps the gates real.
+
+### The one thing a sub-agent cannot do
+
+A sub-agent cannot ask you a question — it runs on its own. So when it reaches a
+Class B fact it does not guess: it writes the `TBD — ต้องการ [...]` marker, records
+the open question, and hands the need back to the commander, who surfaces it to you.
+**The rule *never invent what you do not know* survives being automated because the
+stop is built into the return path, not left to good intentions.**

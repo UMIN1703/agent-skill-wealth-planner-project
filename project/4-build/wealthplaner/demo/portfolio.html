@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WealthPlaner — Portfolio (F002 demo)</title>
+<style>
+  :root{--bg:#0E0A1C;--surface:#181330;--surface-2:#221A42;--border:#2E2650;--brand:#564CF8;
+    --accent:#C1FD42;--gain:#3DDC84;--loss:#FF6B6B;--warn:#8A6D00;--text:#F4F4F5;--muted:#A79FC0;
+    --font:system-ui,-apple-system,"IBM Plex Sans Thai",sans-serif}
+  *{box-sizing:border-box;margin:0}body{background:var(--bg);color:var(--text);font-family:var(--font);
+    display:flex;justify-content:center;padding:24px 12px;-webkit-font-smoothing:antialiased}
+  .num{font-variant-numeric:tabular-nums}
+  .app{width:100%;max-width:430px;display:flex;flex-direction:column;gap:14px}
+  .top{display:flex;align-items:center;justify-content:space-between;padding:2px 4px}
+  .top h1{font-size:15px;font-weight:700}.top .re{font-size:12px;color:var(--muted);border:1px solid var(--border);
+    border-radius:20px;padding:5px 12px;background:var(--surface)}
+  .hero{background:var(--brand);border-radius:16px;padding:20px}
+  .hero .k{font-size:12px;color:#c9c4ff}.hero .v{font-size:34px;font-weight:800;margin-top:6px;display:flex;align-items:baseline;gap:5px}.hero .v .cur{font-size:24px;font-weight:700;color:#dcd7ff}
+  .hero .v small{font-size:15px;color:#c9c4ff;font-weight:600}
+  .delta{display:inline-flex;gap:6px;font-size:13px;font-weight:700;padding:4px 11px;border-radius:20px;margin-top:12px;
+    background:var(--accent);color:#0E0A1C}
+  .status{display:flex;align-items:center;gap:7px;font-size:12px;color:#c9c4ff;margin-top:14px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px}
+  .card h2{font-size:12px;color:var(--muted);font-weight:500;margin-bottom:14px}
+  .al{display:grid;grid-template-columns:70px 1fr 40px;align-items:center;gap:10px;margin-bottom:11px;font-size:13px}
+  .al:last-child{margin-bottom:0}.al-p{text-align:right;color:var(--muted)}
+  .al-track{height:9px;background:var(--surface-2);border-radius:6px;overflow:hidden}
+  .al-fill{display:block;height:100%;border-radius:6px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);
+    font-weight:600;padding-bottom:9px;border-bottom:2px solid var(--border)}
+  th.r,td.r{text-align:right}td{padding:11px 0;border-bottom:1px solid var(--border)}
+  tr:last-child td{border-bottom:0}
+  .asset{font-weight:700}.broker{font-size:11px;color:#c9c4ff;background:#2B2A55;padding:2px 7px;border-radius:5px;margin-left:6px}
+  .gain{color:var(--gain);font-weight:700}.loss{color:var(--loss);font-weight:700}.muted{color:var(--muted)}
+  .price{color:var(--text)}.stale{font-size:11px;color:#e7c24a;background:#332a10;padding:2px 7px;border-radius:5px}
+  .foot{font-size:11px;color:var(--muted);text-align:center;padding:4px}
+</style></head>
+<body><div class="app">
+  <div class="top"><h1>พอร์ตรวมทุกโบรก</h1><span class="re">↻ รีเฟรช</span></div>
+  <div class="hero">
+    <div class="k">มูลค่าพอร์ตรวม</div>
+    <div class="v num"><span class="cur">฿</span>2,912,630</div>
+    <span class="delta num">▲ ฿231,130 (+8.62%)</span>
+    <div class="status"><span class="dot"></span> ออนไลน์ · อัปเดตแล้ว</div>
+  </div>
+  <div class="card"><h2>สัดส่วน Asset Allocation</h2>
+    <div class="al">
+      <span class="al-n">ทองคำ</span>
+      <span class="al-track"><span class="al-fill" style="width:54.9%;background:#C1FD42"></span></span>
+      <span class="al-p num">55%</span>
+    </div>
+    <div class="al">
+      <span class="al-n">หุ้นไทย</span>
+      <span class="al-track"><span class="al-fill" style="width:19.7%;background:#7B72FF"></span></span>
+      <span class="al-p num">20%</span>
+    </div>
+    <div class="al">
+      <span class="al-n">เงินสด</span>
+      <span class="al-track"><span class="al-fill" style="width:17.2%;background:#9CA3AF"></span></span>
+      <span class="al-p num">17%</span>
+    </div>
+    <div class="al">
+      <span class="al-n">หุ้น ตปท.</span>
+      <span class="al-track"><span class="al-fill" style="width:8.2%;background:#F982FB"></span></span>
+      <span class="al-p num">8%</span>
+    </div></div>
+  <div class="card"><h2>สินทรัพย์ (ข้ามโบรก)</h2>
+    <table><thead><tr><th>สินทรัพย์</th><th class="r">กำไร/ขาดทุน</th><th class="r">มูลค่า</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="asset">PTT</span><span class="broker">SCBS</span></td>
+        <td class="r"><span class="gain num">▲ +25.00%</span></td>
+        <td class="r"><span class="price num">฿428,125</span></td>
+      </tr>
+      <tr>
+        <td><span class="asset">BBL</span><span class="broker">KBank</span></td>
+        <td class="r"><span class="loss num">▼ −3.33%</span></td>
+        <td class="r"><span class="price num">฿145,000</span></td>
+      </tr>
+      <tr>
+        <td><span class="asset">AAPL</span><span class="broker">IBKR</span></td>
+        <td class="r"><span class="gain num">▲ +26.72%</span></td>
+        <td class="r"><span class="price num">฿239,505</span></td>
+      </tr>
+      <tr>
+        <td><span class="asset">ทองคำ 96.5%</span><span class="broker">manual</span></td>
+        <td class="r"><span class="gain num">▲ +6.67%</span></td>
+        <td class="r"><span class="stale num">ราคาเก่า 18 นาที</span></td>
+      </tr>
+      <tr>
+        <td><span class="asset">เงินสด</span><span class="broker">manual</span></td>
+        <td class="r"><span class="gain num">▲ +0.00%</span></td>
+        <td class="r"><span class="price num">฿500,000</span></td>
+      </tr></tbody></table>
+  </div>
+  <div class="foot">คำนวณจาก portfolio.ts จริง · F002 · 5 สินทรัพย์ 4 ช่องทาง</div>
+</div></body></html>

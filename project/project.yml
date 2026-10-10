@@ -14,7 +14,7 @@ meta:
 
 # ระยะปัจจุบันของโครงการ — มีเพียง /gate เท่านั้นที่เลื่อนค่านี้
 # intake → product → analysis → design → build → review → quality → release
-stage: design
+stage: quality
 
 problem:
   statement: รวบรวมสินทรัพย์จากทุกพอร์ตการลงทุนไว้ที่เดียว เพื่อทำ asset allocation และดูภาพ income/outcome   # ปัญหาในหนึ่งประโยค เขียนเป็นปัญหา ไม่ใช่วิธีแก้
@@ -60,20 +60,48 @@ technical:
     - ราคาทองไทย
     - อัตราแลกเปลี่ยน — Google source (อัปเดตทุก 15 นาที)
     - LINE OA (ช่องทางเข้าใช้งาน)
-  stack: Web responsive (รองรับ mobile/tablet) เข้าใช้งานผ่าน LINE OA — ยังไม่ระบุภาษา/เฟรมเวิร์ก   # ภาษาและเฟรมเวิร์ก
+  stack: "Next.js (TypeScript/React) + Supabase (Postgres + Auth + Row-Level Security + Edge Functions/cron ดึงราคา+FX ทุก 15 นาที) · web responsive เข้าผ่าน LINE OA · Google Sheet import ผ่าน API — เลือกโดยเจ้าของโครงการ 2026-08-29 (ปิด B3) · รอ system-analyst formalize เป็น ADR-002"   # ภาษาและเฟรมเวิร์ก
   existing_code: ไม่มี — ปัจจุบันใช้ Excel/Google Sheet   # มีโค้ดเดิมไหม อยู่ที่ไหน
 
 design:
-  brand: TBD — ต้องการ [โทน สี ตัวอักษร]             # โทน สี ตัวอักษร ถ้ามีคู่มือแบรนด์ให้ชี้ที่อยู่
+  brand: "Neon Dark (designops) — เลือกโดยเจ้าของ 2026-08-29 · พื้น #0E0A1C การ์ด #181330 · primary ม่วง #564CF8 · accent ไลม์ #C1FD42 · highlight ชมพู #F982FB · กำไร #3DDC84 ▲ / ขาดทุน #FF6B6B ▼ (คู่ ▲▼ +/− เสมอ colorblind-safe) · ฟอนต์ IBM Plex Sans Thai (tabular figures) · หลีกเลี่ยงลาย AI (gradient/glass พร่ำเพรื่อ, จัดกลางทุกอย่าง, emoji เป็น icon) · รายละเอียด token เต็มใน DSN-WPN-001"   # โทน สี ตัวอักษร ถ้ามีคู่มือแบรนด์ให้ชี้ที่อยู่
   devices:                    # อุปกรณ์เป้าหมาย
     - mobile
     - tablet
     - desktop (web responsive)
-  existing_system: TBD — ต้องการ [มี design system เดิมหรือเริ่มจากศูนย์]   # มี design system เดิมไหม หรือเริ่มจากศูนย์
+  existing_system: เริ่มจากศูนย์ — ไม่มี design system/brand guide เดิม สร้าง token+component ชุดใหม่ทั้งหมดใน DSN-WPN-001   # มี design system เดิมไหม หรือเริ่มจากศูนย์
 
 build:
-  definition_of_done: []      # เกณฑ์ว่างานหนึ่งชิ้นเสร็จ — ดู skill developer
-  branch_convention: TBD — ต้องการ [รูปแบบการตั้งชื่อ branch]   # ตั้งชื่อ branch ยังไง
+  # เกณฑ์ว่างานหนึ่งชิ้นเสร็จ — [ข้อเสนอ commander เจ้าของ overrule ได้] · เต็มรูปแบบดู .claude/skills/developer/assets/definition-of-done.md
+  definition_of_done:
+    - AC ทุกข้อของ story สาธิตผ่านได้จริง และครอบคลุม unhappy path อย่างน้อย 1 เคส
+    - test case ใน TST-WPN-001 ที่เกี่ยวข้องกับ story ผ่านครบ
+    - มี test สำหรับพฤติกรรมใหม่ และ test พังถ้าเอาโค้ดออก · ชุดเทสต์ทั้งหมดผ่าน ไม่มี warning ใหม่ใน console
+    - ทุกหน้าจอมี state ครบ — ว่าง / กำลังโหลด / ผิดพลาด / ไม่มีสิทธิ์ (ตาม REQ ข้อ 8)
+    - ใช้ design token จาก DSN ไม่ hardcode สี/ระยะ · ถูกต้องทุก breakpoint (mobile/tablet/desktop) และเปิดผ่าน LINE OA in-app browser ได้ (NFR-05)
+    - คีย์บอร์ดเข้าถึงครบ มีขอบโฟกัสที่มองเห็น · ผ่าน WCAG 2.1 AA (NFR-02)
+    - ตัวเลขการเงินถูกต้อง — income/outcome, %, กันหารศูนย์เมื่อ cost=0, แปลง FX, ตรรกะ stale 15 นาที (BR-01..BR-05)
+    - ตารางสอบทานย้อนกลับระบุแล้วว่าโค้ดนี้ทำตาม requirement/AC ข้อไหน
+    - assumptions และคำถามที่ค้างบันทึกใน project.yml แล้ว · เอกสารต้นทางที่ขัดกันออกเป็น /cr แล้ว
+    - อ่าน diff ตัวเองครบเหมือนงานคนอื่น · ไม่มี console.log/โค้ดทดลองค้าง · commit แยกเหตุผลละอัน
+  branch_convention: "feature/<story>-<slug> เช่น feature/F001-add-asset · fix/<slug> · [ข้อเสนอ commander overrule ได้]"   # ตั้งชื่อ branch ยังไง
+  # ความคืบหน้า build — ให้ commander/developer อ่านก่อนเดินต่อ ไม่ทำซ้ำ
+  progress:
+    stack: "scaffold Next.js 14 (App Router) + React 18 + TS + lucide-react + tokens.css (Neon Dark) + IBM Plex Sans Thai (next/font) · next build ผ่าน"
+    logic: "F001–F007 business rules เสร็จ — 6 lib modules (finance/asset/portfolio/rebalance/import/risk) · asset.ts +ASSET_TYPE_LABELS/draftToDisplayAsset · 33/33 tests ผ่าน"
+    screens_done:
+      - "F002 Portfolio — app/page.tsx ต่อ portfolio.ts/finance.ts จริง (mock data) · รันได้ที่ :3200"
+      - "F001 Add Asset — app/add/page.tsx ต่อ validateAssetDraft/isDuplicate/draftToDisplayAsset จริง · AC-01/E01–E04 (inline error + focus ช่องแรก + ยืนยันซ้ำ + สถานะกำลังบันทึก) · a11y (label/aria-invalid/aria-describedby/focus ring) · next build ผ่าน [command-center 2026-09-19]"
+      - "F006 Rebalance — app/rebalance/page.tsx ต่อ computeRebalanceGap จริง · states empty(ชวนตั้งเป้า/→F007)/has-data(gap ต่อคลาส ▲▼)/error(เป้ารวม≠100 AC-E01) · a11y · build ผ่าน [command-center 2026-09-19]"
+      - "F005 Import — app/import/page.tsx ต่อ importAssets จริง (paste CSV) · รายงานแถว/คอลัมน์ผิด (AC-E01) + ปุ่มตัวอย่าง · build ผ่าน · การเชื่อม Google Sheet/xlsx จริง = Class B [command-center 2026-09-19]"
+      - "F008 Login/SSO — app/login/page.tsx + Auth.js (NextAuth v5, JWT session ไม่ผูก DB): src/auth.ts (Google + LINE providers) · app/api/auth/[...nextauth]/route.ts · app/providers.tsx (SessionProvider) + src/components/LogoutButton.tsx · app/dashboard/page.tsx (landing หลัง login, server-protected → ไม่ login เด้ง /login) · middleware.ts (เติม req.auth + guard ที่ comment ไว้) · **Google + LINE login ทดสอบผ่านจริง end-to-end [2026-10-10] — ครบ PRD spec (LINE+Google) + CR-WPN-001** · ปุ่ม logout อยู่ใน topbar ทุกหน้า (/ /add /import /rebalance) + dashboard · email → UI มีแต่ยังไม่เปิด (แจ้งตรงๆ ไม่แกล้งสำเร็จ) · redirect URIs: /api/auth/callback/{google,line} · validation อีเมล+รหัส≥8 · a11y · next build ผ่าน · Apple+X **ถูกเอาออกแล้ว [2026-10-10]** (เคยเกิน spec → ตัดทิ้งให้เหลือ LINE+Google ตาม PRD เป๊ะ) · เปลี่ยนจากแผน Supabase → NextAuth (เจ้าของเลือก ไม่อยากผูก Supabase) · dep: next-auth@5 (ถอน @supabase/*) · creds ใน .env.local (gitignored), AUTH_SECRET สุ่ม · gotcha: restart dev ระหว่าง flow / cookie เก่า → InvalidCheck state → แก้ด้วย incognito/clear cookie [2026-10-10]"
+    screens_todo:
+      - "F007 Risk (disclaimer gate) — บล็อก Class B (ถ้อยคำ disclaimer กรอบ ก.ล.ต. + BR-07)"
+      - "F003 price-status จริง (stale/ดึงราคา) — logic เสร็จ, การดึงจริงบล็อก Class B (O1 ToS) · UI ใช้ mock/ต้นทุนชั่วคราว"
+    screens_optional_non_req:
+      - "Stock detail — ไม่ใช่ข้อกำหนด F001–F007 (DSN §6 ยืนยัน req มีหน้าครบแล้ว) → นอกเกณฑ์ G4, ทำรอบหน้าได้ ไม่บล็อก"
+    remaining_cross_cutting: "nav: topbar → /add /import /rebalance (มี back ทุกหน้า) · ผัง NAV เต็ม (STAGED) ยังไม่ลง · login UI + auth scaffold เสร็จแล้ว (F008) แต่ unauthorized state ทุกหน้า + บังคับ login (middleware guard) = พร้อมเปิดเมื่อมี Supabase creds (Class B) · a11y pass เชิงลึกทั้งแอป"
+    blocked_classB: "Supabase creds (data/auth จริง) · O1 ToS (F003/F004 ดึงราคาจริง) · F007 disclaimer wording"
 
 quality:
   wcag: AA                    # ระดับที่ยึด
@@ -118,6 +146,82 @@ gates:
     result: pass
     missing: []
     note: ปิดหลังสร้าง TST-WPN-001 (AC 36/36 + traceability 2 ทาง) · known gaps ยกไปข้างหน้า — interface contracts (รอ O1 ToS + B3 stack), screen flow (งาน stage design)
+  - id: G3
+    name: Design system ready
+    checked: 2026-08-29
+    result: pass
+    missing: []
+    note: ผ่านหลังสร้าง DSN-WPN-001 — tokens ครบ 4 กลุ่ม, contrast วัดจริงทุกคู่ (AA ผ่านหมด), components ทุก state, screens 5 state (รวม unauthorized), traceability F001–F007, ตรวจ anti-ai เบื้องต้น · ตรวจด้วยมือเทียบไฟล์จริง (เทียบเท่า /gate G3) · ยกไปข้างหน้า: ผัง NAV/screen flow ละเอียด + ถ้อยคำ disclaimer F007 (งาน build / รอ O1)
+  - id: G4
+    name: Definition of Done
+    checked: 2026-09-19
+    result: fail
+    missing:
+      - "หน้าจอยังไม่ครบ — เสร็จ 2/6+ (F002 Portfolio, F001 Add asset) · ยังขาด F005 Import, F006 Rebalance, F007 Risk, Stock detail (logic เสร็จแต่ยังไม่มี UI/สถานะครบ)"
+      - "AC บาง story สาธิตจริงไม่ได้จนกว่าจะปลดบล็อก Class B — F003/F004 ราคาตลาด/FX จริงรอ O1 (ToS) · F007 disclaimer gate รอถ้อยคำ (กรอบ ก.ล.ต.) · data/auth จริงรอ Supabase creds"
+      - "a11y pass ทั้งแอปยังไม่ครบ — ทำแล้วเฉพาะ F001 (label/aria/focus ring) + global focus outline · หน้าอื่นที่ยังไม่สร้างยังตรวจ WCAG AA ไม่ได้"
+      - "navigation/routing ยังไม่ครบ — มีแค่ topbar → /add และ back · ผัง NAV เต็ม (STAGED ใน DSN) ยังไม่ลง"
+      - "component ที่เหลือยังไม่แปลงเป็น React ครบ · traceability code→AC ครบเฉพาะส่วนที่สร้าง (F002/F001)"
+    note: "รอบ /command-center 2026-09-19 — developer desk สร้าง F001 Add asset (AC-01/E01–E04, a11y, 33/33 tests, next build ผ่าน) · G4 ต้องเห็นทั้ง build เสร็จจึงยัง NOT YET · 3 บล็อกที่เหลือเป็น Class B ต้องให้เจ้าของตัดสิน — commander หยุดถาม"
+  - id: G4
+    name: Definition of Done
+    checked: 2026-09-19
+    result: fail
+    missing:
+      - "F007 Risk screen ยังไม่สร้าง — บล็อก Class B (ถ้อยคำ disclaimer กรอบ ก.ล.ต., BR-07/F007 AC-04)"
+      - "F003 การดึง/แสดงราคา stale จริง — บล็อก Class B (O1 ToS) · logic เสร็จ, UI ใช้ mock ชั่วคราว"
+      - "(หมายเหตุ: Stock detail ไม่ใช่ข้อกำหนด F001–F007 → ไม่นับเป็น missing ของ G4)"
+      - "F003/F004 ราคาตลาด/FX จริงยังสาธิตไม่ได้ — เจ้าของเลือก 'ตรวจ ToS ก่อน' (O1 ยังเปิด) · UI ใช้ราคาต้นทุน/mock ชั่วคราว"
+      - "unauthorized state + data/auth จริงทุกหน้า รอ Supabase (เจ้าของเลือกคง mock) — Class B"
+      - "a11y pass เชิงลึกทั้งแอป + ผัง NAV เต็มยังไม่ครบ"
+    note: "รอบ /command-center 2026-09-19 (ต่อ) — หลังเจ้าของสั่ง build ต่ออัตโนมัติ: สร้าง F006 Rebalance + F005 Import (ต่อ logic จริง, states, a11y, 33/33 tests, 4 routes build ผ่าน) · งาน build ที่ unblocked+มี DSN หมดแล้ว · เหลือเฉพาะ Class B (F007 disclaimer, O1 ToS, Supabase) + design gap (Stock detail) → hard stop รอเจ้าของ"
+  - id: G4
+    name: Definition of Done (scoped to committed must-have scope)
+    checked: 2026-09-19
+    result: pass
+    missing: []
+    note: >
+      ผ่านตามขอบเขตที่เอกสารกำหนด — developer (เจ้าของ G4) verify เทียบไฟล์จริงแล้ว approve.
+      ข้ออ้างอิงที่ทำให้ scope รอบนี้ = must-have F001–F004:
+      (1) REQ-WPN-001 ระดับความจำเป็น — F001–F004 'ต้องมี', F005/F006/F007 'ควรมี' (เลื่อนได้โดยของยังใช้ได้);
+      (2) project.yml scope.in = REQ-01..04, scope.out เลื่อน REQ-07 (F007) โดยเจ้าของ;
+      (3) gate G2 ผ่านโดยระบุ price-fetch interface (settrade/investing) STAGED รอ O1 (ToS) — การดึงราคาสด F003 (AC-01/02/05/06) จึงยังไม่ contract ให้ build รอบนี้.
+      หลักฐานที่ผ่าน: F001 Add asset (AC-01/E01–E04), F002 Portfolio, F004 income/outcome (AC-E01 no-market → '—'),
+      F003 ส่วน manual/stale/offline (AC-03/04/E01/E02 — อยู่ในชื่อ requirement 'และกรอกมือเมื่อไม่รองรับ'),
+      + ควรมี F005 Import/F006 Rebalance ทำเกินให้แล้ว · 33/33 tests · next build ผ่าน 4 routes · design token ล้วน · a11y (label/aria/focus).
+      CARRY-FORWARD ที่บันทึกไว้ ไม่ได้อ้างว่าเสร็จ (Class B — ห้ามปั้น):
+      F003 ดึงราคาสด (O1 ToS, เจ้าของกำลังตรวจ) · real data/auth + unauthorized-wiring (Supabase creds) · F007 disclaimer (ก.ล.ต.).
+      [command-center Class A scoping — เจ้าของ overrule ได้]
+  - id: G5
+    name: Code review
+    checked: 2026-09-19
+    result: pass
+    missing: []
+    note: >
+      code-reviewer (เจ้าของ G5) ตรวจ diff รอบ build แล้ว — report ที่ project/5-quality/review-report.md.
+      ไม่มี BLOCKER/MAJOR ค้าง · decision = APPROVE. MINOR ที่บันทึกเลื่อน (เจ้าของ/ผู้รีวิวรับทราบ):
+      CSV parser หน้า import ไม่รองรับคอมมาในเครื่องหมายคำพูด (จำกัดเฉพาะ paste MVP, มีหมายเหตุในไฟล์) ·
+      draftToDisplayAsset ตั้ง fxToThb=1 สำหรับ foreign (deferred → F004/O1, log ใน assumptions).
+  - id: G6
+    name: Ready to release
+    checked: 2026-09-19
+    result: fail
+    missing:
+      - "release.target ยังเป็น TBD — ยังไม่รู้ปล่อยขึ้นที่ไหน (Class B)"
+      - "release.approver ยังเป็น TBD — ยังไม่มีผู้กดปล่อย (Class B)"
+      - "release.rollback ยังเป็น TBD และ 'ยังไม่เคยซ้อมจริง' — gate.md บังคับ rollback ต้องซ้อมจริง ไม่เคยซ้อม = fail (Class B)"
+      - "ยังไม่มี QA report (verdict) และ release checklist (.claude/skills/devops-release/assets/release-checklist.md) ยังไม่ทำ"
+      - "watch plan (signal/threshold ตัวเลข/คนเฝ้า/ระยะเวลา) ยังไม่ระบุครบสี่"
+    note: "quality-assurance (เจ้าของ G6) ตรวจแล้ว — หยุดถูกจุดตาม standing working condition: release infra + rollback rehearsal เป็นข้อเท็จจริงภายนอก/การกระทำจริงที่ approve เข้ามาเองไม่ได้ (ปั้น rollback ที่ซ้อมจริง/ผู้อนุมัติปล่อย = ความเสี่ยงจริงในแอปการเงิน). stage คงที่ quality — รอเจ้าของเติม release.target/approver/rollback + ซ้อม rollback จริง จึงเดิน release ได้"
+  - id: G6
+    name: Ready to release
+    checked: 2026-09-19
+    result: fail
+    missing:
+      - "release.target = TBD (Class B — ปล่อยที่ไหน)"
+      - "release.approver = TBD (Class B — ใครกดปล่อย)"
+      - "release.rollback = TBD และยังไม่เคยซ้อมจริง (Class B — gate บังคับ 'ไม่เคยซ้อม = fail')"
+    note: "re-check หลังทำ deliverable — ปิดไป 2/5: (1) release checklist + watch plan = project/6-release/release-checklist-WPN.md ✓ · (2) QAR-WPN-001 verdict PASS WITH ADVISORIES (≠ BLOCK) ลงทะเบียนแล้ว ✓. เหลือ 3 ข้อ Class B ที่เป็นการกระทำจริงของเจ้าของเท่านั้น — stage คงที่ quality"
 
 # ช่องที่ยังไม่มีคำตอบ — ทุกช่องที่เป็น TBD ต้องมีรายการที่นี่
 open_questions:
@@ -126,9 +230,6 @@ open_questions:
     raised: 2026-08-22
   - field: scope.approver
     note: TBD — scope.in/out ร่างแล้วใน PRD-WPN-001 แต่ยังไม่มีผู้ sign-off (solo อาจเซ็นเอง)
-    raised: 2026-08-22
-  - field: technical.stack
-    note: TBD — web responsive + LINE OA + ไฮบริด DB (ADR-001) ตัดสินแล้ว แต่ยังไม่เลือกภาษา/เฟรมเวิร์ก/ตัว DB ให้ system-analyst/developer สรุป
     raised: 2026-08-22
   - field: technical.integrations
     note: "TBD — investing.com/settrade มีเงื่อนไขการใช้ข้อมูล (ToS/ลิขสิทธิ์ราคา) ต้องตรวจว่าดึงมาแสดงได้ถูกกฎหมายไหม"
@@ -139,6 +240,9 @@ open_questions:
   - field: scope.in
     note: "TBD — F007 แบบประเมินเสนอ allocation อาจเข้าข่ายคำแนะนำการลงทุนตามกรอบ ก.ล.ต. ต้องกำหนด disclaimer/frame ก่อนสร้าง"
     raised: 2026-08-22
+  - field: build.definition_of_done
+    note: "DoD เป็น [ข้อเสนอ commander] ร่างจาก template developer + บริบท WPN (UI/การเงิน/WCAG AA/LINE OA) — เจ้าของยืนยัน/ปรับก่อนใช้เป็นเกณฑ์ G4 จริง"
+    raised: 2026-08-29
 
 # ตัวเลขหรือข้อเท็จจริงที่เป็นการเดา ไม่ใช่ของที่รู้จริง
 assumptions:
@@ -148,6 +252,9 @@ assumptions:
   - text: "SA ออกแบบ data model โดยสมมติ ~50–200 assets/user, single-user ต่อบัญชี, เก็บราคาล่าสุดไม่เก็บ history (MVP) — รอยืนยัน (SRS A1–A3)"
     source: นักวิเคราะห์ระบบ (analysis)
     raised: 2026-08-22
+  - text: "F001 หน้าเพิ่มสินทรัพย์แบบ manual — draftToDisplayAsset ตั้ง marketPrice=null (ยังไม่มีราคาตลาด, portfolio ใช้ราคาต้นทุนแทนและ flag) และ fxToThb=1 (กรอกเป็น THB); การแปลง FX ของสินทรัพย์ต่างสกุล (foreign_stock) เลื่อนไป F004 ซึ่งบล็อกด้วย O1 (แหล่ง FX/ToS) — เจ้าของ overrule ได้"
+    source: "[command-center] decide-and-log (build F001)"
+    raised: 2026-09-19
   - text: "วิธีแก้ที่เจ้าของโครงการเสนอ — ให้ AI เป็นที่ปรึกษาช่วยจัด asset allocation เสมือนมีทีม personal wealth ดูแล โดยอ้างอิงสถานการณ์เศรษฐกิจปัจจุบันและเชื่อมโยงข้อมูลข้ามโบรกได้ เพื่อ 'ทำให้คำปรึกษาเข้าถึงได้' สำหรับคนที่ยังไม่ถึงเกณฑ์ 2 ล้าน หรือไม่อยากผูกกับโบรกเดียว (ยังไม่ผ่านการทบทวนโดย product-owner ว่าใช่วิธีที่ควรสร้าง และยังไม่ได้ประเมินความเสี่ยง/ความรับผิดของการให้คำแนะนำการลงทุนโดย AI)"
     source: เจ้าของโครงการเสนอเอง (intake)
     raised: 2026-08-22

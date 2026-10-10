@@ -4,7 +4,7 @@
 |---|---|
 | รหัสโครงการ | WPN |
 | เจ้าของโครงการ | TBD — ต้องการ [ชื่อ] |
-| ปรับปรุงทะเบียนล่าสุด | 2026-08-22 |
+| ปรับปรุงทะเบียนล่าสุด | 2026-09-19 |
 
 ทะเบียนนี้ต้องปรับปรุงในการแก้ไขครั้งเดียวกับที่สร้างหรือแก้เอกสาร
 ทะเบียนที่ตามมาปรับทีหลัง คือทะเบียนที่ผิดในช่วงเวลาระหว่างนั้น
@@ -16,10 +16,12 @@
 | รหัสเอกสาร | ชื่อเอกสาร | ฉบับแก้ไข | สถานะ | ปรับปรุงล่าสุด |
 |---|---|---|---|---|
 | PRD-WPN-001 | WealthPlaner — ระบบจัดการ Personal Wealth และ Asset Allocation | 00 | ร่าง | 2026-08-22 |
-| REQ-WPN-001 | ข้อกำหนดความต้องการและเกณฑ์การยอมรับ — WealthPlaner | 00 | ร่าง | 2026-08-22 |
-| SRS-WPN-001 | System Requirements and Design Specification — WealthPlaner | 00 | ร่าง | 2026-08-22 |
-| CR-WPN-001 | Change request — data_location ไฮบริด + auth | 00 | อนุมัติแล้ว | 2026-08-22 |
-| TST-WPN-001 | Test cases + traceability matrix — WealthPlaner | 00 | ร่าง | 2026-08-22 |
+| REQ-WPN-001 | ข้อกำหนดความต้องการและเกณฑ์การยอมรับ — WealthPlaner | 00 | ร่าง | 2026-08-29 |
+| SRS-WPN-001 | System Requirements and Design Specification — WealthPlaner | 00 | ร่าง | 2026-08-29 |
+| CR-WPN-001 | Change request — data_location ไฮบริด + auth | 00 | อนุมัติแล้ว | 2026-08-29 |
+| TST-WPN-001 | Test cases + traceability matrix — WealthPlaner | 00 | ร่าง | 2026-08-29 |
+| DSN-WPN-001 | ระบบออกแบบและข้อกำหนดหน้าจอ (Neon Dark) — WealthPlaner | 00 | ร่าง | 2026-08-31 |
+| QAR-WPN-001 | รายงานการประกันคุณภาพ (F001–F006) — WealthPlaner | 00 | ร่าง | 2026-09-19 |
 
 สถานะที่ใช้ได้ — `ร่าง` · `รอทบทวน` · `อนุมัติแล้ว` · `ยกเลิก`
 
@@ -33,7 +35,7 @@
 skill `document-control`
 
 `SRS-WPN-001` เป็นทางเข้าของระยะวิเคราะห์ และรวบรวมเนื้อหาจาก `ARC` `DM` `NAV`
-`DAY` `TST` เข้าด้วยกัน
+`TST` เข้าด้วยกัน
 
 ---
 
@@ -53,4 +55,9 @@ skill `document-control`
 | 2026-08-22 | REQ-WPN-001 | สร้าง | แตก user story + AC จาก PRD ข้อ 7 |
 | 2026-08-22 | SRS-WPN-001 | สร้าง | data model + ADR-001 + behaviour + traceability |
 | 2026-08-22 | CR-WPN-001 | สร้าง+อนุมัติ | ปิด C1/B2 → PRD ปรับ data_location + auth |
-| 2026-08-22 | TST-WPN-001 | สร้าง | test cases 38 + traceability (AC 36/36) |
+| 2026-08-22 | TST-WPN-001 | สร้าง | test cases 43 + traceability (AC 36/36) |
+| 2026-08-29 | TST-WPN-001 · SRS-WPN-001 | แก้ไข (ร่าง) | audit: แก้ยอด test case 38 → 43 ให้ตรงจำนวนจริง ทั้ง TST §4/§7, SRS §9, README (AC 36/36 ไม่เปลี่ยน) |
+| 2026-08-29 | REQ · SRS · TST · CR · REGISTER | แก้ไข (cosmetic) | audit cleanup: F003 renumber AC-E05/E06→E04/E05 (REQ/SRS/TST), CR section §5/§6→§4/§5, ลบ typo "DAY" ในลำดับชั้น · ไม่กระทบ logic/traceability/AC 36 |
+| 2026-08-29 | SRS-WPN-001 · project.yml | แก้ไข (ร่าง) | ปิด B3: เจ้าของเลือก stack = Next.js + Supabase (Postgres) · เพิ่ม definition_of_done (ข้อเสนอ commander) · owner คงเป็น TBD ตามเจ้าของ |
+| 2026-08-29 | DSN-WPN-001 | สร้าง | เริ่ม stage design — tokens (Neon Dark: พื้น #0E0A1C การ์ด #181330) + components ทุก state + screens 5 state + contrast วัดจริง (AA) + traceability F001–F007 · เจ้าของเลือกพาเลตต์+ฟอนต์ IBM Plex Sans Thai |
+| 2026-08-31 | DSN-WPN-001 | แก้ไข (ร่าง) | sync DSN ให้ตรง code/component ที่ build — warn #C9A227, muted #A79FC0 (+muted-2/ink), radius 18/26 (design↔code drift ปิด) |

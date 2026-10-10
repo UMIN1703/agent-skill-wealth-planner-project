@@ -1,0 +1,7 @@
+stateDiagram-v2
+    [*] --> Manual: กรอกมือ (ไม่มีแหล่งรองรับ)
+    [*] --> Online: ดึงสำเร็จ
+    Online --> Stale: เก่ากว่า 15 นาที / ดึงไม่สำเร็จ
+    Stale --> Online: refresh สำเร็จ
+    Manual --> Manual: ผู้ใช้แก้เอง
+    Stale --> Manual: ผู้ใช้กรอกทับ

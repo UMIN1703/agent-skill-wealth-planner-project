@@ -1,0 +1,49 @@
+/* WealthPlaner design tokens — generated from DSN-WPN-001 (Neon Dark).
+   Use these variables; do not hardcode colors/spacing (Definition of Done). */
+:root {
+  /* surfaces */
+  --bg: #0E0A1C;
+  --surface: #181330;
+  --surface-2: #221A42;
+  --border: #2E2650;
+
+  /* brand */
+  --brand: #564CF8;
+  --brand-strong: #4239E0;
+  --brand-tint: #2B2A55;
+  --accent: #C1FD42;
+  --accent-strong: #AEE62F;
+  --highlight: #F982FB;
+
+  /* semantic (finance) — always pair with ▲▼ +/− , never color alone */
+  --gain: #3DDC84;
+  --loss: #FF6B6B;
+  --warn: #C9A227;
+
+  /* text */
+  --text: #F4F4F5;
+  --ink: #0E0A1C;
+  --muted: #A79FC0;
+  --muted-2: #908AB2;
+
+  /* spacing (8px base) */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* radius / border / motion */
+  --radius-card: 18px;
+  --radius-control: 10px;
+  --radius-pill: 26px;
+  --border-width: 1px;
+
+  --font-sans: "IBM Plex Sans Thai", system-ui, sans-serif;
+  --motion: 120ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --motion: 0ms; }
+}

@@ -1,0 +1,10 @@
+erDiagram
+    User ||--o{ Asset : owns
+    User ||--o{ TargetAllocation : sets
+    User ||--o{ RiskAssessment : takes
+    User ||--o{ BrokerChannel : uses
+    AssetType ||--o{ Asset : classifies
+    AssetType ||--o{ TargetAllocation : "target per class"
+    BrokerChannel ||--o{ Asset : holds
+    PriceSource ||--o{ Asset : "priced by"
+    AssetType ||--o{ FXRate : "if foreign"

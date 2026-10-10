@@ -145,8 +145,8 @@ Expected result
 | TC-F003-E01 | AC-E01 | Negative | ดึงไม่สำเร็จ → คง offline, แสดงค่าล่าสุด, ไม่แสดง 0 |
 | TC-F003-E02 | AC-E02 | Negative | ไม่มีเน็ต → offline ทั้งพอร์ต ใช้ cache ไม่ crash |
 | TC-F003-E03 | AC-E03 | Negative | ราคาผิดปกติ (0/กระโดด) → ไม่เขียนทับเงียบ, flag ให้ตรวจ |
-| TC-F003-E05 | AC-E05 | Negative | refresh ตอนไม่มีเน็ต → "ยังออฟไลน์" ไม่ค้าง loading |
-| TC-F003-E06 | AC-E06 | Negative | กด refresh รัว → ปุ่ม disable ระหว่างโหลด + rate-limit |
+| TC-F003-E04 | AC-E04 | Negative | refresh ตอนไม่มีเน็ต → "ยังออฟไลน์" ไม่ค้าง loading |
+| TC-F003-E05 | AC-E05 | Negative | กด refresh รัว → ปุ่ม disable ระหว่างโหลด + rate-limit |
 
 **F004 · income/outcome**
 
@@ -201,7 +201,7 @@ Expected result
 |---|---|---|---|---|---|
 | F001 | 7 | 7 | 4 | — | 0 |
 | F002 | 4 | 4 | 2 | — | 0 |
-| F003 | 11 | 11 (004 แยก a/b) | 5 | — | 0 |
+| F003 | 11 | 12 (004 แยก a/b) | 5 | — | 0 |
 | F004 | 3 | 4 | 2 | — | 0 |
 | F005 | 2 | 2 | 1 | — | 0 |
 | F006 | 2 | 2 | 1 | — | 0 |
@@ -221,7 +221,7 @@ Expected result
 
 **Offline/refresh**
 - [x] ทุก capability ตอนไม่มีเน็ต — TC-F003-E02
-- [x] refresh ตอน offline — TC-F003-E05 · กดรัว — TC-F003-E06
+- [x] refresh ตอน offline — TC-F003-E04 · กดรัว — TC-F003-E05
 - [ ] sync สองเครื่อง — ไม่เกี่ยวข้อง (BR-02 ไม่มี offline sync)
 
 **Storage/migration**
@@ -242,7 +242,7 @@ Expected result
 |---|---|---|---|---|---|
 | F001 | Asset, BrokerChannel | — | E-VALIDATION, E-DUP | TC-F001-001…E04 | Covered |
 | F002 | Asset, AssetType | — | — | TC-F002-001…E02 | Covered |
-| F003 | Asset(price_*), PriceSource | ADR-001 (งานดึงราคา) | BR-01/02, state machine, E-PRICE-* | TC-F003-001…E06 | Covered |
+| F003 | Asset(price_*), PriceSource | ADR-001 (งานดึงราคา) | BR-01/02, state machine, E-PRICE-* | TC-F003-001…E05 | Covered |
 | F004 | Asset, FXRate | — | BR-03/04/05 | TC-F004-001…E02 | Covered |
 | F005 | Asset, SchemaMeta | ADR-001 (Sheet import) | — | TC-F005-001/E01 | Covered |
 | F006 | TargetAllocation | — | BR-06, E-ALLOC-SUM | TC-F006-001/E01 | Covered |
@@ -276,7 +276,7 @@ Expected result
 | Requirements fully covered | 7/7 + NFR |
 | Acceptance criteria total | 36 |
 | AC with ≥ 1 test case | **36 / 36** |
-| Test cases total | 38 (รวม NFR/migration) |
+| Test cases total | 43 (38 functional F001–F007 + 5 NFR/migration) |
 | Test cases with no traced requirement | 0 |
 | Design elements with no traced requirement | 0 |
 
@@ -287,3 +287,5 @@ Expected result
 | Rev | Date | Sections | Substance | Author |
 |---|---|---|---|---|
 | 00 | 2026-08-22 | All | First issue — test cases + traceability ครอบทุก AC (F001–F007) | นักวิเคราะห์ระบบ |
+| 00 | 2026-08-29 | §4, §7 | แก้ยอด test case ให้ตรงจำนวนจริง — 38 → **43** (38 functional F001–F007 + 5 NFR/migration) · F003 cases 11 → 12 (นับ 004a/b เป็น 2) · AC coverage 36/36 ไม่เปลี่ยน · ยังเป็นร่าง จึงไม่ขึ้นฉบับ 01 | audit correction |
+| 00 | 2026-08-29 | §3, §5, §6.1 | renumber TC-F003-E05→E04, TC-F003-E06→E05 ตาม REQ AC renumber (audit) · coverage ไม่เปลี่ยน | audit cleanup |

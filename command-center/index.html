@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WealthPlaner · ศูนย์บัญชาการ</title>
+<style>
+  :root{
+    color-scheme:dark;
+    --bg:#0b0817; --panel:rgba(20,15,40,.74); --panel-solid:#171130;
+    --border:rgba(122,114,255,.30); --hair:rgba(255,255,255,.08);
+    --brand:#564CF8; --brand-2:#8b83ff; --pink:#F982FB;
+    --good:#3DDC84; --warn:#E7C24A; --bad:#FF6B6B;
+    --text:#F4F4F5; --muted:#b7b0d4; --muted-2:#8078a6;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{background:radial-gradient(1200px 700px at 50% -5%,#1a1338,var(--bg));
+    color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh}
+
+  /* ── mission-control full-screen layout ── */
+  .mc{display:grid;grid-template-columns:266px minmax(0,1fr) 306px;grid-template-rows:auto minmax(0,1fr) auto;
+    grid-template-areas:"top top top" "left center right" "bot bot bot";gap:12px;padding:12px;height:100vh}
+  .mc-top{grid-area:top} .mc-left{grid-area:left} .mc-center{grid-area:center} .mc-right{grid-area:right} .mc-bot{grid-area:bot}
+  .mc-left,.mc-right{display:flex;flex-direction:column;gap:12px;min-height:0;overflow-y:auto}
+  .mc-center{display:grid;place-items:center;min-height:0;min-width:0}
+
+  .pnl{background:var(--panel-solid);border:1px solid var(--border);border-radius:14px;padding:12px 13px}
+  .pnl h3{margin:0 0 10px;font-size:10px;font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted-2)}
+
+  /* top bar */
+  .mc-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:linear-gradient(180deg,var(--panel-solid),#120e26);
+    border:1px solid var(--border);border-radius:14px;padding:10px 14px}
+  .crest{width:34px;height:34px;border-radius:9px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 35%,var(--brand-2),var(--brand));color:#fff;font-weight:800;font-size:13px;box-shadow:0 6px 16px rgba(86,76,248,.5)}
+  .mc-top .ttl{font-size:14px;font-weight:800;letter-spacing:.14em} .mc-top .sub{font-size:10px;color:var(--muted);font-family:var(--mono)}
+  .stepper{display:flex;align-items:center;gap:3px;flex:1 1 300px;min-width:0;overflow-x:auto;justify-content:center}
+  .step{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--muted-2);white-space:nowrap;padding:4px 8px;border-radius:7px}
+  .step.done{color:var(--good)} .step.cur{color:#fff;background:var(--brand);box-shadow:0 0 0 1px var(--brand-2)}
+  .step-sep{color:var(--muted-2);opacity:.45;font-size:9px}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;color:var(--muted);
+    background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:6px 12px}
+  .chip b{color:var(--text)} .chip.hot b{color:var(--brand-2)}
+  .live{width:8px;height:8px;border-radius:50%;background:var(--good);animation:ping 2.2s infinite}
+  @keyframes ping{0%{box-shadow:0 0 0 0 rgba(61,220,132,.55)}70%{box-shadow:0 0 0 7px rgba(61,220,132,0)}100%{box-shadow:0 0 0 0 rgba(61,220,132,0)}}
+
+  /* stat tiles (left top) */
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .stat{background:var(--panel-solid);border:1px solid var(--hair);border-radius:11px;padding:10px 11px}
+  .stat .v{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.3px} .stat .v small{font-size:12px;font-weight:600;color:var(--muted)}
+  .stat .k{font-size:10px;color:var(--muted);margin-top:2px}
+  .stat.hot .v{color:var(--brand-2)} .stat.bad .v{color:var(--bad)}
+
+  /* stage (unchanged visual — office + pins) */
+  .stage{position:relative;width:100%;height:auto;max-height:100%;aspect-ratio:1536/1024;border-radius:16px;overflow:hidden;
+    border:1px solid var(--border);box-shadow:0 30px 80px rgba(0,0,0,.55)}
+  .stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  .stage::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg,rgba(11,8,23,.4),rgba(11,8,23,0) 16%,rgba(11,8,23,0) 66%,rgba(11,8,23,.55))}
+
+  .pin{position:absolute;transform:translate(-50%,-50%);z-index:3}
+  .pin{--pin:#d7d2ea}
+  .pin .dot{display:block;position:relative;width:18px;height:18px;border-radius:50%;margin:0 auto;background:var(--pin);
+    box-shadow:inset 3px 3px 5px rgba(255,255,255,.55), inset -3px -3px 5px rgba(0,0,0,.28),
+      0 0 0 2px rgba(255,255,255,.92), 0 0 14px 3px var(--pin), 0 3px 7px rgba(0,0,0,.55)}
+  .pin .dot::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--pin);opacity:0;pointer-events:none}
+  .pin.active .dot::after,.pin.run .dot::after{animation:halo 1.9s ease-out infinite}
+  .pin:hover .dot{transform:scale(1.12)}
+  @keyframes halo{0%{opacity:.7;transform:scale(.62)}80%{opacity:0;transform:scale(2)}100%{opacity:0}}
+  .pin .tag{position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);white-space:nowrap;
+    background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--border);
+    border-radius:9px;padding:5px 9px;box-shadow:0 8px 22px rgba(0,0,0,.5);transition:transform .14s ease}
+  .pin .tag .r{font-size:11px;font-weight:700} .pin .tag .s{font-family:var(--mono);font-size:9px;letter-spacing:.05em;text-transform:uppercase;margin-top:1px}
+  .pin.done .tag .s{color:var(--good)} .pin.wait .tag .s{color:var(--warn)}
+  .pin.active .tag .s{color:var(--brand-2)} .pin.run .tag .s{color:var(--pink)} .pin.oncall .tag .s{color:var(--muted)}
+  .pin .tag .note{display:none;font-size:10px;color:var(--muted);margin-top:4px;max-width:210px;white-space:normal;line-height:1.4}
+  .pin:hover{z-index:7} .pin:hover .tag{transform:translateX(-50%) translateY(-2px)} .pin:hover .tag .note{display:block}
+  .pin.up .tag{top:auto;bottom:calc(100% + 6px)} .pin.up:hover .tag{transform:translateX(-50%) translateY(2px)}
+
+  /* gates checklist (right) */
+  .gatelist{display:flex;flex-direction:column;gap:6px}
+  .g{display:flex;align-items:center;gap:10px;border-radius:9px;padding:9px 11px;background:rgba(255,255,255,.04);border:1px solid var(--hair);position:relative;overflow:hidden}
+  .g::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--muted-2)}
+  .g.pass::before{background:var(--good)} .g.fail::before{background:var(--bad)} .g.checking::before{background:var(--brand);animation:blink 1s infinite}
+  @keyframes blink{50%{opacity:.35}}
+  .g .id{font-family:var(--mono);font-weight:700;font-size:12px;flex:0 0 auto}
+  .g .gd{font-size:11px;color:var(--muted);flex:1;line-height:1.25}
+  .g .st{font-family:var(--mono);font-size:9px;flex:0 0 auto} .g.pass .st{color:var(--good)} .g.fail .st{color:var(--bad)} .g.checking .st{color:var(--brand-2)}
+
+  .needs h3{color:#ffc6cd}
+  .need{display:flex;gap:8px;align-items:baseline;font-size:11px;padding:4px 0;border-top:1px solid var(--hair)}
+  .need:first-of-type{border-top:0}
+  .need .n{font-family:var(--mono);color:var(--bad);font-weight:700} .need .code{font-family:var(--mono);color:var(--pink)} .need .t{color:var(--muted)}
+  .needs.flash{animation:flash 1.2s ease 2}
+  @keyframes flash{0%,100%{box-shadow:none}50%{box-shadow:0 0 0 2px var(--bad)}}
+
+  /* console (left, appears on run) */
+  .console{background:#0a0715;border:1px solid var(--border);border-radius:12px;overflow:hidden;display:none}
+  .console.show{display:block}
+  .console .ch{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--hair);font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-2)}
+  .console .ch .rd{width:8px;height:8px;border-radius:50%;background:var(--pink);animation:ping 1.6s infinite}
+  .console .body{max-height:200px;overflow-y:auto;padding:10px 12px;font-family:var(--mono);font-size:11.5px;line-height:1.7}
+  .console .ln{color:var(--muted);white-space:pre-wrap} .console .ln:last-child{color:var(--text)}
+
+  /* activity (left) */
+  .activity{background:var(--panel-solid);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;min-height:120px}
+  .activity .ah{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;border-bottom:1px solid var(--hair);flex:0 0 auto}
+  .activity .ah h3{margin:0;font-size:11px;font-weight:700}
+  .activity .ah .eyebrow{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2)}
+  .alog{overflow-y:auto;padding:4px 0}
+  .aln{display:grid;grid-template-columns:24px 1fr auto;gap:9px;align-items:center;padding:7px 13px;border-top:1px solid var(--hair)}
+  .aln:first-child{border-top:0}
+  .aic{width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:700;flex:0 0 auto}
+  .aic.pass{color:var(--good);background:rgba(61,220,132,.12)} .aic.fail{color:var(--bad);background:rgba(255,107,107,.12)}
+  .aic.doc{color:var(--brand-2);background:rgba(139,131,255,.12)} .aic.file{color:var(--pink);background:rgba(249,130,251,.12)}
+  .aln .lab{font-size:11.5px;font-weight:600;line-height:1.25;min-width:0} .aln .lab small{display:block;font-weight:400;color:var(--muted);font-size:10.5px;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .aln .rt{font-family:var(--mono);font-size:9px;color:var(--muted-2);text-align:right;white-space:nowrap}
+  .aln .rt .pf{font-weight:700} .aln .rt .pf.pass{color:var(--good)} .aln .rt .pf.fail{color:var(--bad)}
+
+  /* bottom bar */
+  .mc-bot{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:linear-gradient(0deg,var(--panel-solid),#120e26);
+    border:1px solid var(--border);border-radius:14px;padding:11px 14px}
+  .proj{display:flex;align-items:center;gap:10px}
+  .proj .pn{font-size:13px;font-weight:800} .proj .pm{font-size:10px;color:var(--muted);font-family:var(--mono)}
+  .mc-bot .sp{flex:1}
+  .runbtn{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--mono);font-size:13px;font-weight:800;
+    color:#12081a;background:var(--pink);border:1px solid var(--pink);border-radius:11px;padding:11px 20px;letter-spacing:.03em}
+  .runbtn:hover{filter:brightness(1.06)} .runbtn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+  .runbtn.on{background:var(--brand);border-color:var(--brand-2);color:#fff;cursor:progress}
+
+  @media (max-width:1100px){
+    .mc{grid-template-columns:1fr;grid-template-rows:auto auto minmax(360px,60vh) auto auto;
+      grid-template-areas:"top" "left" "center" "right" "bot";height:auto}
+    .mc-left,.mc-right{overflow:visible}
+  }
+  @media (prefers-reduced-motion:reduce){.pin.active .dot::after,.pin.run .dot::after,.live,.g.checking::before,.console .ch .rd{animation:none}}
+</style>
+</head>
+<body>
+<div class="mc">
+
+  <!-- ① TOP BAR -->
+  <header class="mc-top">
+    <div class="crest">&#9660;&#9660;</div>
+    <div><div class="ttl">MISSION CONTROL</div><div class="sub">WealthPlaner · WPN · pipeline 11 บทบาท</div></div>
+    <nav class="stepper">
+      <span class="step done">INTAKE</span><span class="step-sep">›</span>
+      <span class="step done">PRODUCT</span><span class="step-sep">›</span>
+      <span class="step done">ANALYSIS</span><span class="step-sep">›</span>
+      <span class="step done">DESIGN</span><span class="step-sep">›</span>
+      <span class="step done">BUILD</span><span class="step-sep">›</span>
+      <span class="step done">REVIEW</span><span class="step-sep">›</span>
+      <span class="step cur">QUALITY</span><span class="step-sep">›</span>
+      <span class="step">RELEASE</span>
+    </nav>
+    <span class="chip hot">stage · <b>QUALITY</b></span>
+    <span class="chip">gates · <b id="gcount">5</b>/6</span>
+    <span class="chip"><span class="live"></span> localhost:3200</span>
+  </header>
+
+  <!-- ② LEFT: stats + activity + console -->
+  <aside class="mc-left">
+    <div class="stats">
+      <div class="stat hot"><div class="v">QUALITY</div><div class="k">stage · 7/8</div></div>
+      <div class="stat"><div class="v">5<small>/6</small></div><div class="k">gates passed</div></div>
+      <div class="stat bad"><div class="v">3</div><div class="k">รอคุณ (Class B)</div></div>
+      <div class="stat"><div class="v">11</div><div class="k">roles · 8 desks</div></div>
+    </div>
+
+    <div class="console" id="cc-console">
+      <div class="ch"><span class="rd"></span> /command-center · automation loop</div>
+      <div class="body" id="cc-log"></div>
+    </div>
+
+    <section class="activity">
+      <div class="ah"><h3>Activity log · สิ่งที่ทำไปแล้ว</h3><span class="eyebrow" id="acount">—</span></div>
+      <div class="alog" id="alog"></div>
+    </section>
+  </aside>
+
+  <!-- ③ CENTER: office scene + pins (visual เหมือนเดิม) -->
+  <main class="mc-center">
+    <div class="stage">
+      <img src="office11.jpg" alt="ศูนย์บัญชาการ WealthPlaner — ทีม 11 บทบาทประจำโต๊ะทำงาน">
+      <div class="pin done"   style="left:13%;top:37%"><span class="dot"></span><div class="tag"><div class="r">design-sys-arch</div><div class="s">done · G3 · สถานี 01</div><div class="note">UX/UI · DSN Neon Dark — tokens / หน้าจอ</div></div></div>
+      <div class="pin oncall" style="left:30%;top:30%"><span class="dot"></span><div class="tag"><div class="r">project-manager</div><div class="s">on-call · สถานี 02</div><div class="note">planning / schedule (EST/WBS/SCH)</div></div></div>
+      <div class="pin done"   style="left:47%;top:28%"><span class="dot"></span><div class="tag"><div class="r">product-owner</div><div class="s">done · G1 · สถานี 03</div><div class="note">PRD / REQ — นิยาม WHAT</div></div></div>
+      <div class="pin done"   style="left:65%;top:31%"><span class="dot"></span><div class="tag"><div class="r">system-analyst</div><div class="s">done · G2 · สถานี 04</div><div class="note">SRS / TST · price-fetch STAGED (O1)</div></div></div>
+      <div class="pin active" style="left:86%;top:39%"><span class="dot"></span><div class="tag"><div class="r">quality-assurance</div><div class="s">active · G6 · สถานี 05</div><div class="note">QA Tester · QAR-WPN-001 · PASS WITH ADVISORIES</div></div></div>
+      <div class="pin done"   style="left:88.5%;top:64.5%"><span class="dot"></span><div class="tag"><div class="r">developer</div><div class="s">done · G4 · สถานี 06</div><div class="note">Frontend · F001·F002·F004·F005·F006 · 33/33 tests</div></div></div>
+      <div class="pin oncall" style="left:39%;top:37%"><span class="dot"></span><div class="tag"><div class="r">document-control</div><div class="s">on-call · สถานี 11</div><div class="note">6 docs registered · numbering + sweeps</div></div></div>
+      <div class="pin done up" style="left:13%;top:62.5%"><span class="dot"></span><div class="tag"><div class="r">project-intake</div><div class="s">done · G1 · hub</div><div class="note">ตีกรอบปัญหา + intake (จุดเริ่มของสาย)</div></div></div>
+      <div class="pin wait up" style="left:56.5%;top:35%"><span class="dot"></span><div class="tag"><div class="r">devops-release</div><div class="s">waiting · สถานี 10</div><div class="note">Develop &amp; Release · checklist + rollback.sh · รอ Class B</div></div></div>
+      <div class="pin run up" style="left:50%;top:66.5%"><span class="dot"></span><div class="tag"><div class="r">command-center</div><div class="s">running · สถานี 09</div><div class="note">สั่งงาน dispatch → gate → advance แบบ full-auto</div></div></div>
+      <div class="pin done up" style="left:75.5%;top:36%"><span class="dot"></span><div class="tag"><div class="r">code-reviewer</div><div class="s">done · G5 · สถานี 08</div><div class="note">Lead Reviewer · APPROVE · no blockers</div></div></div>
+    </div>
+  </main>
+
+  <!-- ④ RIGHT: gates checklist + needs -->
+  <aside class="mc-right">
+    <div class="pnl">
+      <h3>การถึง · ด่านตรวจ (gates)</h3>
+      <div class="gatelist">
+        <div class="g pass"><div class="id">G1</div><div class="gd">พร้อมเริ่มงาน · Definition of Ready</div><div class="st">PASS</div></div>
+        <div class="g pass"><div class="id">G2</div><div class="gd">ผู้วิเคราะห์ส่งมอบ · handback</div><div class="st">PASS</div></div>
+        <div class="g pass"><div class="id">G3</div><div class="gd">ออกแบบพร้อมลงมือ · design ready</div><div class="st">PASS</div></div>
+        <div class="g pass"><div class="id">G4</div><div class="gd">ถือว่าเสร็จแล้ว · Definition of Done</div><div class="st">PASS</div></div>
+        <div class="g pass"><div class="id">G5</div><div class="gd">ผ่านการทบทวนโค้ด · code review</div><div class="st">PASS</div></div>
+        <div class="g fail"><div class="id">G6</div><div class="gd">พร้อมปล่อยจริง · ready to release</div><div class="st">NOT YET</div></div>
+      </div>
+    </div>
+    <div class="pnl needs">
+      <h3>รอคุณ 3 อย่าง · Class B</h3>
+      <div class="need"><span class="n">1</span><span class="code">release.target</span><span class="t">— ปล่อยที่ไหน</span></div>
+      <div class="need"><span class="n">2</span><span class="code">release.approver</span><span class="t">— ใครกดปล่อย</span></div>
+      <div class="need"><span class="n">3</span><span class="code">release.rollback</span><span class="t">— เขียน + ซ้อมจริง 1 รอบ</span></div>
+    </div>
+  </aside>
+
+  <!-- ⑤ BOTTOM BAR -->
+  <footer class="mc-bot">
+    <div class="crest">&#9660;&#9660;</div>
+    <div class="proj"><div><div class="pn">WealthPlaner</div><div class="pm">แอปจัดการ Personal Wealth · WPN</div></div></div>
+    <span class="chip">stage · <b>QUALITY</b></span>
+    <div class="sp"></div>
+    <span class="chip">gate advances only on real evidence</span>
+    <button class="runbtn" id="runBtn" type="button">&#9654; Run automation</button>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var btn=document.getElementById('runBtn'),log=document.getElementById('cc-log'),
+      consoleEl=document.getElementById('cc-console'),gcount=document.getElementById('gcount'),gates={};
+  document.querySelectorAll('.g').forEach(function(g){ gates[g.querySelector('.id').textContent.trim()]=g; });
+  function addLog(m){ var d=document.createElement('div'); d.className='ln'; d.textContent=m; log.appendChild(d); log.scrollTop=log.scrollHeight; }
+  function setGate(id,s){ var g=gates[id]; if(!g)return; g.classList.remove('pass','fail','checking'); g.classList.add(s);
+    var st=g.querySelector('.st'); st.textContent=s==='checking'?'…':s==='pass'?'PASS':'NOT YET'; }
+  var es=null;
+  function finish(){ btn.innerHTML='&#9654; Run automation'; btn.classList.remove('on'); delete btn.dataset.running; if(es){es.close();es=null;} }
+  btn.addEventListener('click',function(){
+    if(btn.dataset.running)return; btn.dataset.running='1'; btn.classList.add('on'); btn.innerHTML='&#9679; running…';
+    log.innerHTML=''; consoleEl.classList.add('show'); var passed=0;
+    es=new EventSource('/api/run');
+    es.onmessage=function(e){ var ev; try{ev=JSON.parse(e.data);}catch(_){return;}
+      if(ev.type==='log')addLog(ev.msg);
+      else if(ev.type==='gate'){ setGate(ev.id,ev.state); if(ev.state==='pass'){passed++; gcount.textContent=Math.min(passed,6);} }
+      else if(ev.type==='stop'){ addLog('■ STOP ที่ '+ev.gate+' — รอเจ้าของเติม Class B'); var n=document.querySelector('.needs'); if(n){n.classList.remove('flash');void n.offsetWidth;n.classList.add('flash');} finish(); }
+      else if(ev.type==='done'){ addLog('■ ครบทุก gate — ถึง release'); finish(); }
+      else if(ev.type==='end'){ finish(); }
+    };
+    es.onerror=function(){ finish(); };
+  });
+  var alog=document.getElementById('alog'),acount=document.getElementById('acount');
+  function esc(s){ s=s==null?'':String(s); return s.replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
+  function renderActivity(items){ alog.innerHTML=''; var ng=0,nd=0,nf=0;
+    items.forEach(function(a){ var row=document.createElement('div'); row.className='aln';
+      var ic=document.createElement('div'),lab=document.createElement('div'),rt=document.createElement('div'); lab.className='lab'; rt.className='rt';
+      if(a.kind==='gate'){ var p=a.result==='pass'; ic.className='aic '+(p?'pass':'fail'); ic.textContent=a.id;
+        lab.innerHTML=esc(a.label)+' <small>'+esc(a.owner)+'</small>';
+        rt.innerHTML='<span class="pf '+(p?'pass':'fail')+'">'+(p?'PASS':'NOT YET')+'</span><br>'+esc(a.when); ng++; }
+      else if(a.kind==='doc'){ ic.className='aic doc'; ic.textContent='D';
+        lab.innerHTML=esc(a.code)+' <small>'+esc(a.label)+'</small>'; rt.innerHTML=esc(a.status)+'<br>'+esc(a.when); nd++; }
+      else { ic.className='aic file'; ic.textContent='✓'; lab.innerHTML=esc(a.label); rt.textContent='deliverable'; nf++; }
+      row.appendChild(ic); row.appendChild(lab); row.appendChild(rt); alog.appendChild(row);
+    });
+    acount.textContent=ng+' gates · '+nd+' docs · '+nf+' files';
+  }
+  fetch('/api/activity').then(function(r){return r.json();}).then(renderActivity).catch(function(){acount.textContent='โหลดไม่ได้';});
+})();
+</script>
+</body>
+</html>

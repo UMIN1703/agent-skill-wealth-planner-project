@@ -246,7 +246,7 @@ stateDiagram-v2
 | E-PRICE-FETCH | ดึงราคาไม่สำเร็จ | "ราคาอาจไม่เป็นปัจจุบัน" + เวลาล่าสุด | คงค่าเดิม สถานะ stale | ใช่ | F003 AC-E01 |
 | E-OFFLINE | ไม่มีเน็ต | แบนเนอร์ offline | ใช้ค่า cache | ใช่ | F003 AC-E02 |
 | E-PRICE-ANOMALY | ราคาผิดปกติ (0/กระโดด) | flag ให้ตรวจ | ไม่เขียนทับเงียบ | ใช่ | F003 AC-E03 |
-| E-REFRESH-OFFLINE | กด refresh ตอนไม่มีเน็ต | "ยังออฟไลน์ ลองใหม่ภายหลัง" | คงค่าเดิม | ใช่ | F003 AC-E05 |
+| E-REFRESH-OFFLINE | กด refresh ตอนไม่มีเน็ต | "ยังออฟไลน์ ลองใหม่ภายหลัง" | คงค่าเดิม | ใช่ | F003 AC-E04 |
 | E-VALIDATION | กรอกไม่ครบ/ค่าผิด | ระบุช่องที่ผิด | ไม่บันทึก | ใช่ | F001 AC-E01/E02 |
 | E-DUP | บันทึกซ้ำ | เตือนซ้ำ | ให้ยืนยัน/รวม | ใช่ | F001 AC-E03 |
 | E-ALLOC-SUM | เป้ารวมไม่ถึง 100% | เตือน | ไม่คำนวณ gap | ใช่ | F006 AC-E01 |
@@ -275,7 +275,7 @@ Contract ของ boundary ภายนอก (settrade / investing.com / Googl
 
 ## 9. Test approach
 
-Test case ทั้งหมดอยู่ใน **TST-WPN-001** (38 cases ครอบ AC 36/36 + NFR/migration) พร้อม traceability matrix อ่านได้ 2 ทาง · เน้น coverage **ตรรกะเวลา** (stale 15 นาที ขอบ 14/16 นาที) และ **การคำนวณ** (income, %, หารศูนย์, FX)
+Test case ทั้งหมดอยู่ใน **TST-WPN-001** (43 cases — 38 functional F001–F007 + 5 NFR/migration — ครอบ AC 36/36) พร้อม traceability matrix อ่านได้ 2 ทาง · เน้น coverage **ตรรกะเวลา** (stale 15 นาที ขอบ 14/16 นาที) และ **การคำนวณ** (income, %, หารศูนย์, FX)
 
 ## 10. Revised estimate
 
@@ -298,10 +298,13 @@ Test case ทั้งหมดอยู่ใน **TST-WPN-001** (38 cases ค�
 | ~~B1~~ | ปิดแล้ว → ไฮบริด (CR-WPN-001) | — | — | — |
 | ~~B2~~ | ปิดแล้ว → auth LINE+Google (CR-WPN-001) | — | — | — |
 | O1 | ToS แหล่งราคา | interface contract F003/F004 | ผู้รู้กฎหมาย | ก่อน build |
-| B3 | เลือกตัว DB + ภาษา/เฟรมเวิร์ก (stack) ของไฮบริด | physical schema, interface | system-analyst/developer | ก่อน build |
+| ~~B3~~ | **ปิดแล้ว 2026-08-29** → stack = Next.js + Supabase (Postgres) เลือกโดยเจ้าของ · รอ formalize เป็น ADR-002 | — | — | เจ้าของโครงการ |
 
 ## 13. Revision history
 
 | Rev | Date | Sections changed | Substance and reason | Impact on scope, effort, metrics | Author |
 |---|---|---|---|---|---|
 | 00 | 2026-08-22 | All | First issue — data model, ADR-001, behaviour, traceability | ชี้ว่า ADR-001 อาจเปลี่ยน effort backend | นักวิเคราะห์ระบบ |
+| 00 | 2026-08-29 | §9 | ปรับตัวเลขอ้างอิง test case 38 → 43 ให้ตรง TST-WPN-001 (audit) | ไม่กระทบ scope/effort/metrics | นักวิเคราะห์ระบบ |
+| 00 | 2026-08-29 | §6.5 | ปรับอ้างอิง F003 AC-E05 → AC-E04 ตาม REQ renumber (audit) | ไม่กระทบ scope | นักวิเคราะห์ระบบ |
+| 00 | 2026-08-29 | §12 | ปิด B3 — เจ้าของเลือก stack Next.js + Supabase (Postgres) · รอ formalize เป็น ADR-002 | ปลดล็อกงาน build (บางส่วน) | เจ้าของโครงการ |
