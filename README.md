@@ -9,9 +9,10 @@
 
 <br/>
 
-![stage](https://img.shields.io/badge/stage-design-0d7c66?style=for-the-badge)
-![G1](https://img.shields.io/badge/G1_Definition_of_Ready-✓_passed-2ea44f?style=for-the-badge)
-![G2](https://img.shields.io/badge/G2_Design_handback-✓_passed-2ea44f?style=for-the-badge)
+![stage](https://img.shields.io/badge/stage-quality-7c3aed?style=for-the-badge)
+![gates](https://img.shields.io/badge/G1..G5-✓_passed-2ea44f?style=for-the-badge)
+![G6](https://img.shields.io/badge/G6_release-⏳_Class_B-e7c24a?style=for-the-badge)
+![tests](https://img.shields.io/badge/tests-33%2F33-2ea44f?style=for-the-badge)
 ![license](https://img.shields.io/badge/license-MIT-9a6a1c?style=for-the-badge)
 
 </div>
@@ -39,6 +40,33 @@
 | 🧭 | **แบบประเมินความเสี่ยง** → เสนอ allocation ตัวอย่าง | ควรมี |
 
 <sub>🔒 ราคาถือว่า *stale* เมื่อเก่ากว่า 15 นาที · สินทรัพย์ ตปท. แปลงค่าเงินจาก Google source ทุก 15 นาที</sub>
+
+---
+
+## 🧱 สร้างแล้ว (build) & 🚀 รันเอง
+
+แอป **Next.js 14 (App Router)** รันได้จริง — หน้าจอที่ทำแล้ว:
+
+| หน้า | ฟีเจอร์ | สถานะ |
+|---|---|---|
+| `/` | พอร์ตรวม + donut asset allocation (F002) | ✅ |
+| `/add` | เพิ่มสินทรัพย์ + validation/a11y (F001) | ✅ |
+| `/import` | นำเข้า CSV (F005) | ✅ |
+| `/rebalance` | ส่วนต่าง allocation กับเป้า (F006) | ✅ |
+| `/login` · `/dashboard` | **เข้าสู่ระบบ Google + LINE** (F008) + logout ทุกหน้า | ✅ |
+| ราคาตลาดจริง (F003/F004) · แบบประเมินความเสี่ยง (F007) | — | ⏳ Class B |
+
+```bash
+# แอปหลัก → http://localhost:3000
+cd project/4-build/wealthplaner
+npm install
+npm run dev            # ต้องมี .env.local (คัดลอกจาก .env.local.example แล้วเติม creds)
+
+# ศูนย์บัญชาการ pipeline แบบ visual → http://127.0.0.1:3300
+cd command-center && python3 serve.py
+```
+
+🔐 Login ใช้ **Auth.js (NextAuth v5)** — session เป็น JWT ไม่ผูก DB · วิธีตั้งค่า provider (Google/LINE) + ขึ้น production อยู่ใน skill [`sso-login`](.claude/skills/sso-login/SKILL.md)
 
 ---
 
@@ -95,6 +123,8 @@ erDiagram
 | [`SRS-WPN-001`](project/2-analysis/SRS-WPN-001.md) | analysis | data model · ADR-001 · behaviour · traceability |
 | [`CR-WPN-001`](project/2-analysis/CR-WPN-001.md) | analysis | change request (data storage → ไฮบริด · auth) |
 | [`TST-WPN-001`](project/2-analysis/TST-WPN-001.md) | analysis | test cases 43 + traceability matrix |
+| [`DSN-WPN-001`](project/3-design/DSN-WPN-001.md) | design | design system — tokens · components ทุก state · screens |
+| [`QAR-WPN-001`](project/5-quality/QAR-WPN-001.md) | quality | รายงาน QA — PASS WITH ADVISORIES |
 
 📄 ไฟล์ PDF (ฟอร์แมตส่งมอบ) อยู่ใน [`docs/`](docs/)
 
@@ -103,24 +133,30 @@ erDiagram
 ## 🚦 สถานะ Pipeline
 
 ```
-intake ──► product ──► analysis ──► design ──► build ──► review ──► release
-  ✓          ✓ G1        ✓ G2        ▶ ตอนนี้
+intake ─► product ─► analysis ─► design ─► build ─► review ─► release
+  ✓        ✓ G1      ✓ G2       ✓ G3     ✓ G4    ✓ G5    ⏳ G6
 ```
+
+<sub>ตรวจจริงด้วย `/command-center` (verify กับไฟล์จริง · G4 รัน `npm test` + `npm run build` จริง) — หยุดอย่างซื่อสัตย์ที่ G6</sub>
 
 | Gate | ผล | หมายเหตุ |
 |---|---|---|
 | **G1** · Definition of Ready | ✅ passed | PRD + REQ (AC ครบ, unhappy path ครบ) |
 | **G2** · Design handback | ✅ passed | SRS + TST (trace 2 ทาง, AC 36/36) |
-| **G3** · Design system ready | ⏳ ถัดไป | DSN + tokens + components |
+| **G3** · Design system ready | ✅ passed | DSN + tokens + components |
+| **G4** · Definition of Done | ✅ passed | 33/33 tests + `next build` ผ่าน |
+| **G5** · Code review | ✅ passed | review report — ไม่มี blocker |
+| **G6** · Ready to release | ⏳ รอ Class B | `release.target` / `approver` / `rollback` ยัง TBD — ต้องให้เจ้าของตัดสิน |
 
 ---
 
-## 🔭 สิ่งที่เลื่อน / ต้องตรวจก่อน build
+## 🔭 สิ่งที่เลื่อน / ยังรอ (Class B)
 
-- 🤖 **AI ที่ปรึกษา** (REQ-07) — เลื่อน รอตรวจกรอบ ก.ล.ต.
-- 🚫 ซื้อ/ขายอัตโนมัติ · วางแผนภาษี · เชื่อมต่ออัตโนมัติทุกโบรก — นอกขอบเขตรอบนี้
-- ⚖️ ตรวจ **ToS/ลิขสิทธิ์** ข้อมูลราคา (settrade · investing.com · Google FX)
-- 🛠️ เลือกตัว **DB + ภาษา/เฟรมเวิร์ก** (stack)
+- ✅ **Stack เลือกแล้ว** — Next.js 14 + TypeScript · **Auth เสร็จแล้ว** — NextAuth v5 (Google + LINE)
+- 🗄️ **ฐานข้อมูลจริง** — ตอนนี้ข้อมูลพอร์ตเป็น mock ในหน่วยความจำ (การคงอยู่ข้ามเซสชันรอ DB)
+- ⚖️ ตรวจ **ToS/ลิขสิทธิ์** ข้อมูลราคา (settrade · investing.com · Google FX) → ปลดบล็อก F003/F004
+- 🤖 **AI ที่ปรึกษา** (REQ-07) · 🧭 แบบประเมินความเสี่ยง (F007) — รอตรวจกรอบ ก.ล.ต.
+- 🚀 **ปล่อยจริง (G6)** — รอ `release.target` / `approver` / `rollback` (ซ้อม 1 รอบ)
 
 ---
 
