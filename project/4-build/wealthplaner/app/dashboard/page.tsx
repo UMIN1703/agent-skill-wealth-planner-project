@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { PieChart, Plus, Upload, Scale, LogOut } from 'lucide-react';
 import { auth, signOut } from '@/auth.ts';
 
+export const runtime = 'edge'; // Cloudflare Pages (next-on-pages) — ใช้ auth()/cookies → ต้องรันบน edge
+
 export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user) redirect('/login'); // กันเข้าถ้ายังไม่ล็อกอิน
