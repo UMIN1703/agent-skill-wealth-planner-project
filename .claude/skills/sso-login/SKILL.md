@@ -166,6 +166,60 @@ so it works on any domain. Never commit prod secrets; rotate if leaked.
 > sharing the same code — each needs its own env on its host AND its own callback
 > URL registered at every provider.
 
+### Deploy to Cloudflare (Pages or Workers)
+
+Two adapters — pick by your **Next version**:
+
+| Target | Adapter | Next version | Notes |
+|---|---|---|---|
+| **Workers** | `@opennextjs/cloudflare` | **15+** (peer `next >=15.5.27`) | the maintained path; needs a Next 15 upgrade |
+| **Pages** | `@cloudflare/next-on-pages` | **14** (pin `@1.13.10`; newer needs `next >=14.3`) | runs on the same Workers runtime; no upgrade |
+
+**For a Next 14 app → Cloudflare Pages (`next-on-pages`):**
+
+1. Install (expect peer conflicts — `@cloudflare/workers-types` v4 vs v5, and `next` peers):
+   ```bash
+   echo "legacy-peer-deps=true" > .npmrc   # also makes CF's build resolve the same way
+   npm i -D @cloudflare/next-on-pages@1.13.10 wrangler@^3
+   ```
+2. **Every dynamic route must run on the Edge runtime** — add to each page/route that
+   is server-rendered (uses `auth()`, cookies, the NextAuth handler, etc.):
+   ```ts
+   export const runtime = 'edge';
+   ```
+   The build lists which routes still need it. Static pages don't.
+3. Scripts + `wrangler.toml`:
+   ```jsonc
+   // package.json
+   "pages:build": "next-on-pages",
+   "deploy": "npm run pages:build && wrangler pages deploy"
+   ```
+   ```toml
+   # wrangler.toml
+   name = "yourapp"
+   pages_build_output_dir = ".vercel/output/static"
+   compatibility_flags = ["nodejs_compat"]
+   ```
+   Git-ignore `.vercel/` and `.wrangler/`.
+4. Build locally to verify: `npm run pages:build` → `Build completed successfully` +
+   `.vercel/output/static/_worker.js`. (A `jose` / `CompressionStream` "not supported
+   in Edge Runtime" **warning** is benign — Cloudflare Workers supports those APIs and
+   NextAuth doesn't compress its JWTs.)
+
+**Cloudflare dashboard (Git-connected Pages project):**
+
+| Setting | Value |
+|---|---|
+| **Root directory** | the subfolder with `package.json` (e.g. `project/4-build/app`) — the #1 mistake |
+| Build command | `npx @cloudflare/next-on-pages@1.13.10` |
+| Build output directory | `.vercel/output/static` |
+| Compatibility flags | `nodejs_compat` (Production **and** Preview) |
+| Env vars | `AUTH_SECRET`, `AUTH_*_ID/SECRET`, `AUTH_TRUST_HOST=true`, `NODE_VERSION=22` |
+
+Then **add the deployed origin's callback URLs** at every provider:
+`https://<project>.pages.dev/api/auth/callback/{google,line}`. If the GitHub-App
+connection errors, skip Git and deploy via CLI: `wrangler login` → `npm run deploy`.
+
 ## Troubleshooting (the ones that actually happen)
 
 | Symptom | Cause / fix |
@@ -176,6 +230,9 @@ so it works on any domain. Never commit prod secrets; rotate if leaked.
 | Styles/JS 404 after a change | Running `next build` **while `next dev` is running** corrupts `.next`. Stop dev, `rm -rf .next`, restart dev. Never build against a live dev dir. |
 | Env change ignored | `NEXT_PUBLIC_*` and `AUTH_*` are read at **startup** — restart `npm run dev`. |
 | Secrets | Google Client Secret / LINE Channel secret are real secrets (stay server-side; NextAuth keeps them off the client). A Supabase `anon` key is public by design; a `service_role` key is NOT — never ship or paste it. |
+| `ERESOLVE` installing the CF adapter | adapter peers conflict with your Next version (both adapters now want Next 15) and `@cloudflare/workers-types` v4↔v5. For Next 14: pin `@cloudflare/next-on-pages@1.13.10` + `wrangler@^3` + `.npmrc` `legacy-peer-deps=true` (so CF's build resolves the same). |
+| CF build: "X is not supported in the Edge Runtime" (hard error) | that route is server-rendered but not on edge → add `export const runtime = 'edge';` to it. (The `jose`/`CompressionStream` one is only a warning — ignore.) |
+| CF 404 / blank after deploy | wrong **Root directory** (must be the subfolder with `package.json`) or missing `nodejs_compat` flag, or `NODE_VERSION` too low for your `engines`. |
 
 ## Adding more providers
 `next-auth/providers/*` has Apple, Twitter(X=`twitter`), GitHub, etc. — each is
