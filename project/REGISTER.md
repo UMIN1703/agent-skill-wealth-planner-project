@@ -4,7 +4,7 @@
 |---|---|
 | รหัสโครงการ | WPN |
 | เจ้าของโครงการ | TBD — ต้องการ [ชื่อ] |
-| ปรับปรุงทะเบียนล่าสุด | 2026-09-19 |
+| ปรับปรุงทะเบียนล่าสุด | 2026-11-07 |
 
 ทะเบียนนี้ต้องปรับปรุงในการแก้ไขครั้งเดียวกับที่สร้างหรือแก้เอกสาร
 ทะเบียนที่ตามมาปรับทีหลัง คือทะเบียนที่ผิดในช่วงเวลาระหว่างนั้น
@@ -16,9 +16,10 @@
 | รหัสเอกสาร | ชื่อเอกสาร | ฉบับแก้ไข | สถานะ | ปรับปรุงล่าสุด |
 |---|---|---|---|---|
 | PRD-WPN-001 | WealthPlaner — ระบบจัดการ Personal Wealth และ Asset Allocation | 00 | ร่าง | 2026-08-22 |
-| REQ-WPN-001 | ข้อกำหนดความต้องการและเกณฑ์การยอมรับ — WealthPlaner | 00 | ร่าง | 2026-08-29 |
+| REQ-WPN-001 | ข้อกำหนดความต้องการและเกณฑ์การยอมรับ — WealthPlaner | 00 | ร่าง | 2026-11-07 |
 | SRS-WPN-001 | System Requirements and Design Specification — WealthPlaner | 00 | ร่าง | 2026-08-29 |
 | CR-WPN-001 | Change request — data_location ไฮบริด + auth | 00 | อนุมัติแล้ว | 2026-08-29 |
+| CR-WPN-002 | Change request — เพิ่มฟีเจอร์ F009 Slip-to-Ledger (LINE → เว็บ → Drive) | 00 | อนุมัติแล้ว | 2026-11-07 |
 | TST-WPN-001 | Test cases + traceability matrix — WealthPlaner | 00 | ร่าง | 2026-08-29 |
 | DSN-WPN-001 | ระบบออกแบบและข้อกำหนดหน้าจอ (Neon Dark) — WealthPlaner | 00 | ร่าง | 2026-08-31 |
 | QAR-WPN-001 | รายงานการประกันคุณภาพ (F001–F006) — WealthPlaner | 00 | ร่าง | 2026-09-19 |
@@ -61,3 +62,5 @@ skill `document-control`
 | 2026-08-29 | SRS-WPN-001 · project.yml | แก้ไข (ร่าง) | ปิด B3: เจ้าของเลือก stack = Next.js + Supabase (Postgres) · เพิ่ม definition_of_done (ข้อเสนอ commander) · owner คงเป็น TBD ตามเจ้าของ |
 | 2026-08-29 | DSN-WPN-001 | สร้าง | เริ่ม stage design — tokens (Neon Dark: พื้น #0E0A1C การ์ด #181330) + components ทุก state + screens 5 state + contrast วัดจริง (AA) + traceability F001–F007 · เจ้าของเลือกพาเลตต์+ฟอนต์ IBM Plex Sans Thai |
 | 2026-08-31 | DSN-WPN-001 | แก้ไข (ร่าง) | sync DSN ให้ตรง code/component ที่ build — warn #C9A227, muted #A79FC0 (+muted-2/ink), radius 18/26 (design↔code drift ปิด) |
+| 2026-11-07 | CR-WPN-002 | สร้าง+อนุมัติ | เปิดคำขอเพิ่ม F009 Slip-to-Ledger (LINE Messaging API → ยืนยันบนเว็บ → ซิงค์ Drive/Sheets ของผู้ใช้) · ตัดสิน staging = Cloudflare KV+R2 · ระบุ Class B (LINE OA, Google OAuth, KV/R2, deploy) |
+| 2026-11-07 | REQ-WPN-001 | แก้ไข (ร่าง) | เพิ่ม F009 + AC (01–05, E01–E05) ตาม CR-WPN-002 · เพิ่ม dependencies + open issues · coverage เพิ่มหมวด "เพิ่มเติม" 1/1 |

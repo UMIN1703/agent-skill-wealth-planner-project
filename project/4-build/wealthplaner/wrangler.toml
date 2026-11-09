@@ -4,6 +4,18 @@ pages_build_output_dir = ".vercel/output/static"
 compatibility_date = "2024-11-01"
 compatibility_flags = ["nodejs_compat"]
 
-# Secrets/vars (AUTH_SECRET, AUTH_GOOGLE_ID/SECRET, AUTH_LINE_ID/SECRET, AUTH_TRUST_HOST)
+# Secrets/vars (AUTH_SECRET, AUTH_GOOGLE_ID/SECRET, AUTH_LINE_ID/SECRET, AUTH_TRUST_HOST,
+#   F009: LINE_CHANNEL_SECRET, LINE_CHANNEL_ACCESS_TOKEN, SLIP_STAGING)
 # ตั้งใน Cloudflare dashboard (Settings → Environment variables) หรือ `wrangler pages secret put`
 # — อย่าใส่ค่าจริงในไฟล์นี้
+
+# F009 Slip-to-Ledger (CR-WPN-002) — staging: KV (index) + R2 (ไฟล์รูป)
+# สร้างก่อน: `wrangler kv namespace create SLIP_INDEX` และ `wrangler r2 bucket create wpn-slips`
+# แล้วแทน id ด้านล่าง (ดู runbook: project/4-build/wealthplaner/docs/F009-classb-runbook.md)
+[[kv_namespaces]]
+binding = "SLIP_INDEX"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+[[r2_buckets]]
+binding = "SLIP_FILES"
+bucket_name = "wpn-slips"

@@ -1,5 +1,4 @@
-import Link from 'next/link';
-import { Briefcase, RefreshCw, Plus, Scale, FileUp } from 'lucide-react';
+import { Briefcase, RefreshCw } from 'lucide-react';
 import { summarizePortfolio, marketValueTHB } from '@/lib/portfolio.ts';
 import { computeIncomePercent } from '@/lib/finance.ts';
 import { sampleAssets } from '@/data/sampleAssets.ts';
@@ -23,9 +22,6 @@ export default function PortfolioPage() {
       <div className="topbar">
         <h1>พอร์ตรวมทุกโบรก</h1>
         <span className="topbar-actions">
-          <Link href="/import" className="iconbtn" aria-label="นำเข้าจากสเปรดชีต"><FileUp size={18} /></Link>
-          <Link href="/rebalance" className="iconbtn" aria-label="ปรับสัดส่วน (rebalance)"><Scale size={18} /></Link>
-          <Link href="/add" className="iconbtn accent" aria-label="เพิ่มสินทรัพย์"><Plus size={18} /></Link>
           <button className="refresh" aria-label="รีเฟรชราคา"><RefreshCw size={16} /></button>
           <LogoutButton />
         </span>

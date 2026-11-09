@@ -1,0 +1,41 @@
+'use client';
+
+// แถบนำทางล่าง (bottom navigation) — ปลายทางหลักของแอป 5 แท็บ
+// client component: ใช้ usePathname ไฮไลต์แท็บที่กำลังอยู่ · ซ่อนบนหน้า /login (ยังไม่ล็อกอิน)
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { LayoutGrid, PieChart, Plus, FileUp, Scale, type LucideIcon } from 'lucide-react';
+
+type Tab = { href: string; label: string; Icon: LucideIcon; accent?: boolean };
+
+const TABS: Tab[] = [
+  { href: '/dashboard', label: 'แดชบอร์ด', Icon: LayoutGrid },
+  { href: '/', label: 'พอร์ต', Icon: PieChart },
+  { href: '/add', label: 'เพิ่ม', Icon: Plus, accent: true },
+  { href: '/import', label: 'นำเข้า', Icon: FileUp },
+  { href: '/rebalance', label: 'ปรับสมดุล', Icon: Scale },
+];
+
+export default function BottomNav() {
+  const pathname = usePathname();
+  if (pathname === '/login') return null; // หน้า login ไม่โชว์เมนู
+
+  return (
+    <nav className="bottomnav" aria-label="เมนูหลัก">
+      {TABS.map(({ href, label, Icon, accent }) => {
+        const active = pathname === href;
+        return (
+          <Link
+            key={href}
+            href={href}
+            className={'bn-item' + (active ? ' active' : '') + (accent ? ' accent' : '')}
+            aria-current={active ? 'page' : undefined}
+          >
+            <span className="bn-ic" aria-hidden="true"><Icon size={20} /></span>
+            <span className="bn-label">{label}</span>
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}

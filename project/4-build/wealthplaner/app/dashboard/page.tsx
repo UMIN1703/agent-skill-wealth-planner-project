@@ -3,7 +3,7 @@
 // โชว์ผู้ใช้ (ชื่อ/อีเมล/รูปจาก Google) + ปุ่มออกจากระบบ + ทางลัดไปฟีเจอร์หลัก
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { PieChart, Plus, Upload, Scale, LogOut } from 'lucide-react';
+import { PieChart, Plus, Upload, Scale, LogOut, Receipt } from 'lucide-react';
 import { auth, signOut } from '@/auth.ts';
 
 export const runtime = 'edge'; // Cloudflare Pages (next-on-pages) — ใช้ auth()/cookies → ต้องรันบน edge
@@ -68,6 +68,11 @@ export default async function DashboardPage() {
             <span className="ic"><Scale size={20} /></span>
             <span className="tt">ปรับสมดุล</span>
             <span className="ds">เทียบเป้า allocation</span>
+          </Link>
+          <Link href="/slips" className="dash-tile">
+            <span className="ic"><Receipt size={20} /></span>
+            <span className="tt">สลิปรอยืนยัน</span>
+            <span className="ds">ส่งสลิปเข้า LINE แล้วบันทึก</span>
           </Link>
         </div>
       </section>

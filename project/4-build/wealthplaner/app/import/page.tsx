@@ -6,8 +6,7 @@
 // ข้อมูลอยู่ในหน่วยความจำ (mock)
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, FileUp, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { FileUp, CheckCircle2, AlertTriangle } from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton.tsx';
 import { importAssets, IMPORT_COLUMNS, type ImportResult } from '@/lib/import.ts';
 
@@ -40,7 +39,6 @@ export default function ImportPage() {
   return (
     <main className="app">
       <div className="topbar">
-        <Link href="/" className="iconbtn" aria-label="กลับไปหน้าพอร์ต"><ArrowLeft size={18} /></Link>
         <h1>นำเข้าจากสเปรดชีต</h1>
         <LogoutButton />
       </div>

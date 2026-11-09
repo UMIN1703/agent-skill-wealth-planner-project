@@ -7,7 +7,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton.tsx';
 import { summarizePortfolio } from '@/lib/portfolio.ts';
 import { computeRebalanceGap, type Target } from '@/lib/rebalance.ts';
@@ -35,7 +35,6 @@ export default function RebalancePage() {
   return (
     <main className="app">
       <div className="topbar">
-        <Link href="/" className="iconbtn" aria-label="กลับไปหน้าพอร์ต"><ArrowLeft size={18} /></Link>
         <h1>ปรับสัดส่วน (Rebalance)</h1>
         <LogoutButton />
       </div>

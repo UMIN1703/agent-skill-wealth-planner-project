@@ -6,3 +6,6 @@ out
 *.log
 .vercel
 .wrangler
+
+# TypeScript incremental build cache
+tsconfig.tsbuildinfo

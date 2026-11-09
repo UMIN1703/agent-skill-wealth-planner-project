@@ -7,8 +7,7 @@
 // ข้อมูลอยู่ในหน่วยความจำ (mock) — การคงอยู่ข้ามเซสชันคือชั้น Supabase (Class B, รอ creds)
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, Check, Plus } from 'lucide-react';
+import { Check, Plus } from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton.tsx';
 import {
   validateAssetDraft,
@@ -90,7 +89,6 @@ export default function AddAssetPage() {
   return (
     <main className="app">
       <div className="topbar">
-        <Link href="/" className="iconbtn" aria-label="กลับไปหน้าพอร์ต"><ArrowLeft size={18} /></Link>
         <h1>เพิ่มสินทรัพย์</h1>
         <LogoutButton />
       </div>

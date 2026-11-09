@@ -98,10 +98,14 @@ build:
     screens_todo:
       - "F007 Risk (disclaimer gate) — บล็อก Class B (ถ้อยคำ disclaimer กรอบ ก.ล.ต. + BR-07)"
       - "F003 price-status จริง (stale/ดึงราคา) — logic เสร็จ, การดึงจริงบล็อก Class B (O1 ToS) · UI ใช้ mock/ต้นทุนชั่วคราว"
+      - "F009 Slip-to-Ledger (ใหม่ ตาม CR-WPN-002, 2026-11-07) — ส่งสลิปเข้า LINE OA (Messaging API webhook) → พัก staging → ยืนยัน/กรอกบนเว็บ → ซิงค์รูป+แถว Sheets ขึ้น Google Drive ของผู้ใช้ (OAuth drive.file+spreadsheets) · MVP ไม่มี OCR · staging = Cloudflare KV+R2 (decide-and-log)"
+      - "F009 (ข) scaffold เสร็จ [2026-11-07]: src/lib/slip.ts (validate/map/dup/verify x-line-signature จริง) + slip.test.ts 6 เทส · app/slips + SlipReview (ฟอร์มยืนยัน a11y) · app/api/line/webhook (ตรวจลายเซ็น+แยก event) · dashboard tile · tsc ผ่าน, test 43/43"
+      - "F009 Class B (ครึ่งโค้ด) เริ่มแล้ว [2026-11-07]: src/auth.ts +scope drive.file/spreadsheets +เก็บ accessToken ใน JWT · src/lib/driveSync.ts (อัป Drive + append Sheets จริง, pure helpers 4 เทส) · app/api/slips/confirm (ใช้ token เขียนจริง, guard 403/503 ตรงไปตรงมา) · .env.local.example + wrangler.toml (KV/R2 binding placeholder) · runbook: docs/F009-classb-runbook.md"
+      - "F009 Class B (ครึ่งเจ้าของ) ยังค้าง: สร้าง LINE Messaging channel (token/secret, provider เดียวกับ LINE Login), เปิด Drive/Sheets API + consent scope, สร้าง KV/R2 + deploy · + งาน dev ต่อสายที่ต้องมี binding: webhook download→R2/KV, slipStore อ่าน-เขียน getRequestContext (TODO ในไฟล์)"
     screens_optional_non_req:
       - "Stock detail — ไม่ใช่ข้อกำหนด F001–F007 (DSN §6 ยืนยัน req มีหน้าครบแล้ว) → นอกเกณฑ์ G4, ทำรอบหน้าได้ ไม่บล็อก"
     remaining_cross_cutting: "nav: topbar → /add /import /rebalance (มี back ทุกหน้า) · ผัง NAV เต็ม (STAGED) ยังไม่ลง · login UI + auth scaffold เสร็จแล้ว (F008) แต่ unauthorized state ทุกหน้า + บังคับ login (middleware guard) = พร้อมเปิดเมื่อมี Supabase creds (Class B) · a11y pass เชิงลึกทั้งแอป"
-    blocked_classB: "Supabase creds (data/auth จริง) · O1 ToS (F003/F004 ดึงราคาจริง) · F007 disclaimer wording"
+    blocked_classB: "Supabase creds (data/auth จริง) · O1 ToS (F003/F004 ดึงราคาจริง) · F007 disclaimer wording · F009: LINE OA Messaging channel (token/secret) + Google OAuth scope drive.file/spreadsheets (+consent verification) + Cloudflare KV/R2 namespace + deploy public URL"
 
 quality:
   wcag: AA                    # ระดับที่ยึด
@@ -243,6 +247,18 @@ open_questions:
   - field: build.definition_of_done
     note: "DoD เป็น [ข้อเสนอ commander] ร่างจาก template developer + บริบท WPN (UI/การเงิน/WCAG AA/LINE OA) — เจ้าของยืนยัน/ปรับก่อนใช้เป็นเกณฑ์ G4 จริง"
     raised: 2026-08-29
+  - field: "F009 (CR-WPN-002) — LINE OA Messaging channel"
+    note: "TBD — ต้องสร้าง/ยืนยัน LINE Official Account + Messaging API channel (token/secret) + ตั้ง webhook URL · Class B (เจ้าของจัด)"
+    raised: 2026-11-07
+  - field: "F009 (CR-WPN-002) — Google OAuth Drive/Sheets"
+    note: "TBD — เพิ่ม scope drive.file + spreadsheets ใน Google Cloud OAuth + consent screen/verification · Class B"
+    raised: 2026-11-07
+  - field: "F009 (CR-WPN-002) — staging infra + deploy"
+    note: "TBD — Cloudflare KV + R2 namespace/binding (ที่พักสลิปก่อนยืนยัน) + deploy เว็บเป็น public URL ให้ LINE ยิง webhook เข้าได้ · Class B"
+    raised: 2026-11-07
+  - field: "F009 (CR-WPN-002) — LINE userId mapping"
+    note: "TBD — ยืนยันว่า userId จาก Messaging API = userId จาก LINE Login (ต้องอยู่ภายใต้ LINE provider เดียวกัน) ก่อน build การจับคู่บัญชี (AC-01/AC-E03)"
+    raised: 2026-11-07
 
 # ตัวเลขหรือข้อเท็จจริงที่เป็นการเดา ไม่ใช่ของที่รู้จริง
 assumptions:
@@ -258,3 +274,6 @@ assumptions:
   - text: "วิธีแก้ที่เจ้าของโครงการเสนอ — ให้ AI เป็นที่ปรึกษาช่วยจัด asset allocation เสมือนมีทีม personal wealth ดูแล โดยอ้างอิงสถานการณ์เศรษฐกิจปัจจุบันและเชื่อมโยงข้อมูลข้ามโบรกได้ เพื่อ 'ทำให้คำปรึกษาเข้าถึงได้' สำหรับคนที่ยังไม่ถึงเกณฑ์ 2 ล้าน หรือไม่อยากผูกกับโบรกเดียว (ยังไม่ผ่านการทบทวนโดย product-owner ว่าใช่วิธีที่ควรสร้าง และยังไม่ได้ประเมินความเสี่ยง/ความรับผิดของการให้คำแนะนำการลงทุนโดย AI)"
     source: เจ้าของโครงการเสนอเอง (intake)
     raised: 2026-08-22
+  - text: "F009 (CR-WPN-002) staging store = Cloudflare KV (index) + R2 (ไฟล์รูปสลิปชั่วคราว) — เลือกเพราะ deploy อยู่ Cloudflare Pages อยู่แล้ว ไม่ต้องเพิ่ม DB · ทางเลือก Supabase ไม่เสนอเพราะเจ้าของเคยเลือกไม่ผูก — เจ้าของ overrule ได้"
+    source: "[analysis/CR-WPN-002] decide-and-log"
+    raised: 2026-11-07
