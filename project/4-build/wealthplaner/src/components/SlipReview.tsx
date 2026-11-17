@@ -12,7 +12,7 @@ import {
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-export default function SlipReview({ slip, configured }: { slip: PendingSlip; configured: boolean }) {
+export default function SlipReview({ slip, configured, claim }: { slip: PendingSlip; configured: boolean; claim?: string }) {
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(today());
   const [category, setCategory] = useState<SlipCategory | ''>('');
@@ -51,7 +51,7 @@ export default function SlipReview({ slip, configured }: { slip: PendingSlip; co
     try {
       const r = await fetch('/api/slips/confirm', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: slip.id, sourceMessageId: slip.sourceMessageId, draft: { amountTHB: amount, date, category, note } }),
+        body: JSON.stringify({ id: slip.id, sourceMessageId: slip.sourceMessageId, claim, draft: { amountTHB: amount, date, category, note } }),
       });
       const data = (await r.json()) as { ok: boolean; reason?: string; imageUrl?: string };
       if (r.ok && data.ok) {

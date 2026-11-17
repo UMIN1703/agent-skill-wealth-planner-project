@@ -20,6 +20,7 @@ declare module 'next-auth' {
   interface Session {
     accessToken?: string; // Google access token (F009 — เรียก Drive/Sheets API)
     provider?: string;    // 'google' | 'line'
+    lineUserId?: string;  // LINE userId (F009 — แมตช์สลิปที่ส่งเข้า OA กับบัญชี)
   }
 }
 
@@ -45,13 +46,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (account) {
         token.accessToken = account.access_token;
         token.provider = account.provider;
+        // LINE userId = providerAccountId ของ LINE (ภายใต้ provider เดียวกับ Messaging API → ตรงกัน)
+        if (account.provider === 'line') token.lineUserId = account.providerAccountId;
       }
       return token;
     },
-    // ส่งต่อให้ session อ่านได้ฝั่ง server (F009 ใช้เขียน Drive)
+    // ส่งต่อให้ session อ่านได้ฝั่ง server (F009 ใช้เขียน Drive + แมตช์สลิป)
     async session({ session, token }) {
       session.accessToken = token.accessToken as string | undefined;
       session.provider = token.provider as string | undefined;
+      session.lineUserId = token.lineUserId as string | undefined;
       return session;
     },
   },

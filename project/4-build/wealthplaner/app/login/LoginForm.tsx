@@ -44,9 +44,11 @@ export default function LoginForm() {
       return;
     }
 
-    // Google / LINE — method ตรงกับ provider id ของ NextAuth → เด้งไป provider แล้วกลับ /dashboard
+    // Google / LINE — method ตรงกับ provider id ของ NextAuth → เด้งไป provider แล้วกลับ
+    // callbackUrl จาก query (เช่น /slips?claim=...) ถ้ามี, ไม่งั้น /dashboard
     setPending(method);
-    await naSignIn(method, { callbackUrl: '/dashboard' });
+    const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl') || '/dashboard';
+    await naSignIn(method, { callbackUrl });
   }
 
   function onEmailSubmit(e: React.FormEvent) {

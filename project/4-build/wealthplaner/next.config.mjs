@@ -1,3 +1,11 @@
+// next-on-pages: ให้ `next dev` มี binding KV/R2 จำลองในเครื่อง (miniflare) ตาม wrangler.toml
+import { setupDevPlatform } from '@cloudflare/next-on-pages/next-dev';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {};
+
+if (process.env.NODE_ENV === 'development') {
+  await setupDevPlatform();
+}
+
 export default nextConfig;
