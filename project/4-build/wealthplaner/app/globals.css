@@ -3,11 +3,11 @@
 html, body { margin: 0; padding: 0; }
 body {
   background: var(--bg);
-  /* gradient เรืองเขียวนีออนด้านบน → เข้มลงฐาน (เบลนด์ accent กับพื้น · ใช้โทเคนล้วน) */
-  background-image: radial-gradient(135% 62% at 50% -6%,
-    color-mix(in srgb, var(--accent) 20%, var(--bg)) 0%,
-    color-mix(in srgb, var(--accent) 7%, var(--bg)) 34%,
-    var(--bg) 72%);
+  /* gradient ม่วงสว่างด้านบน ไล่ลงมาถึงกลางจอ → เข้มลงฐาน (เบลนด์ brand กับพื้น · โทเคนล้วน) */
+  background-image: radial-gradient(130% 100% at 50% -8%,
+    color-mix(in srgb, var(--brand) 34%, var(--bg)) 0%,
+    color-mix(in srgb, var(--brand) 13%, var(--bg)) 48%,
+    var(--bg) 92%);
   background-attachment: fixed;
   background-repeat: no-repeat;
   color: var(--text);
