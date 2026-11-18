@@ -58,11 +58,10 @@ export async function getStagedSlipMedia(
   return { bytes: await obj.arrayBuffer(), mediaType: obj.httpMetadata?.contentType ?? 'image/jpeg' };
 }
 
-/** F009 AC-03 — นำสลิปออกจาก staging หลังบันทึกสำเร็จ */
+/** F009 AC-03 — นำสลิปออกจากคิว "รอยืนยัน" หลังบันทึกสำเร็จ
+ * (CR-WPN-003) ลบแค่ index ใน KV · คงไฟล์รูปใน R2 ไว้ เพื่อให้ "ลิงก์รูป" ในชีตเปิดได้ตลอด */
 export async function removePendingSlip(lineUserId: string, id: string): Promise<void> {
-  const k = kv(); const bucket = r2();
-  await k?.delete(idxKey(lineUserId, id));
-  await bucket?.delete(objKey(lineUserId, id));
+  await kv()?.delete(idxKey(lineUserId, id));
 }
 
 /** ตัวอย่างสลิป (เดโม) ไว้พรีวิวฟอร์มเมื่อยังไม่ wire staging (?demo=1) */

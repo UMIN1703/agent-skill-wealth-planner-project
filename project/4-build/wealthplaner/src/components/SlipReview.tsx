@@ -4,11 +4,13 @@
 // ใช้ validateSlipEntry (pure) ตรวจก่อน · เมื่อยังไม่ wire Google Drive (Class B)
 // การกดบันทึกจะแสดง "ค่าที่จะบันทึก" อย่างตรงไปตรงมา ไม่แกล้งว่าบันทึกสำเร็จ
 import { useState } from 'react';
-import { Receipt, Check } from 'lucide-react';
+import { Receipt, Check, Sparkles, Loader2 } from 'lucide-react';
 import {
-  validateSlipEntry, slipToSheetRow, SLIP_CATEGORIES, SLIP_SHEET_COLUMNS,
+  validateSlipEntry, slipToSheetRow, SLIP_CATEGORIES, SLIP_ASSET_TYPES, SLIP_SHEET_COLUMNS,
   type PendingSlip, type SlipCategory,
 } from '@/lib/slip.ts';
+import { type AssetType } from '@/lib/asset.ts';
+import { parseSlipText } from '@/lib/slipParse.ts';
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -16,16 +18,51 @@ export default function SlipReview({ slip, configured, claim }: { slip: PendingS
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(today());
   const [category, setCategory] = useState<SlipCategory | ''>('');
+  const [assetType, setAssetType] = useState<AssetType | ''>('');
+  const [channel, setChannel] = useState('');
   const [note, setNote] = useState('');
   const [errors, setErrors] = useState<{ amount?: string; date?: string; category?: string }>({});
   const [saved, setSaved] = useState<string[] | null>(null);
   const [pending, setPending] = useState(false);
   const [notice, setNotice] = useState<{ kind: 'warn' | 'error' | 'ok'; text: string } | null>(null);
+  const [reading, setReading] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  // CR-WPN-003 — อ่านสลิปอัตโนมัติด้วย Tesseract.js (ฟรี รันในเบราว์เซอร์) แล้วเติมฟอร์ม
+  async function onAutoFill() {
+    if (!slip.imageUrl) { setNotice({ kind: 'warn', text: 'เดโมไม่มีรูปสลิปจริงให้อ่าน' }); return; }
+    setReading(true); setNotice(null); setProgress(0);
+    try {
+      const img = await fetch(slip.imageUrl);
+      if (!img.ok) throw new Error('image');
+      const blob = await img.blob();
+      const Tesseract = (await import('tesseract.js')).default;
+      const { data } = await Tesseract.recognize(blob, 'tha+eng', {
+        logger: (m: { status: string; progress: number }) => {
+          if (m.status === 'recognizing text') setProgress(Math.round(m.progress * 100));
+        },
+      });
+      const parsed = parseSlipText(data.text);
+      let filled = 0;
+      if (parsed.amountTHB) { setAmount(String(parsed.amountTHB)); filled++; }
+      if (parsed.date) { setDate(parsed.date); filled++; }
+      if (parsed.category) { setCategory(parsed.category); filled++; }
+      if (parsed.channel) { setChannel(parsed.channel); filled++; }
+      setErrors({});
+      setNotice(filled > 0
+        ? { kind: 'ok', text: `อ่านสลิปแล้ว ✨ เติมให้ ${filled} ช่อง — ตรวจ/แก้ก่อนบันทึก` }
+        : { kind: 'warn', text: 'อ่านไม่ชัด — กรอกเองได้เลย (OCR ฟรีอาจพลาดบ้าง)' });
+    } catch {
+      setNotice({ kind: 'error', text: 'อ่านสลิปไม่สำเร็จ ลองใหม่หรือกรอกเอง' });
+    } finally {
+      setReading(false);
+    }
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaved(null); setNotice(null);
-    const res = validateSlipEntry({ amountTHB: amount, date, category, note }, new Date());
+    const res = validateSlipEntry({ amountTHB: amount, date, category, assetType, channel, note }, new Date());
     if (!res.ok) {
       setErrors(res.errors);
       document.getElementById(
@@ -51,7 +88,7 @@ export default function SlipReview({ slip, configured, claim }: { slip: PendingS
     try {
       const r = await fetch('/api/slips/confirm', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: slip.id, sourceMessageId: slip.sourceMessageId, claim, draft: { amountTHB: amount, date, category, note } }),
+        body: JSON.stringify({ id: slip.id, sourceMessageId: slip.sourceMessageId, claim, draft: { amountTHB: amount, date, category, assetType, channel, note } }),
       });
       const data = (await r.json()) as { ok: boolean; reason?: string; imageUrl?: string };
       if (r.ok && data.ok) {
@@ -73,6 +110,12 @@ export default function SlipReview({ slip, configured, claim }: { slip: PendingS
           ? <img src={slip.imageUrl} alt="" className="slip-img" />
           : <span className="slip-ph"><Receipt size={22} /> ตัวอย่างรูปสลิป</span>}
       </div>
+
+      <button type="button" className="btn-ai" onClick={onAutoFill} disabled={reading}>
+        {reading
+          ? <><Loader2 size={16} className="spin" /> กำลังอ่าน… {progress > 0 ? progress + '%' : ''}</>
+          : <><Sparkles size={16} /> อ่านอัตโนมัติ (ฟรี)</>}
+      </button>
 
       <form className="form" onSubmit={onSubmit} noValidate>
         <div className={'field' + (errors.amount ? ' has-error' : '')}>
@@ -107,6 +150,25 @@ export default function SlipReview({ slip, configured, claim }: { slip: PendingS
             {SLIP_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
           </select>
           {errors.category && <span className="field-err" id="s-category-err" role="alert">{errors.category}</span>}
+        </div>
+
+        <div className="field">
+          <label htmlFor="s-asset-type">หมวดหมู่สินทรัพย์ (ไม่บังคับ)</label>
+          <select
+            id="s-asset-type" className="input" value={assetType}
+            onChange={(e) => setAssetType(e.target.value as AssetType | '')}
+          >
+            <option value="">— ไม่ระบุ —</option>
+            {SLIP_ASSET_TYPES.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}
+          </select>
+        </div>
+
+        <div className="field">
+          <label htmlFor="s-channel">ช่องทาง/สถาบัน (ไม่บังคับ)</label>
+          <input
+            id="s-channel" className="input" value={channel}
+            onChange={(e) => setChannel(e.target.value)} placeholder="เช่น ttb, SCB, KBank"
+          />
         </div>
 
         <div className="field">

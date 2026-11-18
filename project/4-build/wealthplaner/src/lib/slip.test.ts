@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   validateSlipEntry, slipToSheetRow, isDuplicateSlip,
-  isSupportedSlipMessage, verifyLineSignature, SLIP_SHEET_COLUMNS,
+  isSupportedSlipMessage, verifyLineSignature, SLIP_SHEET_COLUMNS, SLIP_SHEET_HEADERS,
   type SlipEntry,
 } from './slip.ts';
 
@@ -37,15 +37,30 @@ test('TC-F009-E-validate: ปฏิเสธยอด≤0, วันที่อ
   assert.equal(nan.ok, false);
 });
 
-// F009 AC-03/AC-04 — map เป็นแถว Sheets ตามลำดับคอลัมน์
+// F009 AC-03/AC-04 — map เป็นแถว Sheets ตามลำดับคอลัมน์ (รวม หมวดหมู่สินทรัพย์ + ช่องทาง)
 test('TC-F009-004: slipToSheetRow เรียงตรงกับ SLIP_SHEET_COLUMNS', () => {
   const entry: SlipEntry = {
-    amountTHB: 500, date: '2026-11-06', category: 'deposit', note: 'โอนเข้า',
+    amountTHB: 500, date: '2026-11-06', category: 'deposit',
+    assetType: 'หุ้นไทย', channel: 'ttb', note: 'โอนเข้า',
     slipImageUrl: 'https://drive/x', sourceMessageId: 'm123', confirmedAt: now.toISOString(),
   };
   const row = slipToSheetRow(entry);
   assert.equal(row.length, SLIP_SHEET_COLUMNS.length);
-  assert.deepEqual(row, ['2026-11-06', 'ฝาก/โอนเข้า', '500', 'โอนเข้า', 'https://drive/x', 'm123', now.toISOString()]);
+  assert.equal(row.length, SLIP_SHEET_HEADERS.length);
+  assert.deepEqual(row, ['2026-11-06', 'ฝาก/โอนเข้า', 'หุ้นไทย', 'ttb', '500', 'โอนเข้า', 'https://drive/x', 'm123', now.toISOString()]);
+});
+
+// F009 (CR-WPN-003) — หมวดหมู่สินทรัพย์ map เป็นป้ายไทย, ช่องทาง trim; เว้นว่างได้
+test('TC-F009-004b: validateSlipEntry แปลง assetType→ป้าย และ trim channel (เว้นได้)', () => {
+  const r = validateSlipEntry({ amountTHB: '100', date: '2026-11-06', category: 'buy', assetType: 'th_stock', channel: '  SCB  ' }, now);
+  assert.equal(r.ok, true);
+  if (r.ok) {
+    assert.equal(r.entry.assetType, 'หุ้นไทย');
+    assert.equal(r.entry.channel, 'SCB');
+  }
+  const bare = validateSlipEntry({ amountTHB: '100', date: '2026-11-06', category: 'fee' }, now);
+  assert.equal(bare.ok, true);
+  if (bare.ok) { assert.equal(bare.entry.assetType, ''); assert.equal(bare.entry.channel, ''); }
 });
 
 // F009 AC-E05 — กันซ้ำด้วย messageId

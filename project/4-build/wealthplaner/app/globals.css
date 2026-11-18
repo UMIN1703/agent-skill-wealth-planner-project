@@ -48,6 +48,9 @@ body {
 .slip-cell .k { color: var(--muted-2); }
 .slip-cell .v { color: var(--text); text-align: right; word-break: break-word; }
 select.input { appearance: none; }
+.btn-ai { display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: 100%; background: var(--brand-tint); color: var(--text); border: 1px solid var(--brand); border-radius: var(--radius-control); font-family: inherit; font-size: 14px; font-weight: 600; padding: 10px 14px; cursor: pointer; }
+.btn-ai:disabled { opacity: 0.6; cursor: default; }
+.btn-ai:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 
 .topbar { display: flex; align-items: center; justify-content: space-between; }
 .topbar h1 { font-size: 16px; font-weight: 700; margin: 0; }

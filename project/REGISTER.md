@@ -20,6 +20,7 @@
 | SRS-WPN-001 | System Requirements and Design Specification — WealthPlaner | 00 | ร่าง | 2026-08-29 |
 | CR-WPN-001 | Change request — data_location ไฮบริด + auth | 00 | อนุมัติแล้ว | 2026-08-29 |
 | CR-WPN-002 | Change request — เพิ่มฟีเจอร์ F009 Slip-to-Ledger (LINE → เว็บ → Drive) | 00 | อนุมัติแล้ว | 2026-11-07 |
+| CR-WPN-003 | Change request — เพิ่ม OCR auto-fill ให้ F009 (Claude vision) | 00 | อนุมัติแล้ว | 2026-11-18 |
 | TST-WPN-001 | Test cases + traceability matrix — WealthPlaner | 00 | ร่าง | 2026-08-29 |
 | DSN-WPN-001 | ระบบออกแบบและข้อกำหนดหน้าจอ (Neon Dark) — WealthPlaner | 00 | ร่าง | 2026-08-31 |
 | QAR-WPN-001 | รายงานการประกันคุณภาพ (F001–F006) — WealthPlaner | 00 | ร่าง | 2026-09-19 |
@@ -64,3 +65,4 @@ skill `document-control`
 | 2026-08-31 | DSN-WPN-001 | แก้ไข (ร่าง) | sync DSN ให้ตรง code/component ที่ build — warn #C9A227, muted #A79FC0 (+muted-2/ink), radius 18/26 (design↔code drift ปิด) |
 | 2026-11-07 | CR-WPN-002 | สร้าง+อนุมัติ | เปิดคำขอเพิ่ม F009 Slip-to-Ledger (LINE Messaging API → ยืนยันบนเว็บ → ซิงค์ Drive/Sheets ของผู้ใช้) · ตัดสิน staging = Cloudflare KV+R2 · ระบุ Class B (LINE OA, Google OAuth, KV/R2, deploy) |
 | 2026-11-07 | REQ-WPN-001 | แก้ไข (ร่าง) | เพิ่ม F009 + AC (01–05, E01–E05) ตาม CR-WPN-002 · เพิ่ม dependencies + open issues · coverage เพิ่มหมวด "เพิ่มเติม" 1/1 |
+| 2026-11-18 | CR-WPN-003 | สร้าง+อนุมัติ | เปิดคำขอ OCR auto-fill ให้ F009 ด้วย Claude vision (claude-opus-4-8) · ปรับ F009 AC-03 ให้ระบบเติมฟอร์มก่อนผู้ใช้ยืนยัน · Class B = ANTHROPIC_API_KEY |

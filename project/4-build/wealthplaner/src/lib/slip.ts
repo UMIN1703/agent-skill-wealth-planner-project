@@ -4,6 +4,8 @@
 // กันซ้ำ, และตรวจลายเซ็น webhook ของ LINE (HMAC-SHA256 ผ่าน Web Crypto —
 // ใช้ได้ทั้ง edge และ node) · การเรียก LINE/Drive/Sheets จริง = Class B (ยังไม่ wire)
 
+import { ASSET_TYPE_LABELS, type AssetType } from './asset.ts';
+
 export type SlipCategory = 'deposit' | 'buy' | 'sell' | 'fee' | 'other';
 
 export const SLIP_CATEGORIES: { id: SlipCategory; label: string }[] = [
@@ -15,6 +17,10 @@ export const SLIP_CATEGORIES: { id: SlipCategory; label: string }[] = [
 ];
 
 const CATEGORY_LABEL = new Map(SLIP_CATEGORIES.map((c) => [c.id, c.label]));
+
+// หมวดหมู่สินทรัพย์ — ใช้ชุดเดียวกับ F001 (asset.ts) เพื่อให้ข้อมูลในชีตต่อยอดเข้าพอร์ตได้
+export const SLIP_ASSET_TYPES: { id: AssetType; label: string }[] =
+  (Object.keys(ASSET_TYPE_LABELS) as AssetType[]).map((id) => ({ id, label: ASSET_TYPE_LABELS[id] }));
 
 // สลิปที่ส่งเข้ามาทาง LINE และถูกพักไว้ใน staging (Cloudflare KV+R2) รอผู้ใช้ยืนยัน
 export type PendingSlip = {
@@ -30,6 +36,8 @@ export type SlipDraft = {
   amountTHB: string;
   date: string;            // 'YYYY-MM-DD'
   category: SlipCategory | '';
+  assetType?: AssetType | ''; // หมวดหมู่สินทรัพย์ (ไม่บังคับ — รายการที่ไม่ใช่สินทรัพย์ เช่น ค่าธรรมเนียม เว้นได้)
+  channel?: string;        // ช่องทาง/สถาบันการเงิน เช่น ttb, SCB, KBank
   note?: string;
 };
 
@@ -38,14 +46,16 @@ export type SlipEntry = {
   amountTHB: number;
   date: string;
   category: SlipCategory;
+  assetType: string;       // ป้ายหมวดหมู่สินทรัพย์ (ค่าว่าง = ไม่ระบุ)
+  channel: string;         // ช่องทาง/สถาบันการเงิน (ค่าว่าง = ไม่ระบุ)
   note: string;
-  slipImageUrl: string;    // URL รูปบน Google Drive หลังอัปแล้ว
+  slipImageUrl: string;    // ลิงก์รูปสลิป (เสิร์ฟจาก R2 — ไม่อัปไฟล์ขึ้น Drive)
   sourceMessageId: string;
   confirmedAt: string;     // ISO
 };
 
 export type SlipValidation =
-  | { ok: true; entry: Pick<SlipEntry, 'amountTHB' | 'date' | 'category' | 'note'> }
+  | { ok: true; entry: Pick<SlipEntry, 'amountTHB' | 'date' | 'category' | 'assetType' | 'channel' | 'note'> }
   | { ok: false; errors: { amount?: string; date?: string; category?: string } };
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -87,14 +97,19 @@ export function validateSlipEntry(draft: SlipDraft, now: Date): SlipValidation {
       amountTHB: amount,
       date: draft.date,
       category: draft.category as SlipCategory,
+      assetType: draft.assetType ? (ASSET_TYPE_LABELS[draft.assetType] ?? '') : '',
+      channel: (draft.channel ?? '').trim(),
       note: (draft.note ?? '').trim(),
     },
   };
 }
 
+// คีย์คอลัมน์ (เครื่องอ่าน) — เรียงตรงกับ SLIP_SHEET_HEADERS และ slipToSheetRow
 export const SLIP_SHEET_COLUMNS = [
   'date',
   'category',
+  'asset_type',
+  'channel',
   'amount_thb',
   'note',
   'slip_image_url',
@@ -102,11 +117,26 @@ export const SLIP_SHEET_COLUMNS = [
   'confirmed_at',
 ] as const;
 
+// หัวคอลัมน์ภาษาไทย (แถวแรกของชีต) — เขียนครั้งเดียวตอนสร้าง ledger (driveSync.ensureLedger)
+export const SLIP_SHEET_HEADERS = [
+  'วันที่',
+  'ประเภทรายการ',
+  'หมวดหมู่สินทรัพย์',
+  'ช่องทาง/สถาบัน',
+  'ยอดเงิน (บาท)',
+  'บันทึกย่อ',
+  'ลิงก์รูปสลิป',
+  'รหัสอ้างอิง',
+  'เวลาบันทึก',
+] as const;
+
 /** F009 AC-03/AC-04 — map รายการที่ยืนยันแล้วเป็นแถวเดียวสำหรับ append ลง Google Sheets */
 export function slipToSheetRow(entry: SlipEntry): string[] {
   return [
     entry.date,
     CATEGORY_LABEL.get(entry.category) ?? entry.category,
+    entry.assetType,
+    entry.channel,
     String(entry.amountTHB),
     entry.note,
     entry.slipImageUrl,

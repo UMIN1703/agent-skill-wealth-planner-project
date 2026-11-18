@@ -1,12 +1,12 @@
-// ยืนยันสลิป → อัปรูปขึ้น Google Drive ผู้ใช้ + append แถว Sheets (F009 AC-03/AC-04/AC-05)
-// ต้องมี session + Google access_token (scope drive.file+spreadsheets) · รูปอ่านจาก staging (R2)
-// ยังไม่ wire creds/staging (Class B) → ตอบ 503 ตรง ๆ ไม่แกล้งบันทึก
+// ยืนยันสลิป → append แถวลง Google Sheets ของผู้ใช้ (F009 AC-03/AC-04/AC-05 · CR-WPN-003)
+// ไม่อัปรูปขึ้น Drive (ประหยัดพื้นที่) — รูปคงไว้ที่ R2, ใส่ "ลิงก์รูป" (=HYPERLINK) ในแถวแทน
+// ต้องมี session + Google access_token (scope spreadsheets/drive.file)
 import { auth } from '@/auth.ts';
 import { validateSlipEntry, slipToSheetRow, type SlipDraft } from '@/lib/slip.ts';
 import { getStagedSlipMedia, removePendingSlip } from '@/lib/slipStore.ts';
-import { saveConfirmedSlip } from '@/lib/driveSync.ts';
+import { saveSlipRow } from '@/lib/driveSync.ts';
 import { getGoogleAccessToken } from '@/lib/googleLink.ts';
-import { verifyClaim } from '@/lib/claim.ts';
+import { verifyClaim, signClaim } from '@/lib/claim.ts';
 
 export const runtime = 'edge';
 
@@ -51,21 +51,21 @@ export async function POST(req: Request): Promise<Response> {
     return Response.json({ ok: false, reason: 'ไม่พบรูปสลิปใน staging (หมดอายุ/ถูกลบ หรือ KV/R2 ยังไม่ตั้งค่า)' }, { status: 404 });
   }
 
+  // ลิงก์รูป: ชี้ไปที่ route รูปของแอป (เสิร์ฟจาก R2) ด้วย token เซ็น (เปิดได้โดยไม่ต้อง login)
+  const base = process.env.AUTH_URL ?? new URL(req.url).origin;
+  const imageToken = await signClaim({ u: ownerUserId, id: slipId }, 10 * 365 * 24 * 3600); // อายุยาว (ลิงก์ในชีตใช้ได้ตลอด)
+  const imageUrl = `${base}/api/slips/image/${encodeURIComponent(slipId)}?t=${imageToken}`;
+
   const row = slipToSheetRow({
     ...res.entry,
-    slipImageUrl: '', // saveConfirmedSlip จะเติม URL จริงหลังอัป
+    slipImageUrl: `=HYPERLINK("${imageUrl}","ดูรูปสลิป")`, // ลิงก์รูปในเซลล์ (ไม่อัปไฟล์ขึ้น Drive)
     sourceMessageId: slipId,
     confirmedAt: new Date().toISOString(),
   });
 
   try {
-    const saved = await saveConfirmedSlip(token, {
-      media: new Uint8Array(media.bytes),
-      mediaType: media.mediaType,
-      filename: `slip-${slipId}.jpg`,
-      row,
-    });
-    await removePendingSlip(ownerUserId, slipId); // AC-03 — นำออกจากกล่องรอยืนยัน
+    const saved = await saveSlipRow(token, row);
+    await removePendingSlip(ownerUserId, slipId); // นำออกจากคิวรอยืนยัน (คงรูปใน R2 ให้ลิงก์ใช้ได้)
     return Response.json({ ok: true, ...saved });
   } catch (e) {
     // AC-E04 — เขียน Drive/Sheets ไม่สำเร็จ → ไม่ลบ staging, แจ้ง error ให้ลองใหม่
