@@ -10,8 +10,7 @@ import { getGoogleAccessToken } from '@/lib/googleLink.ts';
 import { verifyClaim, signClaim } from '@/lib/claim.ts';
 import { getVar } from '@/lib/cfEnv.ts';
 import { pushLineButtons } from '@/lib/lineApi.ts';
-import { userKeyFromSession, supabaseConfigured } from '@/lib/supabase.ts';
-import { stagePendingHolding } from '@/lib/holdStage.ts';
+import { userKeyFromSession, supabaseConfigured, insertHolding } from '@/lib/supabase.ts';
 import { holdingSummary } from '@/lib/portfolio.ts';
 
 export const runtime = 'edge';
@@ -77,12 +76,13 @@ export async function POST(req: Request): Promise<Response> {
     await removePendingSlip(ownerUserId, slipId); // นำออกจากคิวรอยืนยัน (คงรูปใน R2 ให้ลิงก์ใช้ได้)
 
     const lineToken = getVar('LINE_CHANNEL_ACCESS_TOKEN');
-    let staged = false;
+    let addedToPortfolio = false;
 
-    // (CR-WPN-007 merged) ถ้ากรอกส่วนพอร์ต → ทำทีเดียว: stage holding + push "การ์ดยืนยันเข้าพอร์ต"
+    // (CR-WPN-007 rev2) ถ้ากรอกส่วนพอร์ต → บันทึกเข้า Supabase "ทันที" (ไม่ต้องกดคอนเฟิร์มใน LINE)
+    // แล้ว push การ์ด "สำเร็จ + ปุ่มดูพอร์ต" ไว้แจ้งเฉย ๆ · การบันทึกไม่พึ่ง LINE (ใช้ userKey จาก session)
     const p = payload.portfolio;
     const userKey = userKeyFromSession(session);
-    if (p && claim?.u && lineToken && userKey && supabaseConfigured()) {
+    if (p && userKey && supabaseConfigured()) {
       const assetDraft: AssetDraft = {
         name: p.name,
         type: (payload.draft.assetType ?? '') as AssetType | '',
@@ -93,23 +93,25 @@ export async function POST(req: Request): Promise<Response> {
       if (validateAssetDraft(assetDraft).ok) {
         try {
           const asset = draftToDisplayAsset(assetDraft);
-          const hid = await stagePendingHolding({ userKey, msgUser: claim.u, draft: assetDraft });
-          if (hid) {
-            await pushLineButtons(lineToken, claim.u,
-              `ตรวจสอบก่อนบันทึกเข้าพอร์ต\n${holdingSummary(asset)}`, [
-                { label: '✅ คอนเฟิร์ม', data: `holdok:${hid}` },
-                { label: '✖ ยกเลิก', data: `holdno:${hid}` },
-              ], 'ยืนยันบันทึกเข้าพอร์ต');
-            staged = true;
+          await insertHolding(userKey, { ...asset, source: 'slip' });
+          addedToPortfolio = true;
+          if (claim?.u && lineToken) {
+            try {
+              await pushLineButtons(lineToken, claim.u,
+                `✅ บันทึกเข้าพอร์ตแล้ว\n${holdingSummary(asset)}`,
+                [{ label: '📊 ดูพอร์ต', uri: `${base}/` }], 'บันทึกเข้าพอร์ตแล้ว');
+            } catch (e) {
+              console.error('[slips/confirm] LINE push error:', String(e));
+            }
           }
         } catch (e) {
-          console.error('[slips/confirm] stage holding error:', String(e));
+          console.error('[slips/confirm] insert holding error:', String(e));
         }
       }
     }
 
-    // ไม่ได้เพิ่มพอร์ต (หรือ stage ไม่ได้) → จังหวะ 2 เดิม (CR-WPN-005): แจ้งบันทึกสลิป + ปุ่มดูพอร์ต/ดูชีต
-    if (!staged && claim?.u && lineToken) {
+    // ไม่ได้เพิ่มพอร์ต → จังหวะ 2 เดิม (CR-WPN-005): แจ้งบันทึกรายการลงชีต + ปุ่มดูพอร์ต/ดูชีต
+    if (!addedToPortfolio && claim?.u && lineToken) {
       try {
         const amt = Number(row[4]).toLocaleString('th-TH'); // row = [date,catLabel,assetType,channel,amount,...]
         const detail = [row[1], row[2], row[3]].filter(Boolean).join(' · ');
@@ -123,7 +125,7 @@ export async function POST(req: Request): Promise<Response> {
       }
     }
 
-    return Response.json({ ok: true, ...saved, staged });
+    return Response.json({ ok: true, ...saved, addedToPortfolio });
   } catch (e) {
     // AC-E04 — เขียน Drive/Sheets ไม่สำเร็จ → ไม่ลบ staging, แจ้ง error ให้ลองใหม่
     console.error('[slips/confirm] save error:', String(e));

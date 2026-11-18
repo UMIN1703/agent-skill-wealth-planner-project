@@ -112,10 +112,10 @@ export default function SlipReview({ slip, configured, claim }: { slip: PendingS
           portfolio: wantPortfolio ? { name: name.trim(), quantity: qty } : undefined,
         }),
       });
-      const data = (await r.json()) as { ok: boolean; staged?: boolean; reason?: string };
+      const data = (await r.json()) as { ok: boolean; addedToPortfolio?: boolean; reason?: string };
       if (r.ok && data.ok) {
-        setNotice({ kind: 'ok', text: data.staged
-          ? 'บันทึกรายการแล้ว ✅ และส่งการ์ดยืนยันเข้าพอร์ตไป LINE — เปิด LINE แล้วกด "คอนเฟิร์ม"'
+        setNotice({ kind: 'ok', text: data.addedToPortfolio
+          ? 'บันทึกรายการ + เพิ่มเข้าพอร์ตแล้ว ✅ เปิดหน้าแรกดูยอดรวมได้เลย'
           : 'บันทึกรายการลงชีตแล้ว ✅' });
       } else {
         setNotice({ kind: 'error', text: data.reason ?? 'บันทึกไม่สำเร็จ ลองใหม่' });

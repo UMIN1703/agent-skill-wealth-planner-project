@@ -8,10 +8,6 @@ import { getVar } from '@/lib/cfEnv.ts';
 import { stageSlip, stagingConfigured } from '@/lib/slipStore.ts';
 import { downloadLineContent, replyLineText, replyLineButtons } from '@/lib/lineApi.ts';
 import { signClaim } from '@/lib/claim.ts';
-import { getPendingHolding, removePendingHolding } from '@/lib/holdStage.ts';
-import { insertHolding } from '@/lib/supabase.ts';
-import { draftToDisplayAsset } from '@/lib/asset.ts';
-import { holdingSummary } from '@/lib/portfolio.ts';
 
 export const runtime = 'edge';
 
@@ -20,36 +16,7 @@ type LineEvent = {
   replyToken?: string;
   message?: { type: string; id: string };
   source?: { userId?: string };
-  postback?: { data: string };
 };
-
-// postback จากการ์ดคอนเฟิร์ม (CR-WPN-007): holdok:<id> = บันทึก, holdno:<id> = ยกเลิก
-async function handleHoldingPostback(token: string, event: LineEvent, base: string): Promise<void> {
-  const data = event.postback?.data ?? '';
-  const m = /^(holdok|holdno):(.+)$/.exec(data);
-  if (!m || !event.replyToken) return;
-  const [, action, id] = m;
-
-  const pending = await getPendingHolding(id);
-  if (!pending || pending.msgUser !== event.source?.userId) {
-    await replyLineText(token, event.replyToken, 'รายการหมดอายุหรือไม่พบแล้ว ลองส่งสลิปใหม่อีกครั้งนะ');
-    return;
-  }
-
-  if (action === 'holdno') {
-    await removePendingHolding(id);
-    await replyLineText(token, event.replyToken, 'ยกเลิกแล้ว ❌ ไม่ได้บันทึกเข้าพอร์ต');
-    return;
-  }
-
-  // holdok → บันทึกจริงลง Supabase แล้วตอบการ์ดสำเร็จ
-  const asset = draftToDisplayAsset(pending.draft);
-  await insertHolding(pending.userKey, { ...asset, source: 'slip' });
-  await removePendingHolding(id);
-  await replyLineButtons(token, event.replyToken,
-    `✅ บันทึกเข้าพอร์ตสำเร็จ\n${holdingSummary(asset)}`,
-    [{ label: '📊 ดูพอร์ต', uri: `${base}/` }], 'บันทึกเข้าพอร์ตสำเร็จ');
-}
 
 export function GET() {
   return Response.json({
@@ -107,8 +74,6 @@ export async function POST(req: Request): Promise<Response> {
               'รับสลิปแล้ว แต่ระบบจัดเก็บยังไม่พร้อม (staging) โปรดลองใหม่ภายหลัง');
           }
         }
-      } else if (event.type === 'postback' && token) {
-        await handleHoldingPostback(token, event, base); // การ์ดคอนเฟิร์ม/ยกเลิก (CR-WPN-007)
       } else if (event.type === 'message' && token && event.replyToken) {
         await replyLineText(token, event.replyToken, 'ส่งเป็น "รูปสลิป" เท่านั้นนะ เพื่อบันทึกเข้าระบบ 📸'); // AC-E01
       }

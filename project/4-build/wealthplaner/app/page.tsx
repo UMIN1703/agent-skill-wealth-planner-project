@@ -10,6 +10,7 @@ import { auth } from '@/auth.ts';
 import { listHoldings, userKeyFromSession } from '@/lib/supabase.ts';
 
 export const runtime = 'edge';
+export const dynamic = 'force-dynamic'; // ข้อมูลเฉพาะผู้ใช้ — เรนเดอร์สดทุกครั้ง (ไม่ cache)
 
 const fmt = (n: number) => new Intl.NumberFormat('th-TH', { maximumFractionDigits: 0 }).format(Math.round(n));
 
