@@ -70,6 +70,7 @@ export default function SlipReview({ slip, configured, claim }: { slip: PendingS
     const amt = amount.replace(/,/g, '').trim();
     if (amt && Number.isFinite(Number(amt))) q.set('amount', amt);
     if (note.trim()) q.set('name', note.trim());
+    if (claim) q.set('claim', claim); // ร้อย LINE messaging user ไปด้วย → push สรุปกลับตอนบันทึกพอร์ต
     router.push(`/add?${q.toString()}`);
   }
 

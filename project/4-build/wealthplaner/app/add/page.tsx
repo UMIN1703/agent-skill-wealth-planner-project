@@ -40,6 +40,7 @@ function AddAssetInner() {
   const seedType = params.get('type');
   const seedBroker = params.get('broker') ?? '';
   const seedName = params.get('name') ?? '';
+  const slipClaim = params.get('claim') ?? ''; // LINE messaging user จากสลิป → push สรุปกลับตอนบันทึก
   const slipTotal = Number(params.get('amount')) || null; // ยอดรวมจากสลิป (บาท) ไว้คำนวณต้นทุน/หน่วย
 
   const seededDraft: AssetDraft = {
@@ -96,7 +97,7 @@ function AddAssetInner() {
     try {
       const r = await fetch('/api/holdings', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ draft: payloadDraft, source: fromSlip ? 'slip' : 'manual' }),
+        body: JSON.stringify({ draft: payloadDraft, source: fromSlip ? 'slip' : 'manual', claim: slipClaim || undefined }),
       });
       const d = (await r.json()) as { ok: boolean; configured?: boolean; reason?: string };
       if (d.ok) setSaveNote({ kind: 'ok', text: 'บันทึกเข้าพอร์ตจริงแล้ว — ดูยอดรวมที่หน้าแรก' });
