@@ -38,18 +38,47 @@ async function findFile(token: string, q: string): Promise<string | null> {
   return data.files?.[0]?.id ?? null;
 }
 
-/** หา/สร้างสเปรดชีต ledger คืน spreadsheetId */
+/** เติมหัวคอลัมน์ให้ชีตที่มีอยู่แล้ว ถ้ายังไม่มี (self-heal — ไม่ต้องลบสร้างใหม่)
+ *  อ่าน A1: ถ้าเป็นหัวแล้วข้าม · ไม่งั้นแทรกแถวบนสุดแล้วเขียนหัวลงไป */
+async function ensureHeaderRow(token: string, spreadsheetId: string): Promise<void> {
+  const data = (await (await gFetch(
+    token, `${SHEETS}/${spreadsheetId}/values/A1:A1`,
+  )).json()) as { values?: string[][] };
+  if (data.values?.[0]?.[0] === SLIP_SHEET_HEADERS[0]) return; // มีหัวแล้ว
+
+  // sheetId ของแท็บแรก (สเปรดชีตที่สร้างด้วย API มักเป็น 0 แต่ดึงจริงให้ชัวร์)
+  const meta = (await (await gFetch(
+    token, `${SHEETS}/${spreadsheetId}?fields=sheets.properties.sheetId`,
+  )).json()) as { sheets?: { properties: { sheetId: number } }[] };
+  const sheetId = meta.sheets?.[0]?.properties.sheetId ?? 0;
+
+  await gFetch(token, `${SHEETS}/${spreadsheetId}:batchUpdate`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ requests: [{ insertDimension: {
+      range: { sheetId, dimension: 'ROWS', startIndex: 0, endIndex: 1 }, inheritFromBefore: false,
+    } }] }),
+  });
+  await gFetch(token, `${SHEETS}/${spreadsheetId}/values/A1?valueInputOption=USER_ENTERED`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ values: [[...SLIP_SHEET_HEADERS]] }),
+  });
+}
+
+/** หา/สร้างสเปรดชีต ledger คืน spreadsheetId (รับประกันว่ามีหัวคอลัมน์เสมอ) */
 export async function ensureLedger(token: string): Promise<string> {
   const existing = await findFile(
     token, driveSearchQuery(LEDGER_NAME, 'application/vnd.google-apps.spreadsheet'),
   );
-  if (existing) return existing;
+  if (existing) {
+    await ensureHeaderRow(token, existing); // ชีตเดิมไม่มีหัว → เติมให้
+    return existing;
+  }
   const res = await gFetch(token, `${SHEETS}?fields=spreadsheetId`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ properties: { title: LEDGER_NAME } }),
   });
   const spreadsheetId = ((await res.json()) as { spreadsheetId: string }).spreadsheetId;
-  // เพิ่งสร้างใหม่ → เขียนหัวคอลัมน์เป็นแถวแรก (มีครั้งเดียว ชีตเดิมที่มีอยู่แล้วไม่ถูกแตะ)
+  // เพิ่งสร้างใหม่ → เขียนหัวคอลัมน์เป็นแถวแรก
   await appendLedgerRow(token, spreadsheetId, [...SLIP_SHEET_HEADERS]);
   return spreadsheetId;
 }
