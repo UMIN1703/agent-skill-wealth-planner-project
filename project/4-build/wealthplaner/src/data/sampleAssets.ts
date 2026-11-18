@@ -1,6 +1,6 @@
 import type { HeldAsset } from '@/lib/portfolio.ts';
 
-export type DisplayAsset = HeldAsset & { source: string; updatedMin: number; note?: string };
+export type DisplayAsset = HeldAsset & { source: string; updatedMin: number; note?: string; category?: string; taxBucket?: string };
 
 // ข้อมูลตัวอย่าง (mock) — ชั้นข้อมูลจริง (Supabase) รอ credentials (Class B)
 export const sampleAssets: DisplayAsset[] = [

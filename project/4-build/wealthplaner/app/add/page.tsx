@@ -15,8 +15,12 @@ import {
   isDuplicate,
   draftToDisplayAsset,
   ASSET_TYPE_LABELS,
+  ASSET_CATEGORY_LABELS,
+  TAX_BUCKET_LABELS,
   type AssetDraft,
   type AssetType,
+  type AssetCategory,
+  type TaxBucket,
   type FieldError,
 } from '@/lib/asset.ts';
 import { sampleAssets, type DisplayAsset } from '@/data/sampleAssets.ts';
@@ -25,11 +29,12 @@ import { marketValueTHB } from '@/lib/portfolio.ts';
 const BROKERS = ['SCBS', 'KBank', 'IBKR', 'Bualuang', 'manual'];
 const baht = (n: number) => '฿' + new Intl.NumberFormat('th-TH', { maximumFractionDigits: 0 }).format(Math.round(n));
 
-const emptyDraft: AssetDraft = { name: '', type: '', quantity: null, costPrice: null, currentPrice: null, brokerChannel: '', note: '' };
+const emptyDraft: AssetDraft = { name: '', type: '', quantity: null, costPrice: null, currentPrice: null, category: '', taxBucket: '', brokerChannel: '', note: '' };
 
 // field → id ของ control (สำหรับเลื่อน focus ไปช่องแรกที่ผิด — F001 AC-E01)
 const FIELD_ID: Record<keyof AssetDraft, string> = {
-  name: 'f-name', type: 'f-type', quantity: 'f-qty', costPrice: 'f-cost', currentPrice: 'f-cur', brokerChannel: 'f-broker', note: 'f-note',
+  name: 'f-name', type: 'f-type', quantity: 'f-qty', costPrice: 'f-cost', currentPrice: 'f-cur',
+  category: 'f-cat', taxBucket: 'f-tax', brokerChannel: 'f-broker', note: 'f-note',
 };
 const focusField = (f: keyof AssetDraft) => document.getElementById(FIELD_ID[f])?.focus();
 
@@ -48,6 +53,8 @@ function AddAssetInner() {
     quantity: null,
     costPrice: null,
     currentPrice: null,
+    category: '',
+    taxBucket: '',
     brokerChannel: seedBroker,
     note: '',
   };
@@ -187,6 +194,25 @@ function AddAssetInner() {
               value={draft.costPrice ?? ''} onChange={(e) => set('costPrice', num(e.target.value))}
               aria-invalid={!!errFor('costPrice')} aria-describedby={errFor('costPrice') ? 'f-cost-err' : undefined}
             />
+          </Field>
+        </div>
+
+        <div className="row2">
+          <Field id="f-cat" label="หมวด (ไม่บังคับ)">
+            <select id="f-cat" className="input" value={draft.category} onChange={(e) => set('category', e.target.value as AssetCategory | '')}>
+              <option value="">— อัตโนมัติตามประเภท —</option>
+              {(Object.keys(ASSET_CATEGORY_LABELS) as AssetCategory[]).map((c) => (
+                <option key={c} value={c}>{ASSET_CATEGORY_LABELS[c]}</option>
+              ))}
+            </select>
+          </Field>
+          <Field id="f-tax" label="สิทธิลดหย่อน (ไม่บังคับ)">
+            <select id="f-tax" className="input" value={draft.taxBucket} onChange={(e) => set('taxBucket', e.target.value as TaxBucket | '')}>
+              <option value="">— อัตโนมัติตามประเภท —</option>
+              {(Object.keys(TAX_BUCKET_LABELS) as TaxBucket[]).map((t) => (
+                <option key={t} value={t}>{TAX_BUCKET_LABELS[t]}</option>
+              ))}
+            </select>
           </Field>
         </div>
 

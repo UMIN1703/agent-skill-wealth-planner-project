@@ -89,6 +89,8 @@ export async function POST(req: Request): Promise<Response> {
         quantity: p.quantity,
         costPrice: p.quantity > 0 ? Math.round((res.entry.amountTHB / p.quantity) * 100) / 100 : 0,
         currentPrice: p.currentPrice ?? null,
+        category: '', // อัตโนมัติตามประเภท
+        taxBucket: '',
         brokerChannel: (payload.draft.channel ?? '').trim() || 'manual',
         note: (payload.draft.note ?? '').trim(),
       };

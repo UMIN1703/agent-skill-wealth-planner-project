@@ -1,4 +1,4 @@
-import { summarizePortfolio, marketValueTHB } from '@/lib/portfolio.ts';
+import { summarizePortfolio, marketValueTHB, taxDeductionSummary } from '@/lib/portfolio.ts';
 import { computeIncomePercent } from '@/lib/finance.ts';
 import { sampleAssets } from '@/data/sampleAssets.ts';
 import { AllocationDonut } from '@/components/AllocationDonut.tsx';
@@ -33,9 +33,10 @@ export default async function PortfolioPage() {
   const centerLabel = '฿' + compact(s.totalTHB);
 
   const rows: AssetRowData[] = assets.map((a) => ({
-    name: a.name, broker: a.brokerChannel, type: a.type, valueTHB: marketValueTHB(a),
+    name: a.name, broker: a.brokerChannel, group: a.category ?? a.type, valueTHB: marketValueTHB(a),
     pct: computeIncomePercent(a), stale: a.updatedMin > 15,
   }));
+  const taxRows = taxDeductionSummary(assets);
 
   return (
     <main className="app">
@@ -56,6 +57,18 @@ export default async function PortfolioPage() {
         <section className="card">
           <h2>สัดส่วน Asset Allocation</h2>
           <AllocationDonut allocation={s.allocation} centerLabel={centerLabel} />
+        </section>
+      )}
+
+      {taxRows.length > 0 && (
+        <section className="card">
+          <h2>สิทธิลดหย่อนภาษี (ต้นทุนที่ลงทุน)</h2>
+          {taxRows.map((t) => (
+            <div key={t.bucket} className="pf-group" style={{ marginTop: 0, paddingTop: 10 }}>
+              <span className="gt">{t.bucket}</span>
+              <span className="gv num">฿{compact(t.costTHB)}</span>
+            </div>
+          ))}
         </section>
       )}
 

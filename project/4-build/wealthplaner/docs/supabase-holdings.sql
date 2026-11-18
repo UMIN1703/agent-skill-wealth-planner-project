@@ -15,12 +15,16 @@ create table if not exists holdings (
   fx_to_thb     double precision not null default 1,
   currency      text,
   note          text,                            -- บันทึกย่อต่อรายการ (Phase 1)
+  category      text,                            -- หมวดใหญ่ (Phase 2) เช่น เงินสำรอง/เกษียณ/หุ้นไทย/ต่างประเทศ/ทางเลือก
+  tax_bucket    text,                            -- สิทธิลดหย่อน (Phase 2) เช่น SSF/RMF/PVD/ประกันลดหย่อน
   source        text not null default 'manual',  -- 'manual' | 'slip'
   created_at    timestamptz not null default now()
 );
 
 -- สำหรับตารางที่สร้างไว้ก่อนหน้า (รันซ้ำได้ ปลอดภัย)
 alter table holdings add column if not exists note text;
+alter table holdings add column if not exists category text;
+alter table holdings add column if not exists tax_bucket text;
 
 create index if not exists holdings_user_key_idx on holdings (user_key);
 

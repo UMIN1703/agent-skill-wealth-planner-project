@@ -33,6 +33,18 @@ export function holdingSummary(a: HeldAsset): string {
   return `${a.name} · ${qty} หน่วย · ${a.brokerChannel}\nมูลค่า ฿${value}`;
 }
 
+export type TaxSummaryRow = { bucket: string; costTHB: number };
+
+/** CR-WPN-008 เฟส 2 — สรุปเงินลงทุนที่ได้สิทธิลดหย่อนภาษี (รวมต้นทุนตาม tax bucket) */
+export function taxDeductionSummary(assets: (HeldAsset & { taxBucket?: string })[]): TaxSummaryRow[] {
+  const m = new Map<string, number>();
+  for (const a of assets) {
+    if (!a.taxBucket) continue; // ไม่มีสิทธิลดหย่อน → ข้าม
+    m.set(a.taxBucket, (m.get(a.taxBucket) ?? 0) + toTHB(a.costPrice * a.quantity, a.fxToThb));
+  }
+  return [...m.entries()].map(([bucket, costTHB]) => ({ bucket, costTHB })).sort((x, y) => y.costTHB - x.costTHB);
+}
+
 /** F002: รวมพอร์ตข้ามโบรกเป็นตัวเลขเดียว + สัดส่วน allocation ตามประเภทสินทรัพย์ */
 export function summarizePortfolio(assets: HeldAsset[]): PortfolioSummary {
   if (assets.length === 0) {

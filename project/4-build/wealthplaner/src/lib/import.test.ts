@@ -47,7 +47,7 @@ test('TC-F005-E01 (partial): แถวผิดถูกรายงาน row/c
 
 // unknown asset type → error ชี้คอลัมน์ type
 test('ประเภทสินทรัพย์ไม่รู้จัก → error ที่คอลัมน์ type', () => {
-  const r = importAssets(header, [['X', 'คริปโต', '1', '100', 'Binance']]);
+  const r = importAssets(header, [['X', 'ที่ดิน', '1', '100', 'Binance']]); // 'ที่ดิน' ยังไม่รองรับ (คริปโตรองรับแล้ว เฟส 2)
   assert.equal(r.imported.length, 0);
   assert.equal(r.errors[0].column, 'type');
 });

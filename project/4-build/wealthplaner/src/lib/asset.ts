@@ -5,7 +5,14 @@
 
 import type { DisplayAsset } from '../data/sampleAssets.ts'; // type-only → stripped at runtime
 
-export type AssetType = 'th_stock' | 'foreign_stock' | 'gold' | 'cash' | 'bond';
+// CR-WPN-008 เฟส 2 — ขยายให้ครอบคลุมพอร์ตจริง (คริปโต/กองทุน/ETF/PVD/ประกัน)
+export type AssetType =
+  | 'th_stock' | 'foreign_stock' | 'etf' | 'fund' | 'fund_ssf' | 'fund_rmf'
+  | 'gold' | 'crypto' | 'cash' | 'bond' | 'provident' | 'insurance' | 'other';
+
+// หมวดใหญ่ (จัดกลุ่มพอร์ตแบบชีต) + Tax Bucket (สิทธิลดหย่อนภาษี)
+export type AssetCategory = 'reserve' | 'retirement' | 'th_equity' | 'global' | 'alternative' | 'other';
+export type TaxBucket = 'none' | 'ssf' | 'rmf' | 'pvd' | 'insurance';
 
 export type AssetDraft = {
   name: string;
@@ -13,6 +20,8 @@ export type AssetDraft = {
   quantity: number | null;
   costPrice: number | null;
   currentPrice: number | null; // ราคา/มูลค่าปัจจุบันต่อหน่วย (ไม่บังคับ) → ปลดล็อก กำไร/ขาดทุนจริง (F004)
+  category: AssetCategory | ''; // เว้นว่าง = ใช้ค่าเริ่มต้นตามประเภท
+  taxBucket: TaxBucket | '';    // เว้นว่าง = ตามประเภท (ส่วนใหญ่ = ไม่มี)
   brokerChannel: string; // บริษัทโบรก เช่น SCBS, KBank (ระดับบริษัท — D1)
   note: string;          // บันทึกย่อต่อรายการ (ไม่บังคับ)
 };
@@ -57,13 +66,49 @@ export function isDuplicate(
   return existing.some((e) => key(e) === key(d));
 }
 
-/** ป้ายประเภทสินทรัพย์สำหรับแสดงผล — ตรงกับ label ที่ portfolio/allocation ใช้จัดกลุ่ม (F002) */
+/** ป้ายประเภทสินทรัพย์สำหรับแสดงผล (sub-type) */
 export const ASSET_TYPE_LABELS: Record<AssetType, string> = {
   th_stock: 'หุ้นไทย',
   foreign_stock: 'หุ้น ตปท.',
+  etf: 'ETF',
+  fund: 'กองทุนรวม',
+  fund_ssf: 'กองทุน SSF',
+  fund_rmf: 'กองทุน RMF',
   gold: 'ทองคำ',
+  crypto: 'คริปโต',
   cash: 'เงินสด',
   bond: 'ตราสารหนี้',
+  provident: 'กองทุนสำรองเลี้ยงชีพ',
+  insurance: 'ประกัน',
+  other: 'อื่นๆ',
+};
+
+/** หมวดใหญ่ — ใช้จัดกลุ่มพอร์ต (F002) ให้เหมือนชีต */
+export const ASSET_CATEGORY_LABELS: Record<AssetCategory, string> = {
+  reserve: 'เงินสำรอง/ฉุกเฉิน',
+  retirement: 'เกษียณ',
+  th_equity: 'หุ้นไทย',
+  global: 'ต่างประเทศ',
+  alternative: 'สินทรัพย์ทางเลือก',
+  other: 'อื่นๆ',
+};
+
+/** หมวดเริ่มต้นตามประเภท (ผู้ใช้แก้ได้) */
+export const DEFAULT_CATEGORY: Record<AssetType, AssetCategory> = {
+  th_stock: 'th_equity', foreign_stock: 'global', etf: 'global', fund: 'global',
+  fund_ssf: 'retirement', fund_rmf: 'retirement', gold: 'alternative', crypto: 'alternative',
+  cash: 'reserve', bond: 'reserve', provident: 'retirement', insurance: 'reserve', other: 'other',
+};
+
+export const TAX_BUCKET_LABELS: Record<TaxBucket, string> = {
+  none: 'ไม่มี', ssf: 'SSF', rmf: 'RMF', pvd: 'PVD/สำรองเลี้ยงชีพ', insurance: 'ประกันลดหย่อน',
+};
+
+/** สิทธิลดหย่อนเริ่มต้นตามประเภท */
+export const DEFAULT_TAX_BUCKET: Record<AssetType, TaxBucket> = {
+  th_stock: 'none', foreign_stock: 'none', etf: 'none', fund: 'none',
+  fund_ssf: 'ssf', fund_rmf: 'rmf', gold: 'none', crypto: 'none',
+  cash: 'none', bond: 'none', provident: 'pvd', insurance: 'insurance', other: 'none',
 };
 
 /**
@@ -77,6 +122,8 @@ export function draftToDisplayAsset(d: AssetDraft): DisplayAsset {
   if (d.type === '' || d.quantity == null || d.costPrice == null) {
     throw new Error('draftToDisplayAsset: ร่างยังไม่ผ่าน validation — เรียก validateAssetDraft ก่อน');
   }
+  const cat: AssetCategory = d.category || DEFAULT_CATEGORY[d.type];
+  const tax: TaxBucket = d.taxBucket || DEFAULT_TAX_BUCKET[d.type];
   return {
     name: d.name.trim(),
     type: ASSET_TYPE_LABELS[d.type],
@@ -85,6 +132,8 @@ export function draftToDisplayAsset(d: AssetDraft): DisplayAsset {
     costPrice: d.costPrice,
     marketPrice: d.currentPrice, // กรอกราคาปัจจุบัน → ใช้คำนวณ P&L จริง · เว้นว่าง (null) → ใช้ต้นทุนแทน
     fxToThb: 1,
+    category: ASSET_CATEGORY_LABELS[cat],
+    taxBucket: tax === 'none' ? '' : TAX_BUCKET_LABELS[tax],
     note: (d.note ?? '').trim(),
     source: 'manual',
     updatedMin: 0,

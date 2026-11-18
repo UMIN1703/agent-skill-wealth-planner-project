@@ -19,6 +19,15 @@ export type ImportResult = {
 const TYPE_MAP: Record<string, AssetType> = {
   'หุ้นไทย': 'th_stock', 'หุ้น ตปท.': 'foreign_stock', 'ทองคำ': 'gold', 'เงินสด': 'cash', 'ตราสารหนี้': 'bond',
   th_stock: 'th_stock', foreign_stock: 'foreign_stock', gold: 'gold', cash: 'cash', bond: 'bond',
+  // CR-WPN-008 เฟส 2 — ประเภทที่ขยายใหม่ (รองรับทั้งไทย/อังกฤษ/ตัวย่อ)
+  'ETF': 'etf', etf: 'etf',
+  'กองทุนรวม': 'fund', fund: 'fund',
+  'กองทุน SSF': 'fund_ssf', fund_ssf: 'fund_ssf', SSF: 'fund_ssf', ssf: 'fund_ssf',
+  'กองทุน RMF': 'fund_rmf', fund_rmf: 'fund_rmf', RMF: 'fund_rmf', rmf: 'fund_rmf',
+  'คริปโต': 'crypto', crypto: 'crypto', Crypto: 'crypto',
+  'กองทุนสำรองเลี้ยงชีพ': 'provident', provident: 'provident', PVD: 'provident', pvd: 'provident',
+  'ประกัน': 'insurance', insurance: 'insurance',
+  'อื่นๆ': 'other', other: 'other',
 };
 
 export function importAssets(header: string[], rows: string[][]): ImportResult {
@@ -56,6 +65,8 @@ export function importAssets(header: string[], rows: string[][]): ImportResult {
       quantity: qtyRaw === '' ? null : Number(qtyRaw),
       costPrice: costRaw === '' ? null : Number(costRaw),
       currentPrice: curRaw === '' ? null : Number(curRaw),
+      category: '', // เฟส 2: เว้นว่าง → ใช้หมวดเริ่มต้นตามประเภท (เฟส 3 จะ map จากชีตจริง)
+      taxBucket: '',
       brokerChannel: get('brokerChannel'),
       note: get('note'),
     };

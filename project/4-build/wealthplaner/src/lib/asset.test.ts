@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { validateAssetDraft, isDuplicate, draftToDisplayAsset, ASSET_TYPE_LABELS, type AssetDraft } from './asset.ts';
 
 const valid: AssetDraft = {
-  name: 'PTT', type: 'th_stock', quantity: 100, costPrice: 34.25, currentPrice: null, brokerChannel: 'SCBS', note: '',
+  name: 'PTT', type: 'th_stock', quantity: 100, costPrice: 34.25, currentPrice: null,
+  category: '', taxBucket: '', brokerChannel: 'SCBS', note: '',
 };
 
 // F001 AC-01 (traces TC-F001-001)
@@ -42,7 +43,7 @@ test('TC-F001-E04: ไม่เลือก broker channel → ปฏิเส�
 });
 
 test('firstField = ช่องแรกที่ผิดตามลำดับ (name ก่อน)', () => {
-  const r = validateAssetDraft({ name: '', type: '', quantity: null, costPrice: null, currentPrice: null, brokerChannel: '', note: '' });
+  const r = validateAssetDraft({ name: '', type: '', quantity: null, costPrice: null, currentPrice: null, category: '', taxBucket: '', brokerChannel: '', note: '' });
   assert.equal(r.ok, false);
   if (!r.ok) assert.equal(r.firstField, 'name');
 });
@@ -74,6 +75,19 @@ test('currentPrice → marketPrice + note carried · ราคาปัจจุ
   assert.equal(a.note, 'รอบ Q1'); // trim
   assert.equal(validateAssetDraft({ ...valid, currentPrice: -1 }).ok, false);
   assert.equal(validateAssetDraft({ ...valid, currentPrice: 0 }).ok, true); // 0 อนุญาต
+});
+
+// Phase 2 — หมวด/สิทธิลดหย่อน auto จากประเภท (override ได้)
+test('เฟส2: category/taxBucket auto ตามประเภท + override', () => {
+  const ssf = draftToDisplayAsset({ ...valid, type: 'fund_ssf', name: 'SSF' });
+  assert.equal(ssf.category, 'เกษียณ');
+  assert.equal(ssf.taxBucket, 'SSF');
+  const btc = draftToDisplayAsset({ ...valid, type: 'crypto', name: 'BTC' });
+  assert.equal(btc.category, 'สินทรัพย์ทางเลือก');
+  assert.equal(btc.taxBucket, ''); // ไม่มีสิทธิลดหย่อน
+  const ov = draftToDisplayAsset({ ...valid, category: 'reserve', taxBucket: 'rmf' });
+  assert.equal(ov.category, 'เงินสำรอง/ฉุกเฉิน');
+  assert.equal(ov.taxBucket, 'RMF');
 });
 
 test('draftToDisplayAsset ปฏิเสธร่างที่ยังไม่ผ่าน validation (กันข้าม validate)', () => {

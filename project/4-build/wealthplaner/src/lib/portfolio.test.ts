@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { summarizePortfolio, holdingSummary, type HeldAsset } from './portfolio.ts';
+import { summarizePortfolio, holdingSummary, taxDeductionSummary, type HeldAsset } from './portfolio.ts';
 
 const two: HeldAsset[] = [
   { name: 'A', type: 'หุ้นไทย', brokerChannel: 'SCBS', quantity: 10, costPrice: 10, marketPrice: 15, fxToThb: 1 },       // value 150, income 50
@@ -12,6 +12,19 @@ test('TC-F002-hold-summary: holdingSummary รูปแบบ + ใช้ต้�
   const s = holdingSummary({ name: 'PTT', type: 'หุ้นไทย', brokerChannel: 'ttb', quantity: 1000, costPrice: 35, marketPrice: null, fxToThb: 1 });
   assert.ok(s.includes('PTT · 1,000 หน่วย · ttb'));
   assert.ok(s.includes('฿35,000')); // 1000 × 35 (ไม่มีราคาตลาด → ต้นทุน)
+});
+
+// CR-WPN-008 เฟส 2 — สรุปสิทธิลดหย่อนภาษี (รวมต้นทุนตาม bucket, ข้ามรายการไม่มี bucket)
+test('TC-F002-tax: taxDeductionSummary รวมต้นทุนตาม tax bucket', () => {
+  const rows: (HeldAsset & { taxBucket?: string })[] = [
+    { name: 'SSF', type: 'กองทุน SSF', brokerChannel: 'x', quantity: 10, costPrice: 100, marketPrice: null, fxToThb: 1, taxBucket: 'SSF' },
+    { name: 'RMF', type: 'กองทุน RMF', brokerChannel: 'x', quantity: 5, costPrice: 200, marketPrice: null, fxToThb: 1, taxBucket: 'RMF' },
+    { name: 'หุ้น', type: 'หุ้นไทย', brokerChannel: 'x', quantity: 1, costPrice: 50, marketPrice: null, fxToThb: 1 },
+  ];
+  const s = taxDeductionSummary(rows);
+  assert.equal(s.length, 2); // รายการไม่มี bucket ถูกข้าม
+  assert.equal(s.find((x) => x.bucket === 'SSF')!.costTHB, 1000);
+  assert.equal(s.find((x) => x.bucket === 'RMF')!.costTHB, 1000);
 });
 
 // F002 AC-01 (traces TC-F002-001)
