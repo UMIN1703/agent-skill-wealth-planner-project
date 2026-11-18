@@ -14,7 +14,7 @@ IMG=scripts/richmenu/richmenu.png
 [ -f "$IMG" ]   || { echo "❌ ไม่พบ $IMG — รัน: python3 scripts/richmenu/make-image.py ก่อน"; exit 1; }
 echo "ฐานลิงก์ (AUTH_URL) = $BASE"
 
-# 6 ช่อง (2500x1686, 3 คอลัมน์ x 2 แถว) → ลิงก์ไปหน้าต่าง ๆ ของแอป
+# 5 ช่อง: แถวบน 3 (พอร์ต/เพิ่ม/สลิป) · แถวล่าง 2 (ปรับพอร์ต/เข้าสู่ระบบ) — ต้องตรงกับ make-image.py
 read -r -d '' BODY <<JSON || true
 {
   "size": { "width": 2500, "height": 1686 },
@@ -23,11 +23,10 @@ read -r -d '' BODY <<JSON || true
   "chatBarText": "เมนูหลัก",
   "areas": [
     { "bounds": {"x":0,"y":0,"width":833,"height":843},      "action": {"type":"uri","label":"พอร์ตรวม","uri":"$BASE/"} },
-    { "bounds": {"x":833,"y":0,"width":833,"height":843},    "action": {"type":"uri","label":"แดชบอร์ด","uri":"$BASE/dashboard"} },
-    { "bounds": {"x":1666,"y":0,"width":834,"height":843},   "action": {"type":"uri","label":"เพิ่มสินทรัพย์","uri":"$BASE/add"} },
-    { "bounds": {"x":0,"y":843,"width":833,"height":843},    "action": {"type":"uri","label":"รายการสลิป","uri":"$BASE/slips"} },
-    { "bounds": {"x":833,"y":843,"width":833,"height":843},  "action": {"type":"uri","label":"ปรับพอร์ต","uri":"$BASE/rebalance"} },
-    { "bounds": {"x":1666,"y":843,"width":834,"height":843}, "action": {"type":"uri","label":"เข้าสู่ระบบ","uri":"$BASE/login"} }
+    { "bounds": {"x":833,"y":0,"width":833,"height":843},    "action": {"type":"uri","label":"เพิ่มสินทรัพย์","uri":"$BASE/add"} },
+    { "bounds": {"x":1666,"y":0,"width":834,"height":843},   "action": {"type":"uri","label":"รายการสลิป","uri":"$BASE/slips"} },
+    { "bounds": {"x":0,"y":843,"width":1250,"height":843},   "action": {"type":"uri","label":"ปรับพอร์ต","uri":"$BASE/rebalance"} },
+    { "bounds": {"x":1250,"y":843,"width":1250,"height":843},"action": {"type":"uri","label":"เข้าสู่ระบบ","uri":"$BASE/login"} }
   ]
 }
 JSON

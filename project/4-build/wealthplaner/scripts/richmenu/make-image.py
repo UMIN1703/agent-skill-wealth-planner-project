@@ -67,13 +67,14 @@ def ic_login(d, cx, iy, s, c):  # ลูกศรเข้าประตู
     d.polygon([(cx+s*0.25+8, iy), (cx+s*0.25-34, iy-30), (cx+s*0.25-34, iy+30)], fill=c)
     d.line([cx+s*0.55, iy-s, cx+s*0.55, iy+s], fill=c, width=18)
 
+# 5 ช่อง: แถวบน 3 (833/833/834) · แถวล่าง 2 (1250/1250) — ไม่มี dashboard
+# rect = (x0, y0, x1, y1) ในพิกัดเต็ม (ต้องตรงกับ areas ใน setup.sh)
 CELLS = [
-    (ic_donut,   "พอร์ตรวม",     "Portfolio", ACCENT),
-    (ic_grid,    "แดชบอร์ด",     "Dashboard", ACCENT),
-    (ic_plus,    "เพิ่มสินทรัพย์", "Add",       GOLD),
-    (ic_receipt, "รายการสลิป",   "Slips",     ACCENT),
-    (ic_swap,    "ปรับพอร์ต",     "Rebalance", ACCENT),
-    (ic_login,   "เข้าสู่ระบบ",   "Login",     MUTED),
+    (ic_donut,   "พอร์ตรวม",     "Portfolio", ACCENT, (0, 0, 833, 843)),
+    (ic_plus,    "เพิ่มสินทรัพย์", "Add",       GOLD,   (833, 0, 1666, 843)),
+    (ic_receipt, "รายการสลิป",   "Slips",     ACCENT, (1666, 0, 2500, 843)),
+    (ic_swap,    "ปรับพอร์ต",     "Rebalance", ACCENT, (0, 843, 1250, 1686)),
+    (ic_login,   "เข้าสู่ระบบ",   "Login",     MUTED,  (1250, 843, 2500, 1686)),
 ]
 
 f_th = font(92, index=1)
@@ -86,12 +87,9 @@ def center(cx, y, text, fnt, fill):
     l, t, r, b = d.textbbox((0, 0), text, font=fnt)
     d.text((cx - (r - l) / 2, y), text, font=fnt, fill=fill)
 
-cw, ch = W / COLS, H / ROWS
 pad = 26
-for i, (icon, th, en, accent) in enumerate(CELLS):
-    col, row = i % COLS, i // COLS
-    x0, y0 = col * cw + pad, row * ch + pad
-    x1, y1 = (col + 1) * cw - pad, (row + 1) * ch - pad
+for icon, th, en, accent, (rx0, ry0, rx1, ry1) in CELLS:
+    x0, y0, x1, y1 = rx0 + pad, ry0 + pad, rx1 - pad, ry1 - pad
     d.rounded_rectangle([x0, y0, x1, y1], radius=36, fill=CARD, outline=BORDER, width=3)
     d.rounded_rectangle([x0, y0, x1, y0 + 12], radius=6, fill=accent)
     cx = (x0 + x1) / 2

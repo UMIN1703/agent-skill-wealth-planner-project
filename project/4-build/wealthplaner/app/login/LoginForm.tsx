@@ -45,9 +45,9 @@ export default function LoginForm() {
     }
 
     // Google / LINE — method ตรงกับ provider id ของ NextAuth → เด้งไป provider แล้วกลับ
-    // callbackUrl จาก query (เช่น /slips?claim=...) ถ้ามี, ไม่งั้น /dashboard
+    // callbackUrl จาก query (เช่น /slips?claim=...) ถ้ามี, ไม่งั้นไปหน้าพอร์ต (/)
     setPending(method);
-    const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl') || '/dashboard';
+    const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl') || '/';
     await naSignIn(method, { callbackUrl });
   }
 

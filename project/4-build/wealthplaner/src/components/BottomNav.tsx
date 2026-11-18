@@ -1,15 +1,14 @@
 'use client';
 
-// แถบนำทางล่าง (bottom navigation) — ปลายทางหลักของแอป 5 แท็บ
+// แถบนำทางล่าง (bottom navigation) — ปลายทางหลักของแอป 4 แท็บ
 // client component: ใช้ usePathname ไฮไลต์แท็บที่กำลังอยู่ · ซ่อนบนหน้า /login (ยังไม่ล็อกอิน)
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutGrid, PieChart, Plus, FileUp, Scale, type LucideIcon } from 'lucide-react';
+import { PieChart, Plus, FileUp, Scale, type LucideIcon } from 'lucide-react';
 
 type Tab = { href: string; label: string; Icon: LucideIcon; accent?: boolean };
 
 const TABS: Tab[] = [
-  { href: '/dashboard', label: 'แดชบอร์ด', Icon: LayoutGrid },
   { href: '/', label: 'พอร์ต', Icon: PieChart },
   { href: '/add', label: 'เพิ่ม', Icon: Plus, accent: true },
   { href: '/import', label: 'นำเข้า', Icon: FileUp },
