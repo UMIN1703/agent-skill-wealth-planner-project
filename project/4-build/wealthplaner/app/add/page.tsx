@@ -6,8 +6,9 @@
 // · AC-E03 ซ้ำ→ยืนยัน · AC-E04 broker บังคับ · สถานะกำลังบันทึก
 // ข้อมูลอยู่ในหน่วยความจำ (mock) — การคงอยู่ข้ามเซสชันคือชั้น Supabase (Class B, รอ creds)
 
-import { useState } from 'react';
-import { Check, Plus } from 'lucide-react';
+import { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Check, Plus, Sparkles } from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton.tsx';
 import {
   validateAssetDraft,
@@ -32,8 +33,26 @@ const FIELD_ID: Record<keyof AssetDraft, string> = {
 };
 const focusField = (f: keyof AssetDraft) => document.getElementById(FIELD_ID[f])?.focus();
 
-export default function AddAssetPage() {
-  const [draft, setDraft] = useState<AssetDraft>(emptyDraft);
+function AddAssetInner() {
+  // สะพานจากสลิป (F009→F001): เติมประเภท/โบรก/ชื่อ จาก query · ยอดสลิป (amount) = ยอดรวมบาท
+  const params = useSearchParams();
+  const fromSlip = params.get('from') === 'slip';
+  const seedType = params.get('type');
+  const seedBroker = params.get('broker') ?? '';
+  const seedName = params.get('name') ?? '';
+  const slipTotal = Number(params.get('amount')) || null; // ยอดรวมจากสลิป (บาท) ไว้คำนวณต้นทุน/หน่วย
+
+  const seededDraft: AssetDraft = {
+    name: seedName,
+    type: seedType && (seedType in ASSET_TYPE_LABELS) ? (seedType as AssetType) : '',
+    quantity: null,
+    costPrice: null,
+    brokerChannel: seedBroker,
+  };
+  // โบรกจากสลิป (เช่น ttb) อาจไม่อยู่ในลิสต์มาตรฐาน → เติมเข้า option ให้เลือกได้
+  const brokers = seedBroker && !BROKERS.includes(seedBroker) ? [seedBroker, ...BROKERS] : BROKERS;
+
+  const [draft, setDraft] = useState<AssetDraft>(seededDraft);
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [saving, setSaving] = useState(false);
   const [dupPending, setDupPending] = useState(false); // AC-E03: รอผู้ใช้ยืนยันเพิ่มทั้งที่ซ้ำ
@@ -48,6 +67,20 @@ export default function AddAssetPage() {
   };
 
   const num = (s: string): number | null => (s.trim() === '' ? null : Number(s));
+
+  // กรอกจำนวน → ถ้ามียอดรวมจากสลิป และยังไม่ได้ใส่ต้นทุน → คำนวณต้นทุน/หน่วย = ยอดสลิป ÷ จำนวนให้
+  const onQty = (s: string) => {
+    const q = num(s);
+    setDraft((d) => {
+      const next = { ...d, quantity: q };
+      if (slipTotal && q && q > 0 && d.costPrice == null) {
+        next.costPrice = Math.round((slipTotal / q) * 100) / 100;
+      }
+      return next;
+    });
+    if (errors.some((e) => e.field === 'quantity')) setErrors((es) => es.filter((e) => e.field !== 'quantity'));
+    setDupPending(false);
+  };
 
   function commit() {
     const asset = draftToDisplayAsset(draft);
@@ -93,6 +126,14 @@ export default function AddAssetPage() {
         <LogoutButton />
       </div>
 
+      {fromSlip && (
+        <div className="notice warn" role="status" style={{ marginBottom: 12 }}>
+          <Sparkles size={14} style={{ verticalAlign: '-2px', marginRight: 4 }} />
+          เติมจากสลิปแล้ว: ประเภท/โบรก{slipTotal ? ` · ยอดสลิป ${baht(slipTotal)}` : ''} — กรอก <strong>ชื่อ + จำนวนหน่วย</strong> ที่เหลือ
+          {slipTotal ? ' (ใส่จำนวนแล้วระบบคำนวณต้นทุน/หน่วยให้)' : ''}
+        </div>
+      )}
+
       <form className="card form" onSubmit={onSubmit} noValidate>
         <Field id="f-name" label="ชื่อสินทรัพย์" error={errFor('name')}>
           <input
@@ -119,7 +160,7 @@ export default function AddAssetPage() {
           <Field id="f-qty" label="จำนวน" error={errFor('quantity')}>
             <input
               id="f-qty" type="number" inputMode="decimal" step="any" className="input num" placeholder="0"
-              value={draft.quantity ?? ''} onChange={(e) => set('quantity', num(e.target.value))}
+              value={draft.quantity ?? ''} onChange={(e) => onQty(e.target.value)}
               aria-invalid={!!errFor('quantity')} aria-describedby={errFor('quantity') ? 'f-qty-err' : undefined}
             />
           </Field>
@@ -139,7 +180,7 @@ export default function AddAssetPage() {
             aria-invalid={!!errFor('brokerChannel')} aria-describedby={errFor('brokerChannel') ? 'f-broker-err' : undefined}
           >
             <option value="">— เลือกโบรก/ช่องทาง —</option>
-            {BROKERS.map((b) => <option key={b} value={b}>{b}</option>)}
+            {brokers.map((b) => <option key={b} value={b}>{b}</option>)}
           </select>
         </Field>
 
@@ -178,6 +219,15 @@ export default function AddAssetPage() {
         )}
       </section>
     </main>
+  );
+}
+
+// useSearchParams ต้องอยู่ใต้ Suspense (Next.js app router) — ครอบไว้
+export default function AddAssetPage() {
+  return (
+    <Suspense fallback={<main className="app"><div className="topbar"><h1>เพิ่มสินทรัพย์</h1></div></main>}>
+      <AddAssetInner />
+    </Suspense>
   );
 }
 

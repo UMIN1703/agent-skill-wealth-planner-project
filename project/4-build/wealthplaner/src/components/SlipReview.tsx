@@ -4,7 +4,8 @@
 // ใช้ validateSlipEntry (pure) ตรวจก่อน · เมื่อยังไม่ wire Google Drive (Class B)
 // การกดบันทึกจะแสดง "ค่าที่จะบันทึก" อย่างตรงไปตรงมา ไม่แกล้งว่าบันทึกสำเร็จ
 import { useState } from 'react';
-import { Receipt, Check, Sparkles, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Receipt, Check, Sparkles, Loader2, Plus } from 'lucide-react';
 import {
   validateSlipEntry, slipToSheetRow, SLIP_CATEGORIES, SLIP_ASSET_TYPES, SLIP_SHEET_COLUMNS,
   type PendingSlip, type SlipCategory,
@@ -15,6 +16,7 @@ import { parseSlipText } from '@/lib/slipParse.ts';
 const today = () => new Date().toISOString().slice(0, 10);
 
 export default function SlipReview({ slip, configured, claim }: { slip: PendingSlip; configured: boolean; claim?: string }) {
+  const router = useRouter();
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(today());
   const [category, setCategory] = useState<SlipCategory | ''>('');
@@ -57,6 +59,18 @@ export default function SlipReview({ slip, configured, claim }: { slip: PendingS
     } finally {
       setReading(false);
     }
+  }
+
+  // สะพานเข้าพอร์ต (F001) — ส่งค่าจากสลิปไปเติมฟอร์มเพิ่มสินทรัพย์ล่วงหน้า
+  // (ประเภท/โบรก/ยอดรวม) · ชื่อ + จำนวนหน่วย ผู้ใช้กรอกต่อที่หน้า /add
+  function onAddToPortfolio() {
+    const q = new URLSearchParams({ from: 'slip' });
+    if (assetType) q.set('type', assetType);
+    if (channel.trim()) q.set('broker', channel.trim());
+    const amt = amount.replace(/,/g, '').trim();
+    if (amt && Number.isFinite(Number(amt))) q.set('amount', amt);
+    if (note.trim()) q.set('name', note.trim());
+    router.push(`/add?${q.toString()}`);
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -177,6 +191,10 @@ export default function SlipReview({ slip, configured, claim }: { slip: PendingS
         </div>
 
         <button type="submit" className="btn-primary" disabled={pending}><Check size={18} /> {pending ? 'กำลังบันทึก…' : 'ยืนยันและบันทึก'}</button>
+
+        <button type="button" className="btn-ghost" onClick={onAddToPortfolio} style={{ width: '100%', marginTop: 8 }}>
+          <Plus size={16} style={{ verticalAlign: '-3px', marginRight: 6 }} /> เพิ่มเข้าพอร์ต (กรอกชื่อ/จำนวนต่อ)
+        </button>
       </form>
 
       {notice && (

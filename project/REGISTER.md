@@ -4,7 +4,7 @@
 |---|---|
 | รหัสโครงการ | WPN |
 | เจ้าของโครงการ | TBD — ต้องการ [ชื่อ] |
-| ปรับปรุงทะเบียนล่าสุด | 2026-11-07 |
+| ปรับปรุงทะเบียนล่าสุด | 2026-11-18 |
 
 ทะเบียนนี้ต้องปรับปรุงในการแก้ไขครั้งเดียวกับที่สร้างหรือแก้เอกสาร
 ทะเบียนที่ตามมาปรับทีหลัง คือทะเบียนที่ผิดในช่วงเวลาระหว่างนั้น
@@ -20,7 +20,8 @@
 | SRS-WPN-001 | System Requirements and Design Specification — WealthPlaner | 00 | ร่าง | 2026-08-29 |
 | CR-WPN-001 | Change request — data_location ไฮบริด + auth | 00 | อนุมัติแล้ว | 2026-08-29 |
 | CR-WPN-002 | Change request — เพิ่มฟีเจอร์ F009 Slip-to-Ledger (LINE → เว็บ → Drive) | 00 | อนุมัติแล้ว | 2026-11-07 |
-| CR-WPN-003 | Change request — เพิ่ม OCR auto-fill ให้ F009 (Claude vision) | 00 | อนุมัติแล้ว | 2026-11-18 |
+| CR-WPN-003 | Change request — เพิ่ม OCR auto-fill ให้ F009 (Tesseract.js) + Drive→R2 ลิงก์ + หัว/คอลัมน์ชีต | 00 | อนุมัติแล้ว | 2026-11-18 |
+| CR-WPN-004 | Change request — เชื่อมสลิป (F009) เข้าพอร์ต (F001/F002) | 00 | อนุมัติแล้ว | 2026-11-18 |
 | TST-WPN-001 | Test cases + traceability matrix — WealthPlaner | 00 | ร่าง | 2026-08-29 |
 | DSN-WPN-001 | ระบบออกแบบและข้อกำหนดหน้าจอ (Neon Dark) — WealthPlaner | 00 | ร่าง | 2026-08-31 |
 | QAR-WPN-001 | รายงานการประกันคุณภาพ (F001–F006) — WealthPlaner | 00 | ร่าง | 2026-09-19 |
@@ -66,3 +67,5 @@ skill `document-control`
 | 2026-11-07 | CR-WPN-002 | สร้าง+อนุมัติ | เปิดคำขอเพิ่ม F009 Slip-to-Ledger (LINE Messaging API → ยืนยันบนเว็บ → ซิงค์ Drive/Sheets ของผู้ใช้) · ตัดสิน staging = Cloudflare KV+R2 · ระบุ Class B (LINE OA, Google OAuth, KV/R2, deploy) |
 | 2026-11-07 | REQ-WPN-001 | แก้ไข (ร่าง) | เพิ่ม F009 + AC (01–05, E01–E05) ตาม CR-WPN-002 · เพิ่ม dependencies + open issues · coverage เพิ่มหมวด "เพิ่มเติม" 1/1 |
 | 2026-11-18 | CR-WPN-003 | สร้าง+อนุมัติ | เปิดคำขอ OCR auto-fill ให้ F009 ด้วย Claude vision (claude-opus-4-8) · ปรับ F009 AC-03 ให้ระบบเติมฟอร์มก่อนผู้ใช้ยืนยัน · Class B = ANTHROPIC_API_KEY |
+| 2026-11-18 | CR-WPN-003 | แก้ไข (CR-04/05) | เปลี่ยน OCR เป็น Tesseract.js (ฟรี, client-side, ลบโค้ด Claude/ANTHROPIC_API_KEY) · เลิกอัปรูปขึ้น Drive → เก็บ R2 + ลิงก์ในเซลล์ · เพิ่มหัวคอลัมน์ไทย + คอลัมน์ หมวดหมู่สินทรัพย์/ช่องทาง (9 คอลัมน์) · ไม่มี Class B |
+| 2026-11-18 | CR-WPN-004 | สร้าง+อนุมัติ | เปิดคำขอเชื่อมสลิป (F009) เข้าพอร์ต (F001/F002) · ตัดสิน: สลิปเติมฟอร์ม F001 ล่วงหน้าผ่าน URL query + เก็บ mock ไปก่อน (persistence รอ Supabase/Class B) · auto คำนวณต้นทุน/หน่วย · ไม่มี Class B |
