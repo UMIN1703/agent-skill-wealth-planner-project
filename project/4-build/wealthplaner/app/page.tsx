@@ -33,7 +33,7 @@ export default async function PortfolioPage() {
   const centerLabel = '฿' + compact(s.totalTHB);
 
   const rows: AssetRowData[] = assets.map((a) => ({
-    name: a.name, broker: a.brokerChannel, valueTHB: marketValueTHB(a),
+    name: a.name, broker: a.brokerChannel, type: a.type, valueTHB: marketValueTHB(a),
     pct: computeIncomePercent(a), stale: a.updatedMin > 15,
   }));
 
@@ -59,7 +59,7 @@ export default async function PortfolioPage() {
         </section>
       )}
 
-      <AssetList rows={rows} />
+      <AssetList rows={rows} totalTHB={s.totalTHB} />
 
       {isDemo && <p className="note" style={{ textAlign: 'center' }}>ข้อมูลเดโม — เชื่อมฐานข้อมูลเพื่อดูยอดจริงของคุณ</p>}
     </main>

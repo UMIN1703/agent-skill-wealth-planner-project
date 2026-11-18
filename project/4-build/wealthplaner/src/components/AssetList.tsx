@@ -1,36 +1,41 @@
-'use client';
-
-// ลิสต์สินทรัพย์ (restyle) — segmented control กรอง ทั้งหมด/กำไร/ขาดทุน + แถวสินทรัพย์
-import { useState } from 'react';
+// ลิสต์สินทรัพย์ (restyle) — จัดกลุ่มตาม "ประเภทสินทรัพย์" + ยอดรวม/สัดส่วนต่อกลุ่ม
 import { AssetRow } from './AssetRow.tsx';
 
-export type AssetRowData = { name: string; broker: string; valueTHB: number; pct: number | null; stale: boolean };
+export type AssetRowData = { name: string; broker: string; type: string; valueTHB: number; pct: number | null; stale: boolean };
 
-const FILTERS: { id: 'all' | 'gain' | 'loss'; label: string }[] = [
-  { id: 'all', label: 'ทั้งหมด' },
-  { id: 'gain', label: 'กำไร' },
-  { id: 'loss', label: 'ขาดทุน' },
-];
+const fmt = (n: number) => new Intl.NumberFormat('th-TH', { maximumFractionDigits: 0 }).format(Math.round(n));
+const compact = (n: number) => {
+  const a = Math.abs(n);
+  return a >= 1e6 ? (n / 1e6).toFixed(2) + 'M' : a >= 1e4 ? Math.round(n / 1e3) + 'k' : fmt(n);
+};
 
-export default function AssetList({ rows }: { rows: AssetRowData[] }) {
-  const [f, setF] = useState<'all' | 'gain' | 'loss'>('all');
-  const shown = rows.filter((r) =>
-    f === 'all' ? true : f === 'gain' ? (r.pct ?? 0) > 0 : (r.pct ?? 0) < 0,
-  );
+export default function AssetList({ rows, totalTHB }: { rows: AssetRowData[]; totalTHB: number }) {
+  // จัดกลุ่มตามประเภท แล้วเรียงกลุ่มใหญ่→เล็กตามมูลค่า
+  const groups = new Map<string, AssetRowData[]>();
+  for (const r of rows) {
+    const arr = groups.get(r.type) ?? [];
+    arr.push(r);
+    groups.set(r.type, arr);
+  }
+  const ordered = [...groups.entries()]
+    .map(([type, items]) => ({ type, items, sub: items.reduce((x, r) => x + r.valueTHB, 0) }))
+    .sort((a, b) => b.sub - a.sub);
 
   return (
     <section className="card">
-      <div className="pf-seg" role="tablist" aria-label="กรองสินทรัพย์">
-        {FILTERS.map(({ id, label }) => (
-          <button key={id} type="button" role="tab" aria-selected={f === id}
-            className={'pf-seg-i' + (f === id ? ' on' : '')} onClick={() => setF(id)}>{label}</button>
-        ))}
-      </div>
-
-      {shown.length === 0 ? (
-        <p className="empty">ไม่มีสินทรัพย์ในกลุ่มนี้</p>
-      ) : shown.map((r, i) => (
-        <AssetRow key={r.name + r.broker + i} name={r.name} broker={r.broker} valueTHB={r.valueTHB} percent={r.pct} stale={r.stale} />
+      <h2>สินทรัพย์ตามประเภท</h2>
+      {rows.length === 0 ? (
+        <p className="empty">ยังไม่มีสินทรัพย์</p>
+      ) : ordered.map((g) => (
+        <div key={g.type} className="pf-group-wrap">
+          <div className="pf-group">
+            <span className="gt">{g.type}</span>
+            <span className="gv num">฿{compact(g.sub)} · {totalTHB > 0 ? Math.round((g.sub / totalTHB) * 100) : 0}%</span>
+          </div>
+          {g.items.map((r, i) => (
+            <AssetRow key={r.name + r.broker + i} name={r.name} broker={r.broker} valueTHB={r.valueTHB} percent={r.pct} stale={r.stale} />
+          ))}
+        </div>
       ))}
     </section>
   );
