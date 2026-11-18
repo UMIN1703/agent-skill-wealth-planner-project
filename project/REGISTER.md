@@ -22,6 +22,7 @@
 | CR-WPN-002 | Change request — เพิ่มฟีเจอร์ F009 Slip-to-Ledger (LINE → เว็บ → Drive) | 00 | อนุมัติแล้ว | 2026-11-07 |
 | CR-WPN-003 | Change request — เพิ่ม OCR auto-fill ให้ F009 (Tesseract.js) + Drive→R2 ลิงก์ + หัว/คอลัมน์ชีต | 00 | อนุมัติแล้ว | 2026-11-18 |
 | CR-WPN-004 | Change request — เชื่อมสลิป (F009) เข้าพอร์ต (F001/F002) | 00 | อนุมัติแล้ว | 2026-11-18 |
+| CR-WPN-005 | Change request — LINE ตอบ 2 จังหวะ (สรุปยอด + ปุ่มดูพอร์ต/ดูชีต) | 00 | อนุมัติแล้ว | 2026-11-18 |
 | TST-WPN-001 | Test cases + traceability matrix — WealthPlaner | 00 | ร่าง | 2026-08-29 |
 | DSN-WPN-001 | ระบบออกแบบและข้อกำหนดหน้าจอ (Neon Dark) — WealthPlaner | 00 | ร่าง | 2026-08-31 |
 | QAR-WPN-001 | รายงานการประกันคุณภาพ (F001–F006) — WealthPlaner | 00 | ร่าง | 2026-09-19 |
@@ -69,3 +70,4 @@ skill `document-control`
 | 2026-11-18 | CR-WPN-003 | สร้าง+อนุมัติ | เปิดคำขอ OCR auto-fill ให้ F009 ด้วย Claude vision (claude-opus-4-8) · ปรับ F009 AC-03 ให้ระบบเติมฟอร์มก่อนผู้ใช้ยืนยัน · Class B = ANTHROPIC_API_KEY |
 | 2026-11-18 | CR-WPN-003 | แก้ไข (CR-04/05) | เปลี่ยน OCR เป็น Tesseract.js (ฟรี, client-side, ลบโค้ด Claude/ANTHROPIC_API_KEY) · เลิกอัปรูปขึ้น Drive → เก็บ R2 + ลิงก์ในเซลล์ · เพิ่มหัวคอลัมน์ไทย + คอลัมน์ หมวดหมู่สินทรัพย์/ช่องทาง (9 คอลัมน์) · ไม่มี Class B |
 | 2026-11-18 | CR-WPN-004 | สร้าง+อนุมัติ | เปิดคำขอเชื่อมสลิป (F009) เข้าพอร์ต (F001/F002) · ตัดสิน: สลิปเติมฟอร์ม F001 ล่วงหน้าผ่าน URL query + เก็บ mock ไปก่อน (persistence รอ Supabase/Class B) · auto คำนวณต้นทุน/หน่วย · ไม่มี Class B |
+| 2026-11-18 | CR-WPN-005 | สร้าง+อนุมัติ | เปิดคำขอ LINE ตอบ 2 จังหวะ: reply "ได้รับสลิป"+ปุ่ม → push "สรุปยอด ฿X"+ปุ่มดูพอร์ต/ดูชีต หลังยืนยัน · ตัดสิน push หลังยืนยัน (เลี่ยง OCR เซิร์ฟเวอร์เสียเงิน) · push เฉพาะเมื่อมี claim.u · ไม่มี Class B เพิ่ม |

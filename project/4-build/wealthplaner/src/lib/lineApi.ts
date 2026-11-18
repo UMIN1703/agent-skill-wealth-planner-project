@@ -2,6 +2,7 @@
 // ต้องมี Channel access token (Messaging API channel) — คนละตัวกับ secret
 const CONTENT_URL = (messageId: string) => `https://api-data.line.me/v2/bot/message/${messageId}/content`;
 const REPLY_URL = 'https://api.line.me/v2/bot/message/reply';
+const PUSH_URL = 'https://api.line.me/v2/bot/message/push';
 
 /** ดาวน์โหลด binary ของข้อความรูป (AC-01) */
 export async function downloadLineContent(
@@ -20,4 +21,45 @@ export async function replyLineText(token: string, replyToken: string, text: str
     body: JSON.stringify({ replyToken, messages: [{ type: 'text', text }] }),
   });
   if (!res.ok) throw new Error(`LINE reply ${res.status}: ${await res.text()}`);
+}
+
+// ── ข้อความแบบปุ่ม (CR-WPN-005) — สรุป + ปุ่มลิงก์ไปเว็บ/ชีต ──────────────────
+export type LineUriAction = { label: string; uri: string };
+
+/** สร้าง buttons template (ตัดความยาวตามลิมิต LINE: text ≤160, label ≤20, ≤4 ปุ่ม) */
+function buttonsMessage(text: string, actions: LineUriAction[], altText: string) {
+  return {
+    type: 'template',
+    altText: altText.slice(0, 400),
+    template: {
+      type: 'buttons',
+      text: text.slice(0, 160),
+      actions: actions.slice(0, 4).map((a) => ({ type: 'uri', label: a.label.slice(0, 20), uri: a.uri })),
+    },
+  };
+}
+
+/** reply ด้วยข้อความ+ปุ่ม (ตอบทันทีหลังรับสลิป) */
+export async function replyLineButtons(
+  token: string, replyToken: string, text: string, actions: LineUriAction[], altText = text,
+): Promise<void> {
+  const res = await fetch(REPLY_URL, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ replyToken, messages: [buttonsMessage(text, actions, altText)] }),
+  });
+  if (!res.ok) throw new Error(`LINE reply ${res.status}: ${await res.text()}`);
+}
+
+/** push ข้อความ+ปุ่มไปหาผู้ใช้ (ใช้ตอนยืนยันบนเว็บเสร็จ — replyToken หมดอายุแล้ว)
+ *  to = messaging userId (จาก source.userId ของ webhook / claim.u) */
+export async function pushLineButtons(
+  token: string, to: string, text: string, actions: LineUriAction[], altText = text,
+): Promise<void> {
+  const res = await fetch(PUSH_URL, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ to, messages: [buttonsMessage(text, actions, altText)] }),
+  });
+  if (!res.ok) throw new Error(`LINE push ${res.status}: ${await res.text()}`);
 }

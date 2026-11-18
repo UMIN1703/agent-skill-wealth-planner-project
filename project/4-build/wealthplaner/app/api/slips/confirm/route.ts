@@ -7,6 +7,8 @@ import { getStagedSlipMedia, removePendingSlip } from '@/lib/slipStore.ts';
 import { saveSlipRow } from '@/lib/driveSync.ts';
 import { getGoogleAccessToken } from '@/lib/googleLink.ts';
 import { verifyClaim, signClaim } from '@/lib/claim.ts';
+import { getVar } from '@/lib/cfEnv.ts';
+import { pushLineButtons } from '@/lib/lineApi.ts';
 
 export const runtime = 'edge';
 
@@ -66,6 +68,24 @@ export async function POST(req: Request): Promise<Response> {
   try {
     const saved = await saveSlipRow(token, row);
     await removePendingSlip(ownerUserId, slipId); // นำออกจากคิวรอยืนยัน (คงรูปใน R2 ให้ลิงก์ใช้ได้)
+
+    // จังหวะ 2 (CR-WPN-005) — push สรุปยอดกลับ LINE + ปุ่มดูพอร์ต/ดูชีต
+    // push ได้เฉพาะเมื่อรู้ messaging userId (claim.u) — login LINE ธรรมดาเป็นคนละ userId push ไม่ได้
+    const lineToken = getVar('LINE_CHANNEL_ACCESS_TOKEN');
+    if (claim?.u && lineToken) {
+      try {
+        const amt = Number(row[4]).toLocaleString('th-TH'); // row = [date,catLabel,assetType,channel,amount,...]
+        const detail = [row[1], row[2], row[3]].filter(Boolean).join(' · ');
+        await pushLineButtons(lineToken, claim.u,
+          `✅ บันทึกแล้ว ฿${amt}\n${detail}`, [
+            { label: '📊 ดูพอร์ต', uri: `${base}/` },
+            { label: '📄 ดูชีต', uri: `https://docs.google.com/spreadsheets/d/${saved.spreadsheetId}/edit` },
+          ]);
+      } catch (e) {
+        console.error('[slips/confirm] LINE push error:', String(e)); // push ล้มไม่กระทบการบันทึก
+      }
+    }
+
     return Response.json({ ok: true, ...saved });
   } catch (e) {
     // AC-E04 — เขียน Drive/Sheets ไม่สำเร็จ → ไม่ลบ staging, แจ้ง error ให้ลองใหม่

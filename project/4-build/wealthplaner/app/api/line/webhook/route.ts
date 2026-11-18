@@ -6,7 +6,7 @@
 import { verifyLineSignature, isSupportedSlipMessage } from '@/lib/slip.ts';
 import { getVar } from '@/lib/cfEnv.ts';
 import { stageSlip, stagingConfigured } from '@/lib/slipStore.ts';
-import { downloadLineContent, replyLineText } from '@/lib/lineApi.ts';
+import { downloadLineContent, replyLineText, replyLineButtons } from '@/lib/lineApi.ts';
 import { signClaim } from '@/lib/claim.ts';
 
 export const runtime = 'edge';
@@ -62,9 +62,17 @@ export async function POST(req: Request): Promise<Response> {
         const id = await stageSlip({ lineUserId: userId, messageId, bytes, mediaType });
         if (event.replyToken) {
           const claim = id ? await signClaim({ u: userId, id }) : null;
-          await replyLineText(token, event.replyToken,
-            claim ? `รับสลิปแล้ว ✅ เปิดลิงก์นี้เพื่อยืนยันและบันทึก:\n${base}/slips?claim=${claim}`
-                  : 'รับสลิปแล้ว แต่ระบบจัดเก็บยังไม่พร้อม (staging) โปรดลองใหม่ภายหลัง');
+          if (claim) {
+            // จังหวะ 1 — ตอบทันที: "ได้รับสลิป" + ปุ่มบันทึก/ดูพอร์ต (สรุปยอดจริงไป push จังหวะ 2 ตอนยืนยัน)
+            await replyLineButtons(token, event.replyToken,
+              'ได้รับสลิปแล้ว ✅\nแตะ "บันทึกสลิป" เพื่อตรวจยอดและบันทึกเข้าระบบ', [
+                { label: '📝 บันทึกสลิป', uri: `${base}/slips?claim=${claim}` },
+                { label: '📊 ดูพอร์ต', uri: `${base}/` },
+              ]);
+          } else {
+            await replyLineText(token, event.replyToken,
+              'รับสลิปแล้ว แต่ระบบจัดเก็บยังไม่พร้อม (staging) โปรดลองใหม่ภายหลัง');
+          }
         }
       } else if (event.type === 'message' && token && event.replyToken) {
         await replyLineText(token, event.replyToken, 'ส่งเป็น "รูปสลิป" เท่านั้นนะ เพื่อบันทึกเข้าระบบ 📸'); // AC-E01
