@@ -84,27 +84,38 @@ function AddAssetInner() {
     setDupPending(false);
   };
 
+  // จากสลิป (มี claim) → ยืนยันผ่านการ์ด LINE · เพิ่มด้วยมือ → บันทึกตรง
+  const viaCard = fromSlip && !!slipClaim;
+
   async function commit() {
     const asset = draftToDisplayAsset(draft);
     const payloadDraft = draft; // เก็บก่อนรีเซ็ต
-    setAdded((list) => [asset, ...list]); // AC-01: ปรากฏในรายการ (optimistic)
+    if (!viaCard) setAdded((list) => [asset, ...list]); // optimistic เฉพาะบันทึกตรง (card flow รอกดใน LINE)
     setDraft(emptyDraft);
     setErrors([]);
     setDupPending(false);
     focusField('name');
 
-    // persist จริงลง Supabase (CR-WPN-006) — ยังไม่เชื่อม → เก็บเฉพาะเซสชัน (แจ้งตรง ๆ)
     try {
-      const r = await fetch('/api/holdings', {
+      // CR-WPN-007: สลิป → ส่งการ์ดคอนเฟิร์มไป LINE (ยังไม่บันทึก) · CR-WPN-006: ด้วยมือ → บันทึกตรง
+      const endpoint = viaCard ? '/api/holdings/stage-confirm' : '/api/holdings';
+      const r = await fetch(endpoint, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ draft: payloadDraft, source: fromSlip ? 'slip' : 'manual', claim: slipClaim || undefined }),
       });
-      const d = (await r.json()) as { ok: boolean; configured?: boolean; reason?: string };
-      if (d.ok) setSaveNote({ kind: 'ok', text: 'บันทึกเข้าพอร์ตจริงแล้ว — ดูยอดรวมที่หน้าแรก' });
-      else if (d.configured === false) setSaveNote({ kind: 'warn', text: 'บันทึกในเซสชันแล้ว (ยังไม่เชื่อมฐานข้อมูล — reload แล้วหาย)' });
-      else setSaveNote({ kind: 'error', text: d.reason ?? 'บันทึกลงฐานข้อมูลไม่สำเร็จ' });
+      const d = (await r.json()) as { ok: boolean; staged?: boolean; configured?: boolean; reason?: string };
+      if (viaCard) {
+        if (d.ok && d.staged) setSaveNote({ kind: 'ok', text: 'ส่งการ์ดสรุปไป LINE แล้ว ✅ เปิด LINE แล้วกด "คอนเฟิร์ม" เพื่อบันทึกเข้าพอร์ต' });
+        else setSaveNote({ kind: 'error', text: d.reason ?? 'ส่งการ์ดคอนเฟิร์มไม่สำเร็จ' });
+      } else if (d.ok) {
+        setSaveNote({ kind: 'ok', text: 'บันทึกเข้าพอร์ตจริงแล้ว — ดูยอดรวมที่หน้าแรก' });
+      } else if (d.configured === false) {
+        setSaveNote({ kind: 'warn', text: 'บันทึกในเซสชันแล้ว (ยังไม่เชื่อมฐานข้อมูล — reload แล้วหาย)' });
+      } else {
+        setSaveNote({ kind: 'error', text: d.reason ?? 'บันทึกลงฐานข้อมูลไม่สำเร็จ' });
+      }
     } catch {
-      setSaveNote({ kind: 'error', text: 'เครือข่ายขัดข้อง — บันทึกในเซสชันไว้ก่อน' });
+      setSaveNote({ kind: 'error', text: 'เครือข่ายขัดข้อง ลองใหม่' });
     }
   }
 
@@ -207,7 +218,8 @@ function AddAssetInner() {
         )}
 
         <button type="submit" className="btn-primary" disabled={saving}>
-          {saving ? 'กำลังบันทึก…' : dupPending ? <>ยืนยันเพิ่มทั้งที่ซ้ำ</> : <><Plus size={18} /> บันทึกสินทรัพย์</>}
+          {saving ? 'กำลังส่ง…' : dupPending ? <>ยืนยันเพิ่มทั้งที่ซ้ำ</>
+            : viaCard ? <><Plus size={18} /> ส่งสรุปไปยืนยันใน LINE</> : <><Plus size={18} /> บันทึกสินทรัพย์</>}
         </button>
 
         {saveNote && (

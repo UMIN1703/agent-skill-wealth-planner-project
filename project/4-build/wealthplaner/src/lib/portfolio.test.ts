@@ -1,11 +1,18 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { summarizePortfolio, type HeldAsset } from './portfolio.ts';
+import { summarizePortfolio, holdingSummary, type HeldAsset } from './portfolio.ts';
 
 const two: HeldAsset[] = [
   { name: 'A', type: 'หุ้นไทย', brokerChannel: 'SCBS', quantity: 10, costPrice: 10, marketPrice: 15, fxToThb: 1 },       // value 150, income 50
   { name: 'B', type: 'หุ้น ตปท.', brokerChannel: 'IB', quantity: 2, costPrice: 100, marketPrice: 100, currency: 'USD', fxToThb: 35 }, // value 7000, income 0
 ];
+
+// CR-WPN-007 — สรุปรายการสำหรับการ์ด LINE: ชื่อ · จำนวนหน่วย · โบรก · มูลค่า (ไม่มีราคาตลาด → ใช้ต้นทุน)
+test('TC-F002-hold-summary: holdingSummary รูปแบบ + ใช้ต้นทุนเมื่อไม่มีราคาตลาด', () => {
+  const s = holdingSummary({ name: 'PTT', type: 'หุ้นไทย', brokerChannel: 'ttb', quantity: 1000, costPrice: 35, marketPrice: null, fxToThb: 1 });
+  assert.ok(s.includes('PTT · 1,000 หน่วย · ttb'));
+  assert.ok(s.includes('฿35,000')); // 1000 × 35 (ไม่มีราคาตลาด → ต้นทุน)
+});
 
 // F002 AC-01 (traces TC-F002-001)
 test('TC-F002-001: มูลค่ารวม + สัดส่วน % ตามประเภท', () => {

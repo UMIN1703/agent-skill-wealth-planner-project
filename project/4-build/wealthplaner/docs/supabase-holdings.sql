@@ -22,3 +22,7 @@ create index if not exists holdings_user_key_idx on holdings (user_key);
 
 alter table holdings enable row level security;
 -- ไม่สร้าง policy สำหรับ anon/authenticated → เข้าถึงได้เฉพาะ service_role key (ฝั่งเซิร์ฟเวอร์)
+
+-- โปรเจ็กต์ที่ใช้ API key ระบบใหม่ (sb_secret_…) บางทีไม่ auto-grant → ให้สิทธิ์ service_role เอง
+-- (service_role มี BYPASSRLS อยู่แล้ว · secret key ฝั่งเซิร์ฟเวอร์ map เป็น role นี้)
+grant all privileges on table public.holdings to service_role;

@@ -26,6 +26,13 @@ export function marketValueTHB(a: HeldAsset): number {
   return toTHB(price * a.quantity, a.fxToThb);
 }
 
+/** สรุปรายการถือครองเป็นข้อความ (การ์ด LINE — CR-WPN-007): ชื่อ · จำนวนหน่วย · โบรก · มูลค่า */
+export function holdingSummary(a: HeldAsset): string {
+  const qty = a.quantity.toLocaleString('th-TH');
+  const value = Math.round(marketValueTHB(a)).toLocaleString('th-TH');
+  return `${a.name} · ${qty} หน่วย · ${a.brokerChannel}\nมูลค่า ฿${value}`;
+}
+
 /** F002: รวมพอร์ตข้ามโบรกเป็นตัวเลขเดียว + สัดส่วน allocation ตามประเภทสินทรัพย์ */
 export function summarizePortfolio(assets: HeldAsset[]): PortfolioSummary {
   if (assets.length === 0) {

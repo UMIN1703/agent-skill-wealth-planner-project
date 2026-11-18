@@ -23,25 +23,34 @@ export async function replyLineText(token: string, replyToken: string, text: str
   if (!res.ok) throw new Error(`LINE reply ${res.status}: ${await res.text()}`);
 }
 
-// ── ข้อความแบบปุ่ม (CR-WPN-005) — สรุป + ปุ่มลิงก์ไปเว็บ/ชีต ──────────────────
+// ── ข้อความแบบปุ่ม/การ์ด (CR-WPN-005/007) — ปุ่มลิงก์ (uri) หรือปุ่มกดในแชต (postback) ──
 export type LineUriAction = { label: string; uri: string };
+export type LinePostbackAction = { label: string; data: string };
+export type LineAction = LineUriAction | LinePostbackAction;
+
+function toAction(a: LineAction) {
+  const label = a.label.slice(0, 20);
+  return 'uri' in a
+    ? { type: 'uri', label, uri: a.uri }
+    : { type: 'postback', label, data: a.data.slice(0, 300), displayText: a.label };
+}
 
 /** สร้าง buttons template (ตัดความยาวตามลิมิต LINE: text ≤160, label ≤20, ≤4 ปุ่ม) */
-function buttonsMessage(text: string, actions: LineUriAction[], altText: string) {
+function buttonsMessage(text: string, actions: LineAction[], altText: string) {
   return {
     type: 'template',
     altText: altText.slice(0, 400),
     template: {
       type: 'buttons',
       text: text.slice(0, 160),
-      actions: actions.slice(0, 4).map((a) => ({ type: 'uri', label: a.label.slice(0, 20), uri: a.uri })),
+      actions: actions.slice(0, 4).map(toAction),
     },
   };
 }
 
 /** reply ด้วยข้อความ+ปุ่ม (ตอบทันทีหลังรับสลิป) */
 export async function replyLineButtons(
-  token: string, replyToken: string, text: string, actions: LineUriAction[], altText = text,
+  token: string, replyToken: string, text: string, actions: LineAction[], altText = text,
 ): Promise<void> {
   const res = await fetch(REPLY_URL, {
     method: 'POST',
@@ -54,7 +63,7 @@ export async function replyLineButtons(
 /** push ข้อความ+ปุ่มไปหาผู้ใช้ (ใช้ตอนยืนยันบนเว็บเสร็จ — replyToken หมดอายุแล้ว)
  *  to = messaging userId (จาก source.userId ของ webhook / claim.u) */
 export async function pushLineButtons(
-  token: string, to: string, text: string, actions: LineUriAction[], altText = text,
+  token: string, to: string, text: string, actions: LineAction[], altText = text,
 ): Promise<void> {
   const res = await fetch(PUSH_URL, {
     method: 'POST',
