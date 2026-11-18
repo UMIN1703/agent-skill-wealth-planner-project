@@ -1,24 +1,28 @@
-import { Briefcase, RefreshCw } from 'lucide-react';
 import { summarizePortfolio, marketValueTHB } from '@/lib/portfolio.ts';
 import { computeIncomePercent } from '@/lib/finance.ts';
 import { sampleAssets } from '@/data/sampleAssets.ts';
 import { AllocationDonut } from '@/components/AllocationDonut.tsx';
-import { AssetRow } from '@/components/AssetRow.tsx';
-import { ActionButtons } from '@/components/ActionButtons.tsx';
+import PortfolioHero from '@/components/PortfolioHero.tsx';
+import AssetList, { type AssetRowData } from '@/components/AssetList.tsx';
 import LogoutButton from '@/components/LogoutButton.tsx';
 import { auth } from '@/auth.ts';
 import { listHoldings, userKeyFromSession } from '@/lib/supabase.ts';
 
 export const runtime = 'edge';
-export const dynamic = 'force-dynamic'; // ข้อมูลเฉพาะผู้ใช้ — เรนเดอร์สดทุกครั้ง (ไม่ cache)
+export const dynamic = 'force-dynamic'; // ข้อมูลเฉพาะผู้ใช้ — เรนเดอร์สดทุกครั้ง
 
 const fmt = (n: number) => new Intl.NumberFormat('th-TH', { maximumFractionDigits: 0 }).format(Math.round(n));
+// ย่อเลขให้พอดีการ์ดสถิติ (฿1.58M / ฿420k / ฿9,800)
+const compact = (n: number) => {
+  const a = Math.abs(n);
+  return a >= 1e6 ? (n / 1e6).toFixed(2) + 'M' : a >= 1e4 ? Math.round(n / 1e3) + 'k' : fmt(n);
+};
 
-// หน้า Portfolio (F002) — ยอดจริงจาก Supabase ของผู้ใช้ (CR-WPN-006) · ยังไม่ตั้งค่า → sampleAssets (เดโม)
+// หน้า Portfolio (F002) — restyle · ยอดจริงจาก Supabase (CR-WPN-006) · ยังไม่ตั้งค่า → เดโม
 export default async function PortfolioPage() {
   const session = await auth();
   const userKey = userKeyFromSession(session);
-  const real = userKey ? await listHoldings(userKey) : null; // null = ยังไม่ตั้งค่า Supabase → เดโม
+  const real = userKey ? await listHoldings(userKey) : null;
   const assets = real ?? sampleAssets;
   const isDemo = real === null;
 
@@ -26,52 +30,38 @@ export default async function PortfolioPage() {
   const cost = s.totalTHB - s.totalIncomeTHB;
   const incomePct = cost > 0 ? (s.totalIncomeTHB / cost) * 100 : 0;
   const up = s.totalIncomeTHB >= 0;
-  const centerLabel = '฿' + (s.totalTHB / 1e6).toFixed(2) + 'M';
+  const centerLabel = '฿' + compact(s.totalTHB);
+
+  const rows: AssetRowData[] = assets.map((a) => ({
+    name: a.name, broker: a.brokerChannel, valueTHB: marketValueTHB(a),
+    pct: computeIncomePercent(a), stale: a.updatedMin > 15,
+  }));
 
   return (
     <main className="app">
       <div className="topbar">
         <h1>พอร์ตรวมทุกโบรก</h1>
-        <span className="topbar-actions">
-          <button className="refresh" aria-label="รีเฟรชราคา"><RefreshCw size={16} /></button>
-          <LogoutButton />
-        </span>
+        <span className="topbar-actions"><LogoutButton /></span>
       </div>
 
-      <section className="balance">
-        <div className="bhead">
-          <span className="chip"><Briefcase size={20} /></span>
-          <span className="k">มูลค่าพอร์ตรวม</span>
-        </div>
-        <div className="v num"><span className="cur">฿</span>{fmt(s.totalTHB)}</div>
-        <span className="delta up num">
-          {up ? '▲' : '▼'} {up ? '+' : '−'}฿{fmt(Math.abs(s.totalIncomeTHB))} ({up ? '+' : '−'}{Math.abs(incomePct).toFixed(2)}%)
-        </span>
-        <div className="status"><span className="dot" /> {isDemo ? 'ข้อมูลเดโม (ยังไม่เชื่อมฐานข้อมูล)' : 'ยอดจริงจากบัญชีคุณ'}</div>
-      </section>
+      <PortfolioHero totalTHB={s.totalTHB} incomeTHB={s.totalIncomeTHB} incomePct={incomePct} />
 
-      <ActionButtons />
+      <div className="pf-stats">
+        <div className="pf-stat"><span className="t">ต้นทุนรวม</span><span className="p num">฿{compact(cost)}</span></div>
+        <div className="pf-stat"><span className="t">กำไร/ขาดทุน</span><span className={'p num ' + (up ? 'g' : 'l')}>{up ? '+' : '−'}฿{compact(Math.abs(s.totalIncomeTHB))}</span></div>
+        <div className="pf-stat"><span className="t">สินทรัพย์</span><span className="p num">{assets.length}</span></div>
+      </div>
 
-      <section className="card">
-        <h2>สัดส่วน Asset Allocation</h2>
-        <AllocationDonut allocation={s.allocation} centerLabel={centerLabel} />
-      </section>
+      {!s.isEmpty && (
+        <section className="card">
+          <h2>สัดส่วน Asset Allocation</h2>
+          <AllocationDonut allocation={s.allocation} centerLabel={centerLabel} />
+        </section>
+      )}
 
-      <section className="card">
-        <h2>สินทรัพย์ (ข้ามโบรก)</h2>
-        {assets.length === 0 ? (
-          <p className="empty">ยังไม่มีสินทรัพย์ — ส่งสลิปเข้า LINE หรือกด “เพิ่มสินทรัพย์” เพื่อเริ่มพอร์ต</p>
-        ) : assets.map((a, i) => (
-          <AssetRow
-            key={a.name + a.brokerChannel + i}
-            name={a.name}
-            broker={a.brokerChannel}
-            valueTHB={marketValueTHB(a)}
-            percent={computeIncomePercent(a)}
-            stale={a.updatedMin > 15}
-          />
-        ))}
-      </section>
+      <AssetList rows={rows} />
+
+      {isDemo && <p className="note" style={{ textAlign: 'center' }}>ข้อมูลเดโม — เชื่อมฐานข้อมูลเพื่อดูยอดจริงของคุณ</p>}
     </main>
   );
 }
