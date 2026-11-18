@@ -40,7 +40,7 @@
   --radius-pill: 26px;
   --border-width: 1px;
 
-  --font-sans: "IBM Plex Sans Thai", system-ui, sans-serif;
+  --font-sans: var(--font-plex), "LINE Seed Sans TH", system-ui, sans-serif;
   --motion: 120ms ease;
 }
 

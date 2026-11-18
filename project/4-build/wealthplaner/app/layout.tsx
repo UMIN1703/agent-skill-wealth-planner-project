@@ -1,13 +1,17 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Sans_Thai } from 'next/font/google';
+import localFont from 'next/font/local';
 import Providers from './providers';
 import BottomNav from '../src/components/BottomNav.tsx';
 import '../src/styles/tokens.css';
 import './globals.css';
 
-const plex = IBM_Plex_Sans_Thai({
-  subsets: ['thai', 'latin'],
-  weight: ['400', '500', '600', '700'],
+// LINE Seed Sans TH (self-host woff2) — ฟอนต์ระบบ · คงชื่อตัวแปร --font-plex ให้ CSS เดิมใช้ต่อได้
+const plex = localFont({
+  src: [
+    { path: '../public/fonts/lineseed/LINESeedSansTH-Regular.woff2', weight: '400', style: 'normal' },
+    { path: '../public/fonts/lineseed/LINESeedSansTH-Bold.woff2', weight: '700', style: 'normal' },
+    { path: '../public/fonts/lineseed/LINESeedSansTH-ExtraBold.woff2', weight: '800', style: 'normal' },
+  ],
   variable: '--font-plex',
   display: 'swap',
 });
