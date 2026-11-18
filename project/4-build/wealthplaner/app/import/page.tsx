@@ -27,13 +27,35 @@ function parseCsv(text: string): { header: string[]; rows: string[][] } {
   return { header, rows };
 }
 
+type SheetPreview = { count: number; errorCount: number; errors: { row: number; message: string }[]; sample: { name: string; type: string; quantity: number }[] };
+
 export default function ImportPage() {
   const [text, setText] = useState('');
   const [result, setResult] = useState<ImportResult | null>(null);
+  const [sheetUrl, setSheetUrl] = useState('');
+  const [sheetBusy, setSheetBusy] = useState(false);
+  const [preview, setPreview] = useState<SheetPreview | null>(null);
+  const [sheetMsg, setSheetMsg] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null);
 
   function run() {
     const { header, rows } = parseCsv(text);
     setResult(importAssets(header, rows));
+  }
+
+  // นำเข้าจาก Google Sheet จริง (CR-WPN-008 เฟส 3) — commit=false พรีวิว, true บันทึก
+  async function callSheet(commit: boolean) {
+    setSheetBusy(true); setSheetMsg(null);
+    try {
+      const r = await fetch('/api/import/sheet', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: sheetUrl, commit }),
+      });
+      const d = (await r.json()) as { ok: boolean; preview?: boolean; reason?: string } & Partial<SheetPreview> & { inserted?: number };
+      if (!d.ok) { setPreview(null); setSheetMsg({ kind: 'error', text: d.reason ?? 'นำเข้าไม่สำเร็จ' }); }
+      else if (d.preview) { setPreview({ count: d.count ?? 0, errorCount: d.errorCount ?? 0, errors: d.errors ?? [], sample: d.sample ?? [] }); setSheetMsg({ kind: 'ok', text: `พบ ${d.count ?? 0} รายการพร้อมนำเข้า${d.errorCount ? ` · ข้าม ${d.errorCount} แถว` : ''}` }); }
+      else { setPreview(null); setSheetMsg({ kind: 'ok', text: `นำเข้าสำเร็จ ${d.inserted ?? 0} รายการ${d.errorCount ? ` · ข้าม ${d.errorCount}` : ''} — ดูที่หน้าพอร์ต` }); }
+    } catch { setSheetMsg({ kind: 'error', text: 'เครือข่ายขัดข้อง ลองใหม่' }); }
+    finally { setSheetBusy(false); }
   }
 
   return (
@@ -43,9 +65,38 @@ export default function ImportPage() {
         <LogoutButton />
       </div>
 
+      {/* เฟส 3 — นำเข้าจาก Google Sheet จริง */}
       <section className="card form">
         <div className="field">
-          <label htmlFor="csv">วางข้อมูล CSV (คอลัมน์: {IMPORT_COLUMNS.join(', ')})</label>
+          <label htmlFor="sheet-url">นำเข้าจาก Google Sheet (วางลิงก์ชีต)</label>
+          <input
+            id="sheet-url" className="input" placeholder="https://docs.google.com/spreadsheets/d/..."
+            value={sheetUrl} onChange={(e) => { setSheetUrl(e.target.value); setPreview(null); setSheetMsg(null); }}
+          />
+        </div>
+        <div className="btnrow">
+          <button type="button" className="btn-ghost" disabled={sheetBusy || sheetUrl.trim() === ''} onClick={() => callSheet(false)}>
+            {sheetBusy && !preview ? 'กำลังอ่าน…' : 'ดูตัวอย่าง'}
+          </button>
+          <button type="button" className="btn-primary" disabled={sheetBusy || !preview || preview.count === 0} onClick={() => callSheet(true)}>
+            <FileUp size={18} /> ยืนยันนำเข้า{preview ? ` (${preview.count})` : ''}
+          </button>
+        </div>
+        {sheetMsg && (
+          <div className={'notice ' + (sheetMsg.kind === 'error' ? 'error' : 'warn')} role="status">{sheetMsg.text}</div>
+        )}
+        {preview && (preview.sample.length > 0 || preview.errors.length > 0) && (
+          <div className="err-block">
+            {preview.sample.map((s, i) => <p className="err-row" key={i}>{s.name} · {s.type} · {s.quantity} หน่วย</p>)}
+            {preview.errors.map((e, i) => <p className="err-row" key={'e' + i}><AlertTriangle size={13} /> {e.message}</p>)}
+          </div>
+        )}
+        <p className="note-muted">ต้องเข้าสู่ระบบด้วย Google (หรือเชื่อม Google) + แชร์สิทธิ์อ่านชีต · map คอลัมน์ Category/Sub-type/Asset/Quantity/Cost/Current Value/Note/Tax Bucket</p>
+      </section>
+
+      <section className="card form">
+        <div className="field">
+          <label htmlFor="csv">หรือวางข้อมูล CSV (คอลัมน์: {IMPORT_COLUMNS.join(', ')})</label>
           <textarea
             id="csv" className="input area" rows={7} placeholder={'name,type,quantity,costPrice,brokerChannel\nPTT,หุ้นไทย,1000,34.25,SCBS'}
             value={text} onChange={(e) => { setText(e.target.value); setResult(null); }}
@@ -57,7 +108,7 @@ export default function ImportPage() {
             <FileUp size={18} /> ตรวจและนำเข้า
           </button>
         </div>
-        <p className="note-muted">การเชื่อม Google Sheet / ไฟล์ .xlsx โดยตรงเป็นงาน integration (รอ API/creds — Class B)</p>
+        <p className="note-muted">CSV paste เหมาะกับไฟล์ย่อ/ออฟไลน์ — ถ้าเป็น Google Sheet ใช้ช่อง “นำเข้าจาก Google Sheet” ด้านบนได้เลย</p>
       </section>
 
       {/* empty state */}

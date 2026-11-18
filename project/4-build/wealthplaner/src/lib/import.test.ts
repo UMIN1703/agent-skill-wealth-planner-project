@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { importAssets } from './import.ts';
+import { importAssets, importSheetRows } from './import.ts';
 
 const header = ['name', 'type', 'quantity', 'costPrice', 'brokerChannel'];
 
@@ -50,4 +50,35 @@ test('ประเภทสินทรัพย์ไม่รู้จัก �
   const r = importAssets(header, [['X', 'ที่ดิน', '1', '100', 'Binance']]); // 'ที่ดิน' ยังไม่รองรับ (คริปโตรองรับแล้ว เฟส 2)
   assert.equal(r.imported.length, 0);
   assert.equal(r.errors[0].column, 'type');
+});
+
+// CR-WPN-008 เฟส 3 — map ชีตพอร์ตจริง (ต้นทุน/หน่วย · เงินสดไม่มีหน่วย→1 · วงเล็บ=ติดลบ · tax · ข้ามแถวว่าง/ไม่มีต้นทุน)
+test('เฟส3: importSheetRows map รูปแบบชีตจริง', () => {
+  const sheetHeader = ['Category', 'Sub-type', 'Asset/Ticker', 'Quantity', 'Cost (Total)', 'Current Value', 'P&L', '% Return', 'Note', 'Tax Bucket'];
+  const rows = [
+    ['Cash', 'Bank', 'SCB', '', '454.58', '454.58', '-', '-', '', 'N/A'],
+    ['หุ้นไทย', 'BANK', 'TISCO', '150.0000', '14198.81', '18825.00', '4626.19', '32.58%', '', 'Direct'],
+    ['Retirement', 'PVD', 'PVD', '', '132667.28', '141060.37', '8393.09', '6.33%', 'Provident Fund', 'PVD'],
+    ['', '', '', '', '', '', '', '', '', ''],                       // แถวว่าง → ข้าม
+    ['หุ้นไทย', 'FOOD', 'NOCOST', '10', '', '', '', '', '', ''],    // ไม่มีต้นทุน → error
+  ];
+  const r = importSheetRows(sheetHeader, rows);
+  assert.equal(r.headerOk, true);
+  assert.equal(r.imported.length, 3);
+
+  const scb = r.imported.find((d) => d.name === 'SCB')!;
+  assert.equal(scb.quantity, 1);           // เงินสดไม่มีหน่วย → 1
+  assert.equal(scb.costPrice, 454.58);
+  assert.equal(scb.type, 'cash');          // Sub-type 'Bank' → หมวด Cash → cash
+
+  const tisco = r.imported.find((d) => d.name === 'TISCO')!;
+  assert.equal(tisco.type, 'th_stock');
+  assert.equal(tisco.quantity, 150);
+  assert.ok(Math.abs((tisco.costPrice ?? 0) - 14198.81 / 150) < 0.01);
+
+  const pvd = r.imported.find((d) => d.name === 'PVD')!;
+  assert.equal(pvd.type, 'provident');
+  assert.equal(pvd.taxBucket, 'pvd');
+
+  assert.equal(r.errors.length, 1);        // NOCOST ไม่มีต้นทุน
 });
