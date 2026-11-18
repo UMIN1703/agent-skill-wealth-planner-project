@@ -6,12 +6,22 @@ import { AllocationDonut } from '@/components/AllocationDonut.tsx';
 import { AssetRow } from '@/components/AssetRow.tsx';
 import { ActionButtons } from '@/components/ActionButtons.tsx';
 import LogoutButton from '@/components/LogoutButton.tsx';
+import { auth } from '@/auth.ts';
+import { listHoldings, userKeyFromSession } from '@/lib/supabase.ts';
+
+export const runtime = 'edge';
 
 const fmt = (n: number) => new Intl.NumberFormat('th-TH', { maximumFractionDigits: 0 }).format(Math.round(n));
 
-// หน้า Portfolio (F002) — คำนวณจาก portfolio.ts จริง · mock data (Supabase รอ creds)
-export default function PortfolioPage() {
-  const s = summarizePortfolio(sampleAssets);
+// หน้า Portfolio (F002) — ยอดจริงจาก Supabase ของผู้ใช้ (CR-WPN-006) · ยังไม่ตั้งค่า → sampleAssets (เดโม)
+export default async function PortfolioPage() {
+  const session = await auth();
+  const userKey = userKeyFromSession(session);
+  const real = userKey ? await listHoldings(userKey) : null; // null = ยังไม่ตั้งค่า Supabase → เดโม
+  const assets = real ?? sampleAssets;
+  const isDemo = real === null;
+
+  const s = summarizePortfolio(assets);
   const cost = s.totalTHB - s.totalIncomeTHB;
   const incomePct = cost > 0 ? (s.totalIncomeTHB / cost) * 100 : 0;
   const up = s.totalIncomeTHB >= 0;
@@ -36,7 +46,7 @@ export default function PortfolioPage() {
         <span className="delta up num">
           {up ? '▲' : '▼'} {up ? '+' : '−'}฿{fmt(Math.abs(s.totalIncomeTHB))} ({up ? '+' : '−'}{Math.abs(incomePct).toFixed(2)}%)
         </span>
-        <div className="status"><span className="dot" /> ออนไลน์ · อัปเดตแล้ว</div>
+        <div className="status"><span className="dot" /> {isDemo ? 'ข้อมูลเดโม (ยังไม่เชื่อมฐานข้อมูล)' : 'ยอดจริงจากบัญชีคุณ'}</div>
       </section>
 
       <ActionButtons />
@@ -48,9 +58,11 @@ export default function PortfolioPage() {
 
       <section className="card">
         <h2>สินทรัพย์ (ข้ามโบรก)</h2>
-        {sampleAssets.map((a) => (
+        {assets.length === 0 ? (
+          <p className="empty">ยังไม่มีสินทรัพย์ — ส่งสลิปเข้า LINE หรือกด “เพิ่มสินทรัพย์” เพื่อเริ่มพอร์ต</p>
+        ) : assets.map((a, i) => (
           <AssetRow
-            key={a.name + a.brokerChannel}
+            key={a.name + a.brokerChannel + i}
             name={a.name}
             broker={a.brokerChannel}
             valueTHB={marketValueTHB(a)}

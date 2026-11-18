@@ -56,7 +56,8 @@ function AddAssetInner() {
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [saving, setSaving] = useState(false);
   const [dupPending, setDupPending] = useState(false); // AC-E03: รอผู้ใช้ยืนยันเพิ่มทั้งที่ซ้ำ
-  const [added, setAdded] = useState<DisplayAsset[]>([]); // รายการที่เพิ่มในเซสชันนี้ (mock)
+  const [added, setAdded] = useState<DisplayAsset[]>([]); // รายการที่เพิ่มในเซสชันนี้ (optimistic)
+  const [saveNote, setSaveNote] = useState<{ kind: 'ok' | 'warn' | 'error'; text: string } | null>(null);
 
   const errFor = (f: keyof AssetDraft) => errors.find((e) => e.field === f)?.message;
 
@@ -82,16 +83,31 @@ function AddAssetInner() {
     setDupPending(false);
   };
 
-  function commit() {
+  async function commit() {
     const asset = draftToDisplayAsset(draft);
-    setAdded((list) => [asset, ...list]); // AC-01: ปรากฏในรายการ
+    const payloadDraft = draft; // เก็บก่อนรีเซ็ต
+    setAdded((list) => [asset, ...list]); // AC-01: ปรากฏในรายการ (optimistic)
     setDraft(emptyDraft);
     setErrors([]);
     setDupPending(false);
     focusField('name');
+
+    // persist จริงลง Supabase (CR-WPN-006) — ยังไม่เชื่อม → เก็บเฉพาะเซสชัน (แจ้งตรง ๆ)
+    try {
+      const r = await fetch('/api/holdings', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ draft: payloadDraft, source: fromSlip ? 'slip' : 'manual' }),
+      });
+      const d = (await r.json()) as { ok: boolean; configured?: boolean; reason?: string };
+      if (d.ok) setSaveNote({ kind: 'ok', text: 'บันทึกเข้าพอร์ตจริงแล้ว — ดูยอดรวมที่หน้าแรก' });
+      else if (d.configured === false) setSaveNote({ kind: 'warn', text: 'บันทึกในเซสชันแล้ว (ยังไม่เชื่อมฐานข้อมูล — reload แล้วหาย)' });
+      else setSaveNote({ kind: 'error', text: d.reason ?? 'บันทึกลงฐานข้อมูลไม่สำเร็จ' });
+    } catch {
+      setSaveNote({ kind: 'error', text: 'เครือข่ายขัดข้อง — บันทึกในเซสชันไว้ก่อน' });
+    }
   }
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     // AC-E01/E02/E04 — ตรวจครบ/ชนิด/บังคับ ก่อน แล้วเลื่อน focus ช่องแรกที่ผิด
@@ -111,12 +127,11 @@ function AddAssetInner() {
       return;
     }
 
-    // สถานะกำลังบันทึก (DSN §5.2) — mock async
+    // สถานะกำลังบันทึก (DSN §5.2)
     setSaving(true);
-    setTimeout(() => {
-      commit();
-      setSaving(false);
-    }, 250);
+    setSaveNote(null);
+    await commit();
+    setSaving(false);
   }
 
   return (
@@ -193,6 +208,12 @@ function AddAssetInner() {
         <button type="submit" className="btn-primary" disabled={saving}>
           {saving ? 'กำลังบันทึก…' : dupPending ? <>ยืนยันเพิ่มทั้งที่ซ้ำ</> : <><Plus size={18} /> บันทึกสินทรัพย์</>}
         </button>
+
+        {saveNote && (
+          <div className={'notice ' + (saveNote.kind === 'error' ? 'error' : 'warn')} role={saveNote.kind === 'error' ? 'alert' : 'status'}>
+            {saveNote.text}
+          </div>
+        )}
       </form>
 
       {/* AC-01: สินทรัพย์ที่เพิ่มปรากฏในรายการ (mock ในเซสชัน — คงอยู่ข้ามเซสชัน = Supabase, Class B) */}

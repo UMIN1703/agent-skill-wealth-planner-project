@@ -13,10 +13,15 @@ declare global {
     SLIP_STAGING?: string;
     AUTH_GOOGLE_ID?: string;
     AUTH_GOOGLE_SECRET?: string;
+    SUPABASE_URL?: string;                     // ชั้นข้อมูลพอร์ต (F001/F002 · CR-WPN-006)
+    SUPABASE_SERVICE_ROLE_KEY?: string;        // server-only — อย่าส่งไป client
   }
 }
 
-type VarName = 'LINE_CHANNEL_SECRET' | 'LINE_CHANNEL_ACCESS_TOKEN' | 'SLIP_STAGING' | 'AUTH_GOOGLE_ID' | 'AUTH_GOOGLE_SECRET';
+type VarName =
+  | 'LINE_CHANNEL_SECRET' | 'LINE_CHANNEL_ACCESS_TOKEN' | 'SLIP_STAGING'
+  | 'AUTH_GOOGLE_ID' | 'AUTH_GOOGLE_SECRET'
+  | 'SUPABASE_URL' | 'SUPABASE_SERVICE_ROLE_KEY';
 
 function env(): Partial<CloudflareEnv> {
   return (getOptionalRequestContext()?.env ?? {}) as Partial<CloudflareEnv>;
