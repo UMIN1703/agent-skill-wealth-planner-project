@@ -61,3 +61,4 @@
 | Rev | Date | Clauses | Substance | Author | Approver |
 |---|---|---|---|---|---|
 | 00 | 2026-11-18 | All | เปิดคำขอ confirm-card flow (postback) · อธิบายข้อจำกัด เงิน(OCR)/หน่วย(ไม่มีบนสลิป) · เจ้าของเลือกแนวทาง (ก) ฟอร์มเว็บ+การ์ด LINE · KV staging + postback handler + buttons postback · ลบ push จังหวะ 3 (CR-005) | system-analyst | เจ้าของโครงการ (solo) |
+| 00 | 2026-11-18 | §3 | **รวมเป็นฟอร์มเดียว** (เจ้าของ: 2 หน้าเว็บวุ่นวาย) — เพิ่มช่อง ชื่อ/จำนวนหน่วย ใน SlipReview (/slips) · submit ครั้งเดียว → `/api/slips/confirm` บันทึกชีต + (ถ้ากรอกพอร์ต) stage + push การ์ดคอนเฟิร์ม พร้อมกัน · ลบ `/api/holdings/stage-confirm` + สะพานไป /add (ส่วนพอร์ตไม่บังคับ: เว้นได้ = บันทึกเฉพาะรายการ) · /add กลับเป็นเพิ่มด้วยมืออย่างเดียว | system-analyst | เจ้าของโครงการ (solo) |

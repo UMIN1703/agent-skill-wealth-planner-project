@@ -4,8 +4,7 @@
 // ใช้ validateSlipEntry (pure) ตรวจก่อน · เมื่อยังไม่ wire Google Drive (Class B)
 // การกดบันทึกจะแสดง "ค่าที่จะบันทึก" อย่างตรงไปตรงมา ไม่แกล้งว่าบันทึกสำเร็จ
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Receipt, Check, Sparkles, Loader2, Plus } from 'lucide-react';
+import { Receipt, Check, Sparkles, Loader2 } from 'lucide-react';
 import {
   validateSlipEntry, slipToSheetRow, SLIP_CATEGORIES, SLIP_ASSET_TYPES, SLIP_SHEET_COLUMNS,
   type PendingSlip, type SlipCategory,
@@ -16,12 +15,13 @@ import { parseSlipText } from '@/lib/slipParse.ts';
 const today = () => new Date().toISOString().slice(0, 10);
 
 export default function SlipReview({ slip, configured, claim }: { slip: PendingSlip; configured: boolean; claim?: string }) {
-  const router = useRouter();
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(today());
   const [category, setCategory] = useState<SlipCategory | ''>('');
   const [assetType, setAssetType] = useState<AssetType | ''>('');
   const [channel, setChannel] = useState('');
+  const [name, setName] = useState('');       // ชื่อสินทรัพย์ (ถ้าจะเพิ่มเข้าพอร์ตด้วย)
+  const [quantity, setQuantity] = useState(''); // จำนวนหน่วย (ถ้าจะเพิ่มเข้าพอร์ตด้วย)
   const [note, setNote] = useState('');
   const [errors, setErrors] = useState<{ amount?: string; date?: string; category?: string }>({});
   const [saved, setSaved] = useState<string[] | null>(null);
@@ -61,19 +61,6 @@ export default function SlipReview({ slip, configured, claim }: { slip: PendingS
     }
   }
 
-  // สะพานเข้าพอร์ต (F001) — ส่งค่าจากสลิปไปเติมฟอร์มเพิ่มสินทรัพย์ล่วงหน้า
-  // (ประเภท/โบรก/ยอดรวม) · ชื่อ + จำนวนหน่วย ผู้ใช้กรอกต่อที่หน้า /add
-  function onAddToPortfolio() {
-    const q = new URLSearchParams({ from: 'slip' });
-    if (assetType) q.set('type', assetType);
-    if (channel.trim()) q.set('broker', channel.trim());
-    const amt = amount.replace(/,/g, '').trim();
-    if (amt && Number.isFinite(Number(amt))) q.set('amount', amt);
-    if (note.trim()) q.set('name', note.trim());
-    if (claim) q.set('claim', claim); // ร้อย LINE messaging user ไปด้วย → push สรุปกลับตอนบันทึกพอร์ต
-    router.push(`/add?${q.toString()}`);
-  }
-
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaved(null); setNotice(null);
@@ -84,6 +71,22 @@ export default function SlipReview({ slip, configured, claim }: { slip: PendingS
         res.errors.amount ? 's-amount' : res.errors.date ? 's-date' : 's-category',
       )?.focus();
       return;
+    }
+
+    // ส่วนเพิ่มเข้าพอร์ต (ไม่บังคับ) — ถ้าจะเพิ่ม ต้องมีทั้ง ชื่อ + จำนวน + หมวดหมู่สินทรัพย์
+    const wantPortfolio = !!(name.trim() || quantity.trim());
+    const qty = Number(quantity.replace(/,/g, '').trim());
+    if (wantPortfolio) {
+      if (!name.trim() || !quantity.trim() || !(qty > 0)) {
+        setNotice({ kind: 'error', text: 'จะเพิ่มเข้าพอร์ต ต้องกรอกทั้ง "ชื่อสินทรัพย์" และ "จำนวนหน่วย" (>0) — หรือเว้นทั้งคู่ถ้าบันทึกเฉพาะรายการ' });
+        document.getElementById(!name.trim() ? 's-name' : 's-qty')?.focus();
+        return;
+      }
+      if (!assetType) {
+        setNotice({ kind: 'error', text: 'เลือก "หมวดหมู่สินทรัพย์" ด้วย เพื่อเพิ่มเข้าพอร์ต' });
+        document.getElementById('s-asset-type')?.focus();
+        return;
+      }
     }
     setErrors({});
 
@@ -98,16 +101,22 @@ export default function SlipReview({ slip, configured, claim }: { slip: PendingS
       return;
     }
 
-    // staging พร้อม → ยิงไปบันทึกจริง (เซิร์ฟเวอร์อัป Drive + append Sheets)
+    // staging พร้อม → ยิงครั้งเดียว: บันทึกสลิปลงชีต + (ถ้ากรอกพอร์ต) ส่งการ์ดยืนยันเข้าพอร์ตไป LINE
     setPending(true);
     try {
       const r = await fetch('/api/slips/confirm', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: slip.id, sourceMessageId: slip.sourceMessageId, claim, draft: { amountTHB: amount, date, category, assetType, channel, note } }),
+        body: JSON.stringify({
+          id: slip.id, sourceMessageId: slip.sourceMessageId, claim,
+          draft: { amountTHB: amount, date, category, assetType, channel, note },
+          portfolio: wantPortfolio ? { name: name.trim(), quantity: qty } : undefined,
+        }),
       });
-      const data = (await r.json()) as { ok: boolean; reason?: string; imageUrl?: string };
+      const data = (await r.json()) as { ok: boolean; staged?: boolean; reason?: string };
       if (r.ok && data.ok) {
-        setNotice({ kind: 'ok', text: 'บันทึกและซิงค์ขึ้น Google Drive แล้ว' });
+        setNotice({ kind: 'ok', text: data.staged
+          ? 'บันทึกรายการแล้ว ✅ และส่งการ์ดยืนยันเข้าพอร์ตไป LINE — เปิด LINE แล้วกด "คอนเฟิร์ม"'
+          : 'บันทึกรายการลงชีตแล้ว ✅' });
       } else {
         setNotice({ kind: 'error', text: data.reason ?? 'บันทึกไม่สำเร็จ ลองใหม่' });
       }
@@ -186,16 +195,24 @@ export default function SlipReview({ slip, configured, claim }: { slip: PendingS
           />
         </div>
 
+        <p className="note" style={{ margin: '4px 0 0' }}>กรอก 2 ช่องนี้ถ้าจะ<strong>เพิ่มเข้าพอร์ตด้วย</strong> (เว้นไว้ = บันทึกเฉพาะรายการ)</p>
+
+        <div className="field">
+          <label htmlFor="s-name">ชื่อสินทรัพย์</label>
+          <input id="s-name" className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="เช่น PTT, ทองคำ 96.5%" />
+        </div>
+
+        <div className="field">
+          <label htmlFor="s-qty">จำนวนหน่วย</label>
+          <input id="s-qty" className="input" inputMode="decimal" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="เช่น 100" />
+        </div>
+
         <div className="field">
           <label htmlFor="s-note">บันทึกย่อ (ไม่บังคับ)</label>
-          <input id="s-note" className="input" value={note} onChange={(e) => setNote(e.target.value)} placeholder="เช่น ชื่อหุ้น/โบรก" />
+          <input id="s-note" className="input" value={note} onChange={(e) => setNote(e.target.value)} placeholder="เช่น รอบซื้อ/โน้ต" />
         </div>
 
         <button type="submit" className="btn-primary" disabled={pending}><Check size={18} /> {pending ? 'กำลังบันทึก…' : 'ยืนยันและบันทึก'}</button>
-
-        <button type="button" className="btn-ghost" onClick={onAddToPortfolio} style={{ width: '100%', marginTop: 8 }}>
-          <Plus size={16} style={{ verticalAlign: '-3px', marginRight: 6 }} /> เพิ่มเข้าพอร์ต (กรอกชื่อ/จำนวนต่อ)
-        </button>
       </form>
 
       {notice && (

@@ -3,12 +3,16 @@
 // ต้องมี session + Google access_token (scope spreadsheets/drive.file)
 import { auth } from '@/auth.ts';
 import { validateSlipEntry, slipToSheetRow, type SlipDraft } from '@/lib/slip.ts';
+import { validateAssetDraft, draftToDisplayAsset, type AssetDraft, type AssetType } from '@/lib/asset.ts';
 import { getStagedSlipMedia, removePendingSlip } from '@/lib/slipStore.ts';
 import { saveSlipRow } from '@/lib/driveSync.ts';
 import { getGoogleAccessToken } from '@/lib/googleLink.ts';
 import { verifyClaim, signClaim } from '@/lib/claim.ts';
 import { getVar } from '@/lib/cfEnv.ts';
 import { pushLineButtons } from '@/lib/lineApi.ts';
+import { userKeyFromSession, supabaseConfigured } from '@/lib/supabase.ts';
+import { stagePendingHolding } from '@/lib/holdStage.ts';
+import { holdingSummary } from '@/lib/portfolio.ts';
 
 export const runtime = 'edge';
 
@@ -16,7 +20,10 @@ export async function POST(req: Request): Promise<Response> {
   const session = await auth();
   if (!session?.user) return Response.json({ ok: false, reason: 'unauthenticated' }, { status: 401 });
 
-  let payload: { id?: string; sourceMessageId?: string; draft?: SlipDraft; claim?: string };
+  let payload: {
+    id?: string; sourceMessageId?: string; draft?: SlipDraft; claim?: string;
+    portfolio?: { name: string; quantity: number }; // ถ้ากรอก → เพิ่มเข้าพอร์ตด้วย (ส่งการ์ดยืนยัน)
+  };
   try {
     payload = (await req.json()) as typeof payload;
   } catch {
@@ -69,15 +76,45 @@ export async function POST(req: Request): Promise<Response> {
     const saved = await saveSlipRow(token, row);
     await removePendingSlip(ownerUserId, slipId); // นำออกจากคิวรอยืนยัน (คงรูปใน R2 ให้ลิงก์ใช้ได้)
 
-    // จังหวะ 2 (CR-WPN-005) — push สรุปยอดกลับ LINE + ปุ่มดูพอร์ต/ดูชีต
-    // push ได้เฉพาะเมื่อรู้ messaging userId (claim.u) — login LINE ธรรมดาเป็นคนละ userId push ไม่ได้
     const lineToken = getVar('LINE_CHANNEL_ACCESS_TOKEN');
-    if (claim?.u && lineToken) {
+    let staged = false;
+
+    // (CR-WPN-007 merged) ถ้ากรอกส่วนพอร์ต → ทำทีเดียว: stage holding + push "การ์ดยืนยันเข้าพอร์ต"
+    const p = payload.portfolio;
+    const userKey = userKeyFromSession(session);
+    if (p && claim?.u && lineToken && userKey && supabaseConfigured()) {
+      const assetDraft: AssetDraft = {
+        name: p.name,
+        type: (payload.draft.assetType ?? '') as AssetType | '',
+        quantity: p.quantity,
+        costPrice: p.quantity > 0 ? Math.round((res.entry.amountTHB / p.quantity) * 100) / 100 : 0,
+        brokerChannel: (payload.draft.channel ?? '').trim() || 'manual',
+      };
+      if (validateAssetDraft(assetDraft).ok) {
+        try {
+          const asset = draftToDisplayAsset(assetDraft);
+          const hid = await stagePendingHolding({ userKey, msgUser: claim.u, draft: assetDraft });
+          if (hid) {
+            await pushLineButtons(lineToken, claim.u,
+              `ตรวจสอบก่อนบันทึกเข้าพอร์ต\n${holdingSummary(asset)}`, [
+                { label: '✅ คอนเฟิร์ม', data: `holdok:${hid}` },
+                { label: '✖ ยกเลิก', data: `holdno:${hid}` },
+              ], 'ยืนยันบันทึกเข้าพอร์ต');
+            staged = true;
+          }
+        } catch (e) {
+          console.error('[slips/confirm] stage holding error:', String(e));
+        }
+      }
+    }
+
+    // ไม่ได้เพิ่มพอร์ต (หรือ stage ไม่ได้) → จังหวะ 2 เดิม (CR-WPN-005): แจ้งบันทึกสลิป + ปุ่มดูพอร์ต/ดูชีต
+    if (!staged && claim?.u && lineToken) {
       try {
         const amt = Number(row[4]).toLocaleString('th-TH'); // row = [date,catLabel,assetType,channel,amount,...]
         const detail = [row[1], row[2], row[3]].filter(Boolean).join(' · ');
         await pushLineButtons(lineToken, claim.u,
-          `✅ บันทึกแล้ว ฿${amt}\n${detail}`, [
+          `✅ บันทึกรายการแล้ว ฿${amt}\n${detail}`, [
             { label: '📊 ดูพอร์ต', uri: `${base}/` },
             { label: '📄 ดูชีต', uri: `https://docs.google.com/spreadsheets/d/${saved.spreadsheetId}/edit` },
           ]);
@@ -86,7 +123,7 @@ export async function POST(req: Request): Promise<Response> {
       }
     }
 
-    return Response.json({ ok: true, ...saved });
+    return Response.json({ ok: true, ...saved, staged });
   } catch (e) {
     // AC-E04 — เขียน Drive/Sheets ไม่สำเร็จ → ไม่ลบ staging, แจ้ง error ให้ลองใหม่
     console.error('[slips/confirm] save error:', String(e));
