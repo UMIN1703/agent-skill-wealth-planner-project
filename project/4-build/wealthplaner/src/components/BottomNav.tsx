@@ -1,18 +1,19 @@
 'use client';
 
-// แถบนำทางล่าง (bottom navigation) — ปลายทางหลักของแอป 4 แท็บ
+// แถบนำทางล่าง (bottom navigation) — ปลายทางหลักของแอป 5 แท็บ
 // client component: ใช้ usePathname ไฮไลต์แท็บที่กำลังอยู่ · ซ่อนบนหน้า /login (ยังไม่ล็อกอิน)
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { PieChart, Plus, FileUp, Scale, type LucideIcon } from 'lucide-react';
+import { PieChart, Plus, FileUp, Scale, User, type LucideIcon } from 'lucide-react';
 
 type Tab = { href: string; label: string; Icon: LucideIcon; accent?: boolean };
 
 const TABS: Tab[] = [
   { href: '/', label: 'พอร์ต', Icon: PieChart },
+  { href: '/rebalance', label: 'ปรับสมดุล', Icon: Scale },
   { href: '/add', label: 'เพิ่ม', Icon: Plus, accent: true },
   { href: '/import', label: 'นำเข้า', Icon: FileUp },
-  { href: '/rebalance', label: 'ปรับสมดุล', Icon: Scale },
+  { href: '/profile', label: 'โปรไฟล์', Icon: User },
 ];
 
 export default function BottomNav() {
