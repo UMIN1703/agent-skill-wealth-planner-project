@@ -14,9 +14,13 @@ create table if not exists holdings (
   market_price  double precision,           -- null = ยังไม่มีราคาตลาด (portfolio ใช้ต้นทุนแทน)
   fx_to_thb     double precision not null default 1,
   currency      text,
+  note          text,                            -- บันทึกย่อต่อรายการ (Phase 1)
   source        text not null default 'manual',  -- 'manual' | 'slip'
   created_at    timestamptz not null default now()
 );
+
+-- สำหรับตารางที่สร้างไว้ก่อนหน้า (รันซ้ำได้ ปลอดภัย)
+alter table holdings add column if not exists note text;
 
 create index if not exists holdings_user_key_idx on holdings (user_key);
 

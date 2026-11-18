@@ -12,7 +12,9 @@ export type AssetDraft = {
   type: AssetType | '';
   quantity: number | null;
   costPrice: number | null;
+  currentPrice: number | null; // ราคา/มูลค่าปัจจุบันต่อหน่วย (ไม่บังคับ) → ปลดล็อก กำไร/ขาดทุนจริง (F004)
   brokerChannel: string; // บริษัทโบรก เช่น SCBS, KBank (ระดับบริษัท — D1)
+  note: string;          // บันทึกย่อต่อรายการ (ไม่บังคับ)
 };
 
 export type FieldError = { field: keyof AssetDraft; message: string };
@@ -33,6 +35,9 @@ export function validateAssetDraft(d: AssetDraft): ValidationResult {
 
   if (!isNum(d.costPrice)) errors.push({ field: 'costPrice', message: 'ต้องระบุราคาต้นทุนเป็นตัวเลข' });
   else if (d.costPrice < 0) errors.push({ field: 'costPrice', message: 'ราคาต้นทุนต้องไม่ติดลบ' });
+
+  // ราคาปัจจุบัน — ไม่บังคับ (เว้นว่าง = ยังไม่มีราคาตลาด) แต่ถ้ากรอกต้องไม่ติดลบ
+  if (isNum(d.currentPrice) && d.currentPrice < 0) errors.push({ field: 'currentPrice', message: 'ราคาปัจจุบันต้องไม่ติดลบ' });
 
   if (!d.brokerChannel.trim()) errors.push({ field: 'brokerChannel', message: 'ต้องเลือก broker channel (ฟิลด์บังคับ)' });
 
@@ -78,8 +83,9 @@ export function draftToDisplayAsset(d: AssetDraft): DisplayAsset {
     brokerChannel: d.brokerChannel.trim(),
     quantity: d.quantity,
     costPrice: d.costPrice,
-    marketPrice: null,
+    marketPrice: d.currentPrice, // กรอกราคาปัจจุบัน → ใช้คำนวณ P&L จริง · เว้นว่าง (null) → ใช้ต้นทุนแทน
     fxToThb: 1,
+    note: (d.note ?? '').trim(),
     source: 'manual',
     updatedMin: 0,
   };

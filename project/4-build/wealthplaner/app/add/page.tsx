@@ -25,11 +25,11 @@ import { marketValueTHB } from '@/lib/portfolio.ts';
 const BROKERS = ['SCBS', 'KBank', 'IBKR', 'Bualuang', 'manual'];
 const baht = (n: number) => '฿' + new Intl.NumberFormat('th-TH', { maximumFractionDigits: 0 }).format(Math.round(n));
 
-const emptyDraft: AssetDraft = { name: '', type: '', quantity: null, costPrice: null, brokerChannel: '' };
+const emptyDraft: AssetDraft = { name: '', type: '', quantity: null, costPrice: null, currentPrice: null, brokerChannel: '', note: '' };
 
 // field → id ของ control (สำหรับเลื่อน focus ไปช่องแรกที่ผิด — F001 AC-E01)
 const FIELD_ID: Record<keyof AssetDraft, string> = {
-  name: 'f-name', type: 'f-type', quantity: 'f-qty', costPrice: 'f-cost', brokerChannel: 'f-broker',
+  name: 'f-name', type: 'f-type', quantity: 'f-qty', costPrice: 'f-cost', currentPrice: 'f-cur', brokerChannel: 'f-broker', note: 'f-note',
 };
 const focusField = (f: keyof AssetDraft) => document.getElementById(FIELD_ID[f])?.focus();
 
@@ -47,7 +47,9 @@ function AddAssetInner() {
     type: seedType && (seedType in ASSET_TYPE_LABELS) ? (seedType as AssetType) : '',
     quantity: null,
     costPrice: null,
+    currentPrice: null,
     brokerChannel: seedBroker,
+    note: '',
   };
   // โบรกจากสลิป (เช่น ttb) อาจไม่อยู่ในลิสต์มาตรฐาน → เติมเข้า option ให้เลือกได้
   const brokers = seedBroker && !BROKERS.includes(seedBroker) ? [seedBroker, ...BROKERS] : BROKERS;
@@ -188,6 +190,14 @@ function AddAssetInner() {
           </Field>
         </div>
 
+        <Field id="f-cur" label="ราคาปัจจุบัน (บาท/หน่วย) — ไม่บังคับ" error={errFor('currentPrice')}>
+          <input
+            id="f-cur" type="number" inputMode="decimal" step="any" className="input num" placeholder="เว้นว่าง = ใช้ราคาต้นทุน"
+            value={draft.currentPrice ?? ''} onChange={(e) => set('currentPrice', num(e.target.value))}
+            aria-invalid={!!errFor('currentPrice')} aria-describedby={errFor('currentPrice') ? 'f-cur-err' : undefined}
+          />
+        </Field>
+
         <Field id="f-broker" label="Broker channel (บังคับ)" error={errFor('brokerChannel')}>
           <select
             id="f-broker" className="input"
@@ -197,6 +207,13 @@ function AddAssetInner() {
             <option value="">— เลือกโบรก/ช่องทาง —</option>
             {brokers.map((b) => <option key={b} value={b}>{b}</option>)}
           </select>
+        </Field>
+
+        <Field id="f-note" label="โน้ต (ไม่บังคับ)">
+          <input
+            id="f-note" type="text" className="input" placeholder="เช่น รอบซื้อ, บัญชีลดหย่อน"
+            value={draft.note} onChange={(e) => set('note', e.target.value)}
+          />
         </Field>
 
         {dupPending && (

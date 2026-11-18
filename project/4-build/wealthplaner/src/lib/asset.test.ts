@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { validateAssetDraft, isDuplicate, draftToDisplayAsset, ASSET_TYPE_LABELS, type AssetDraft } from './asset.ts';
 
 const valid: AssetDraft = {
-  name: 'PTT', type: 'th_stock', quantity: 100, costPrice: 34.25, brokerChannel: 'SCBS',
+  name: 'PTT', type: 'th_stock', quantity: 100, costPrice: 34.25, currentPrice: null, brokerChannel: 'SCBS', note: '',
 };
 
 // F001 AC-01 (traces TC-F001-001)
@@ -42,7 +42,7 @@ test('TC-F001-E04: ไม่เลือก broker channel → ปฏิเส�
 });
 
 test('firstField = ช่องแรกที่ผิดตามลำดับ (name ก่อน)', () => {
-  const r = validateAssetDraft({ name: '', type: '', quantity: null, costPrice: null, brokerChannel: '' });
+  const r = validateAssetDraft({ name: '', type: '', quantity: null, costPrice: null, currentPrice: null, brokerChannel: '', note: '' });
   assert.equal(r.ok, false);
   if (!r.ok) assert.equal(r.firstField, 'name');
 });
@@ -61,10 +61,19 @@ test('TC-F001-001b: draft → DisplayAsset (manual · ยังไม่มี�
   assert.equal(a.name, 'PTT');
   assert.equal(a.brokerChannel, 'SCBS');
   assert.equal(a.type, ASSET_TYPE_LABELS.th_stock); // จัดกลุ่ม allocation ได้ (F002)
-  assert.equal(a.marketPrice, null);                // ราคาตลาดจริงคือ F003/F004 (รอ O1)
+  assert.equal(a.marketPrice, null);                // ไม่กรอกราคาปัจจุบัน → null (portfolio ใช้ต้นทุนแทน)
   assert.equal(a.fxToThb, 1);
   assert.equal(a.source, 'manual');
   assert.equal(a.updatedMin, 0);
+});
+
+// Phase 1 — กรอกราคาปัจจุบัน → marketPrice ใช้ค่านั้น (ปลดล็อก P&L จริง) · validate ราคาปัจจุบันติดลบ · note ติดไป
+test('currentPrice → marketPrice + note carried · ราคาปัจจุบันติดลบถูกปฏิเสธ', () => {
+  const a = draftToDisplayAsset({ ...valid, currentPrice: 40.5, note: '  รอบ Q1  ' });
+  assert.equal(a.marketPrice, 40.5);
+  assert.equal(a.note, 'รอบ Q1'); // trim
+  assert.equal(validateAssetDraft({ ...valid, currentPrice: -1 }).ok, false);
+  assert.equal(validateAssetDraft({ ...valid, currentPrice: 0 }).ok, true); // 0 อนุญาต
 });
 
 test('draftToDisplayAsset ปฏิเสธร่างที่ยังไม่ผ่าน validation (กันข้าม validate)', () => {

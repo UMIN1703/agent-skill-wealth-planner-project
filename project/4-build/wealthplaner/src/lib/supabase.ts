@@ -47,7 +47,7 @@ async function sb(path: string, init?: RequestInit): Promise<Response> {
 type HoldingRow = {
   name: string; type: string; broker_channel: string;
   quantity: number; cost_price: number; market_price: number | null;
-  fx_to_thb: number; currency: string | null; source: string;
+  fx_to_thb: number; currency: string | null; source: string; note: string | null;
 };
 
 function rowToHeld(r: HoldingRow): DisplayAsset {
@@ -55,7 +55,7 @@ function rowToHeld(r: HoldingRow): DisplayAsset {
     name: r.name, type: r.type, brokerChannel: r.broker_channel,
     quantity: r.quantity, costPrice: r.cost_price, marketPrice: r.market_price,
     fxToThb: r.fx_to_thb, currency: r.currency ?? undefined,
-    source: r.source, updatedMin: 0,
+    note: r.note ?? undefined, source: r.source, updatedMin: 0,
   };
 }
 
@@ -68,13 +68,14 @@ export async function listHoldings(userKey: string): Promise<DisplayAsset[] | nu
 }
 
 /** เพิ่มรายการถือครอง 1 แถว · คืน true เมื่อเขียนจริง, false เมื่อยังไม่ตั้งค่า Supabase */
-export async function insertHolding(userKey: string, a: HeldAsset & { source?: string }): Promise<boolean> {
+export async function insertHolding(userKey: string, a: HeldAsset & { source?: string; note?: string }): Promise<boolean> {
   if (!supabaseConfigured()) return false;
   const row = {
     user_key: userKey,
     name: a.name, type: a.type, broker_channel: a.brokerChannel,
     quantity: a.quantity, cost_price: a.costPrice, market_price: a.marketPrice,
     fx_to_thb: a.fxToThb, currency: a.currency ?? null, source: a.source ?? 'manual',
+    note: a.note ?? null,
   };
   await sb(TABLE, { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify(row) });
   return true;

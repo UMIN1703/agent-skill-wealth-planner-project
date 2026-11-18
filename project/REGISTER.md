@@ -25,6 +25,7 @@
 | CR-WPN-005 | Change request — LINE ตอบ 2 จังหวะ (สรุปยอด + ปุ่มดูพอร์ต/ดูชีต) | 00 | อนุมัติแล้ว | 2026-11-18 |
 | CR-WPN-006 | Change request — ชั้นข้อมูลพอร์ตจริง (Supabase) สำหรับ F001/F002 | 00 | อนุมัติแล้ว | 2026-11-18 |
 | CR-WPN-007 | Change request — ยืนยันเข้าพอร์ตผ่านการ์ด LINE (confirm/cancel → success) | 00 | อนุมัติแล้ว | 2026-11-18 |
+| CR-WPN-008 | Change request — ขยายระบบให้เทียบเท่าชีตพอร์ตจริง (เฟส 1–3: ราคาปัจจุบัน/P&L, taxonomy+tax bucket, import Sheet) | 00 | อนุมัติแล้ว | 2026-11-18 |
 | TST-WPN-001 | Test cases + traceability matrix — WealthPlaner | 00 | ร่าง | 2026-08-29 |
 | DSN-WPN-001 | ระบบออกแบบและข้อกำหนดหน้าจอ (Neon Dark) — WealthPlaner | 00 | ร่าง | 2026-08-31 |
 | QAR-WPN-001 | รายงานการประกันคุณภาพ (F001–F006) — WealthPlaner | 00 | ร่าง | 2026-09-19 |

@@ -43,6 +43,7 @@ export function importAssets(header: string[], rows: string[][]): ImportResult {
     const typeRaw = get('type');
     const qtyRaw = get('quantity');
     const costRaw = get('costPrice');
+    const curRaw = get('currentPrice'); // คอลัมน์ไม่บังคับ
 
     if (typeRaw && !TYPE_MAP[typeRaw]) {
       errors.push({ row, column: 'type', message: `ประเภทไม่รู้จัก "${typeRaw}"` });
@@ -54,7 +55,9 @@ export function importAssets(header: string[], rows: string[][]): ImportResult {
       type: TYPE_MAP[typeRaw] ?? '',
       quantity: qtyRaw === '' ? null : Number(qtyRaw),
       costPrice: costRaw === '' ? null : Number(costRaw),
+      currentPrice: curRaw === '' ? null : Number(curRaw),
       brokerChannel: get('brokerChannel'),
+      note: get('note'),
     };
 
     const v = validateAssetDraft(draft);

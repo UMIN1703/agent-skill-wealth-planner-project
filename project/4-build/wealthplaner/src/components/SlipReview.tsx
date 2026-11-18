@@ -22,6 +22,7 @@ export default function SlipReview({ slip, configured, claim }: { slip: PendingS
   const [channel, setChannel] = useState('');
   const [name, setName] = useState('');       // ชื่อสินทรัพย์ (ถ้าจะเพิ่มเข้าพอร์ตด้วย)
   const [quantity, setQuantity] = useState(''); // จำนวนหน่วย (ถ้าจะเพิ่มเข้าพอร์ตด้วย)
+  const [curPrice, setCurPrice] = useState(''); // ราคาปัจจุบัน/หน่วย (ไม่บังคับ) → P&L จริง
   const [note, setNote] = useState('');
   const [errors, setErrors] = useState<{ amount?: string; date?: string; category?: string }>({});
   const [saved, setSaved] = useState<string[] | null>(null);
@@ -109,7 +110,7 @@ export default function SlipReview({ slip, configured, claim }: { slip: PendingS
         body: JSON.stringify({
           id: slip.id, sourceMessageId: slip.sourceMessageId, claim,
           draft: { amountTHB: amount, date, category, assetType, channel, note },
-          portfolio: wantPortfolio ? { name: name.trim(), quantity: qty } : undefined,
+          portfolio: wantPortfolio ? { name: name.trim(), quantity: qty, currentPrice: curPrice.trim() ? Number(curPrice.replace(/,/g, '')) : null } : undefined,
         }),
       });
       const data = (await r.json()) as { ok: boolean; addedToPortfolio?: boolean; reason?: string };
@@ -205,6 +206,11 @@ export default function SlipReview({ slip, configured, claim }: { slip: PendingS
         <div className="field">
           <label htmlFor="s-qty">จำนวนหน่วย</label>
           <input id="s-qty" className="input" inputMode="decimal" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="เช่น 100" />
+        </div>
+
+        <div className="field">
+          <label htmlFor="s-cur">ราคาปัจจุบัน/หน่วย (ไม่บังคับ)</label>
+          <input id="s-cur" className="input" inputMode="decimal" value={curPrice} onChange={(e) => setCurPrice(e.target.value)} placeholder="เว้นว่าง = ใช้ราคาต้นทุน" />
         </div>
 
         <div className="field">

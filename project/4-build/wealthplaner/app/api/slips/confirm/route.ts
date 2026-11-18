@@ -21,7 +21,7 @@ export async function POST(req: Request): Promise<Response> {
 
   let payload: {
     id?: string; sourceMessageId?: string; draft?: SlipDraft; claim?: string;
-    portfolio?: { name: string; quantity: number }; // ถ้ากรอก → เพิ่มเข้าพอร์ตด้วย (ส่งการ์ดยืนยัน)
+    portfolio?: { name: string; quantity: number; currentPrice?: number | null }; // ถ้ากรอก → เพิ่มเข้าพอร์ตด้วย
   };
   try {
     payload = (await req.json()) as typeof payload;
@@ -88,7 +88,9 @@ export async function POST(req: Request): Promise<Response> {
         type: (payload.draft.assetType ?? '') as AssetType | '',
         quantity: p.quantity,
         costPrice: p.quantity > 0 ? Math.round((res.entry.amountTHB / p.quantity) * 100) / 100 : 0,
+        currentPrice: p.currentPrice ?? null,
         brokerChannel: (payload.draft.channel ?? '').trim() || 'manual',
+        note: (payload.draft.note ?? '').trim(),
       };
       if (validateAssetDraft(assetDraft).ok) {
         try {
