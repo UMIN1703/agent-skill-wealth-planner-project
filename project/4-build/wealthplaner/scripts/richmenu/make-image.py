@@ -49,6 +49,12 @@ def ic_plus(d, cx, iy, s, c):
     d.rounded_rectangle([cx-t, iy-s, cx+t, iy+s], radius=12, fill=c)
     d.rounded_rectangle([cx-s, iy-t, cx+s, iy+t], radius=12, fill=c)
 
+def ic_plus_circle(d, cx, iy, s, c):  # plus-circle (iconoir) — วงกลม + บวกข้างใน
+    d.ellipse([cx-s, iy-s, cx+s, iy+s], outline=c, width=18)
+    t, arm = 11, s * 0.52
+    d.rounded_rectangle([cx-t, iy-arm, cx+t, iy+arm], radius=7, fill=c)
+    d.rounded_rectangle([cx-arm, iy-t, cx+arm, iy+t], radius=7, fill=c)
+
 def ic_receipt(d, cx, iy, s, c):
     d.rounded_rectangle([cx-s*0.78, iy-s, cx+s*0.78, iy+s], radius=16, outline=c, width=16)
     for k in (-0.45, 0.0, 0.45):
@@ -67,14 +73,13 @@ def ic_login(d, cx, iy, s, c):  # ลูกศรเข้าประตู
     d.polygon([(cx+s*0.25+8, iy), (cx+s*0.25-34, iy-30), (cx+s*0.25-34, iy+30)], fill=c)
     d.line([cx+s*0.55, iy-s, cx+s*0.55, iy+s], fill=c, width=18)
 
-# 5 ช่อง: แถวบน 3 (833/833/834) · แถวล่าง 2 (1250/1250) — ไม่มี dashboard
+# 4 ช่อง (2x2, 1250x843 ต่อช่อง) — ไม่มี dashboard/login
 # rect = (x0, y0, x1, y1) ในพิกัดเต็ม (ต้องตรงกับ areas ใน setup.sh)
 CELLS = [
-    (ic_donut,   "พอร์ตรวม",     "Portfolio", ACCENT, (0, 0, 833, 843)),
-    (ic_plus,    "เพิ่มสินทรัพย์", "Add",       GOLD,   (833, 0, 1666, 843)),
-    (ic_receipt, "รายการสลิป",   "Slips",     ACCENT, (1666, 0, 2500, 843)),
-    (ic_swap,    "ปรับพอร์ต",     "Rebalance", ACCENT, (0, 843, 1250, 1686)),
-    (ic_login,   "เข้าสู่ระบบ",   "Login",     MUTED,  (1250, 843, 2500, 1686)),
+    (ic_donut,       "พอร์ตรวม",     "Portfolio", ACCENT, (0, 0, 1250, 843)),
+    (ic_plus_circle, "เพิ่มสินทรัพย์", "Add",       GOLD,   (1250, 0, 2500, 843)),
+    (ic_receipt,     "รายการสลิป",   "Slips",     ACCENT, (0, 843, 1250, 1686)),
+    (ic_swap,        "ปรับพอร์ต",     "Rebalance", ACCENT, (1250, 843, 2500, 1686)),
 ]
 
 f_th = font(92, index=1)
