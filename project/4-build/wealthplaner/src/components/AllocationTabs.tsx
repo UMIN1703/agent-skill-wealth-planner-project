@@ -40,21 +40,19 @@ export default function AllocationTabs({ rows }: { rows: AllocRow[] }) {
       {tab === 'current' ? (
         current.length === 0 ? <p className="empty">ยังไม่มีสินทรัพย์</p> : (
           <>
-            <div className="seg-bar">
+            <div className="seg-bar thin">
               {current.map((r) => (
                 <span key={r.name} style={{ width: `${r.curPct}%`, background: colorFor(r.name) }} title={`${r.name} ${pct(r.curPct)}`} />
               ))}
             </div>
-            <div className="seg-leg">
+            <div className="seg-leg2">
               {current.map((r) => (
-                <div className="seg-item" key={r.name}>
-                  <span className="seg-tick" style={{ background: colorFor(r.name) }} />
-                  <div className="seg-txt">
-                    <span className="seg-nm">{r.name}</span>
-                    <span className="seg-val num">฿{compact(r.curValueTHB)}</span>
-                  </div>
-                  <span className="seg-pct num">{r.curPct.toFixed(2)}%</span>
-                </div>
+                <span className="seg-chip" key={r.name}>
+                  <span className="dot" style={{ background: colorFor(r.name) }} />
+                  <span className="nm">{r.name}</span>
+                  <span className="pc num">{r.curPct.toFixed(2)}%</span>
+                  <span className="vl num">฿{compact(r.curValueTHB)}</span>
+                </span>
               ))}
             </div>
           </>
