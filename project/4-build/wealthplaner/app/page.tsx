@@ -23,8 +23,10 @@ export default async function PortfolioPage() {
   const session = await auth();
   const userKey = userKeyFromSession(session);
   const real = userKey ? await listHoldings(userKey) : null;
-  const assets = real ?? sampleAssets;
-  const isDemo = real === null;
+  // ยังไม่มีข้อมูลจริง (ยังไม่เชื่อม / ล็อกเอาต์ / พอร์ตว่าง) → โชว์พอร์ตตัวอย่างเต็ม ๆ (ป้ายเดโม)
+  const useDemo = !real || real.length === 0;
+  const assets = useDemo ? sampleAssets : real;
+  const isDemo = useDemo;
 
   const s = summarizePortfolio(assets);
   const cost = s.totalTHB - s.totalIncomeTHB;
@@ -74,7 +76,7 @@ export default async function PortfolioPage() {
 
       <AssetList rows={rows} totalTHB={s.totalTHB} />
 
-      {isDemo && <p className="note" style={{ textAlign: 'center' }}>ข้อมูลเดโม — เชื่อมฐานข้อมูลเพื่อดูยอดจริงของคุณ</p>}
+      {isDemo && <p className="note" style={{ textAlign: 'center' }}>ข้อมูลเดโม (ตัวอย่าง) — เพิ่มสินทรัพย์หรือนำเข้าชีตเพื่อดูพอร์ตจริงของคุณ</p>}
     </main>
   );
 }
