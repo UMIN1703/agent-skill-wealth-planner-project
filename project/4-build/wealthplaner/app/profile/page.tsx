@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { User, Bell, Settings, Shield, Link2, ChevronRight } from 'lucide-react';
 import { auth } from '@/auth.ts';
 import LogoutButton from '@/components/LogoutButton.tsx';
+import RiskAssessment from '@/components/RiskAssessment.tsx';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -48,6 +49,8 @@ export default async function ProfilePage() {
           </span>
         </div>
       </section>
+
+      <RiskAssessment />
 
       <section className="card" aria-label="ตั้งค่า">
         {ROWS.map(({ Icon, label }) => (

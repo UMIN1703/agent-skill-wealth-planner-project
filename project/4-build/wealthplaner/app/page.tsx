@@ -2,6 +2,7 @@ import { summarizePortfolio, marketValueTHB, taxDeductionSummary, categoryAlloca
 import { computeIncomePercent } from '@/lib/finance.ts';
 import { sampleAssets } from '@/data/sampleAssets.ts';
 import AllocationTabs, { type AllocRow } from '@/components/AllocationTabs.tsx';
+import RiskStat from '@/components/RiskStat.tsx';
 import PortfolioHero from '@/components/PortfolioHero.tsx';
 import AssetList, { type AssetRowData } from '@/components/AssetList.tsx';
 import LogoutButton from '@/components/LogoutButton.tsx';
@@ -62,7 +63,7 @@ export default async function PortfolioPage() {
       <div className="pf-stats">
         <div className="pf-stat"><span className="t">ต้นทุนรวม</span><span className="p num">฿{compact(cost)}</span></div>
         <div className="pf-stat"><span className="t">Total P&amp;L</span><span className={'p num ' + (up ? 'g' : 'l')}>{up ? '+' : '−'}฿{compact(Math.abs(s.totalIncomeTHB))}</span></div>
-        <div className="pf-stat"><span className="t">สินทรัพย์</span><span className="p num">{assets.length}</span></div>
+        <RiskStat />
       </div>
 
       {!s.isEmpty && <AllocationTabs rows={allocRows} />}
