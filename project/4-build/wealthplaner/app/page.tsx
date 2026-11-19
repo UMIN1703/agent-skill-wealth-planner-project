@@ -1,7 +1,7 @@
-import { summarizePortfolio, marketValueTHB, taxDeductionSummary } from '@/lib/portfolio.ts';
+import { summarizePortfolio, marketValueTHB, taxDeductionSummary, categoryAllocation, CATEGORY_TARGETS } from '@/lib/portfolio.ts';
 import { computeIncomePercent } from '@/lib/finance.ts';
 import { sampleAssets } from '@/data/sampleAssets.ts';
-import { AllocationDonut } from '@/components/AllocationDonut.tsx';
+import AllocationTabs, { type AllocRow } from '@/components/AllocationTabs.tsx';
 import PortfolioHero from '@/components/PortfolioHero.tsx';
 import AssetList, { type AssetRowData } from '@/components/AssetList.tsx';
 import LogoutButton from '@/components/LogoutButton.tsx';
@@ -32,13 +32,23 @@ export default async function PortfolioPage() {
   const cost = s.totalTHB - s.totalIncomeTHB;
   const incomePct = cost > 0 ? (s.totalIncomeTHB / cost) * 100 : 0;
   const up = s.totalIncomeTHB >= 0;
-  const centerLabel = '฿' + compact(s.totalTHB);
 
   const rows: AssetRowData[] = assets.map((a) => ({
     name: a.name, broker: a.brokerChannel, group: a.category ?? a.type, valueTHB: marketValueTHB(a),
     pct: computeIncomePercent(a), stale: a.updatedMin > 15,
   }));
   const taxRows = taxDeductionSummary(assets);
+
+  // สัดส่วนตามหมวด (ปัจจุบัน) + เป้าหมาย → รวมเป็นแถวให้ AllocationTabs
+  const catAlloc = categoryAllocation(assets);
+  const tgt = new Map(CATEGORY_TARGETS.map((t) => [t.category, t.percent]));
+  const names = [...new Set([...catAlloc.map((a) => a.type), ...CATEGORY_TARGETS.map((t) => t.category)])];
+  const allocRows: AllocRow[] = names
+    .map((name) => {
+      const a = catAlloc.find((x) => x.type === name);
+      return { name, curPct: a?.percent ?? 0, curValueTHB: a?.valueTHB ?? 0, tgtPct: tgt.get(name) ?? 0 };
+    })
+    .sort((x, y) => y.curValueTHB - x.curValueTHB || y.tgtPct - x.tgtPct);
 
   return (
     <main className="app">
@@ -55,12 +65,7 @@ export default async function PortfolioPage() {
         <div className="pf-stat"><span className="t">สินทรัพย์</span><span className="p num">{assets.length}</span></div>
       </div>
 
-      {!s.isEmpty && (
-        <section className="card">
-          <h2>สัดส่วน Asset Allocation</h2>
-          <AllocationDonut allocation={s.allocation} centerLabel={centerLabel} />
-        </section>
-      )}
+      {!s.isEmpty && <AllocationTabs rows={allocRows} />}
 
       {taxRows.length > 0 && (
         <section className="card">

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { summarizePortfolio, holdingSummary, taxDeductionSummary, type HeldAsset } from './portfolio.ts';
+import { summarizePortfolio, holdingSummary, taxDeductionSummary, categoryAllocation, type HeldAsset } from './portfolio.ts';
 
 const two: HeldAsset[] = [
   { name: 'A', type: 'หุ้นไทย', brokerChannel: 'SCBS', quantity: 10, costPrice: 10, marketPrice: 15, fxToThb: 1 },       // value 150, income 50
@@ -25,6 +25,19 @@ test('TC-F002-tax: taxDeductionSummary รวมต้นทุนตาม tax 
   assert.equal(s.length, 2); // รายการไม่มี bucket ถูกข้าม
   assert.equal(s.find((x) => x.bucket === 'SSF')!.costTHB, 1000);
   assert.equal(s.find((x) => x.bucket === 'RMF')!.costTHB, 1000);
+});
+
+// CR-WPN-008 — allocation ตามหมวด (ใช้ category, fallback type) + % รวม 100
+test('TC-F002-cat: categoryAllocation จัดกลุ่มตามหมวด', () => {
+  const a: (HeldAsset & { category?: string })[] = [
+    { name: 'A', type: 'หุ้นไทย', brokerChannel: 'x', quantity: 1, costPrice: 60, marketPrice: 60, fxToThb: 1, category: 'หุ้นไทย' },
+    { name: 'B', type: 'เงินสด', brokerChannel: 'x', quantity: 1, costPrice: 40, marketPrice: 40, fxToThb: 1, category: 'เงินสำรอง/ฉุกเฉิน' },
+    { name: 'C', type: 'คริปโต', brokerChannel: 'x', quantity: 1, costPrice: 100, marketPrice: 100, fxToThb: 1 }, // ไม่มี category → ใช้ type
+  ];
+  const r = categoryAllocation(a);
+  assert.equal(r.find((x) => x.type === 'คริปโต')!.valueTHB, 100); // fallback type
+  assert.equal(r[0].type, 'คริปโต'); // เรียงมากไปน้อย
+  assert.ok(Math.abs(r.reduce((s, x) => s + x.percent, 0) - 100) < 1e-9);
 });
 
 // F002 AC-01 (traces TC-F002-001)

@@ -33,6 +33,28 @@ export function holdingSummary(a: HeldAsset): string {
   return `${a.name} · ${qty} หน่วย · ${a.brokerChannel}\nมูลค่า ฿${value}`;
 }
 
+// CR-WPN-008 — สัดส่วนตาม "หมวดใหญ่" (Category) สำหรับการ์ด allocation แบบแท็บ
+export function categoryAllocation(assets: (HeldAsset & { category?: string })[]): Allocation[] {
+  const total = assets.reduce((s, a) => s + marketValueTHB(a), 0);
+  const m = new Map<string, number>();
+  for (const a of assets) {
+    const key = a.category ?? a.type;
+    m.set(key, (m.get(key) ?? 0) + marketValueTHB(a));
+  }
+  return [...m.entries()]
+    .map(([type, valueTHB]) => ({ type, valueTHB, percent: total > 0 ? (valueTHB / total) * 100 : 0 }))
+    .sort((x, y) => y.valueTHB - x.valueTHB);
+}
+
+// เป้าหมาย allocation ตามหมวด (โมเดลกลาง · รวม = 100) — ใช้ร่วมกับหน้า rebalance ได้ในอนาคต
+export const CATEGORY_TARGETS: { category: string; percent: number }[] = [
+  { category: 'เงินสำรอง/ฉุกเฉิน', percent: 15 },
+  { category: 'เกษียณ', percent: 20 },
+  { category: 'หุ้นไทย', percent: 20 },
+  { category: 'ต่างประเทศ', percent: 30 },
+  { category: 'สินทรัพย์ทางเลือก', percent: 15 },
+];
+
 export type TaxSummaryRow = { bucket: string; costTHB: number };
 
 /** CR-WPN-008 เฟส 2 — สรุปเงินลงทุนที่ได้สิทธิลดหย่อนภาษี (รวมต้นทุนตาม tax bucket) */
