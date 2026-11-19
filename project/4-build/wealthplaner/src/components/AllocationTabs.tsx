@@ -51,7 +51,7 @@ export default function AllocationTabs({ rows }: { rows: AllocRow[] }) {
                   <span className="dot" style={{ background: colorFor(r.name) }} />
                   <span className="nm">{r.name}</span>
                   <span className="pc num">{r.curPct.toFixed(2)}%</span>
-                  <span className="vl num">฿{compact(r.curValueTHB)}</span>
+                  <span className="vl num">฿{fmt(r.curValueTHB)}</span>
                 </span>
               ))}
             </div>
