@@ -24,8 +24,8 @@ export default function AssetList({ rows, totalTHB }: { rows: AssetRowData[]; to
     .map(([group, items]) => ({ group, items, sub: items.reduce((x, r) => x + r.valueTHB, 0) }))
     .sort((a, b) => b.sub - a.sub);
 
-  const [sel, setSel] = useState<string>(ordered[0]?.group ?? 'all'); // เริ่มที่หมวดใหญ่สุด (สั้น)
-  const shown = sel === 'all' ? ordered : ordered.filter((g) => g.group === sel);
+  const [sel, setSel] = useState<string>(ordered[0]?.group ?? ''); // เริ่มที่หมวดใหญ่สุด
+  const shown = ordered.filter((g) => g.group === sel);
 
   if (rows.length === 0) {
     return <section className="card"><h2>สินทรัพย์</h2><p className="empty">ยังไม่มีสินทรัพย์</p></section>;
@@ -35,7 +35,6 @@ export default function AssetList({ rows, totalTHB }: { rows: AssetRowData[]; to
     <section className="card">
       <h2>สินทรัพย์</h2>
       <div className="cat-chips" role="tablist" aria-label="หมวดสินทรัพย์">
-        <button type="button" role="tab" aria-selected={sel === 'all'} className={'cat-chip' + (sel === 'all' ? ' on' : '')} onClick={() => setSel('all')}>ทั้งหมด</button>
         {ordered.map((g) => (
           <button type="button" key={g.group} role="tab" aria-selected={sel === g.group} className={'cat-chip' + (sel === g.group ? ' on' : '')} onClick={() => setSel(g.group)}>{g.group}</button>
         ))}
