@@ -103,6 +103,21 @@ function categoryToType(cat: string): AssetType {
   return 'other';
 }
 
+/** sub-type ในชีต → ประเภทของแอป (จับแบบขึ้นต้น เพราะชีตเขียน "SSF USA EQ"/"RMF World EQ")
+ *  sector codes (ICT/FOOD/TECH/PROP…) → ตก type ตาม Category (หุ้นไทย/ตปท.) */
+function subtypeToType(sub: string, cat: string): AssetType {
+  const x = sub.toLowerCase().trim();
+  if (x.startsWith('ssf')) return 'fund_ssf';
+  if (x.startsWith('rmf')) return 'fund_rmf';
+  if (x.startsWith('etf')) return 'etf';
+  if (x.startsWith('gold') || x.includes('ทอง')) return 'gold';
+  if (x.startsWith('digital') || x.includes('crypto') || x.includes('คริปโต')) return 'crypto';
+  if (x === 'pvd' || x.includes('สหกรณ์') || x.includes('provident')) return 'provident';
+  if (x.includes('ประกัน') || x === 'insurance') return 'insurance';
+  // 'Bank' = บัญชีเงินสด, แต่ 'BANK' = หุ้นกลุ่มธนาคาร → แยกด้วย Category (ปล่อยให้ fall through)
+  return TYPE_MAP[sub] ?? categoryToType(cat);
+}
+
 function taxFromCell(s: string): TaxBucket | '' {
   const x = s.toLowerCase().trim();
   if (x === 'ssf') return 'ssf';
@@ -149,7 +164,7 @@ export function importSheetRows(header: string[], rows: string[][]): ImportResul
 
     const draft: AssetDraft = {
       name,
-      type: TYPE_MAP[subtype] ?? categoryToType(g(col.category)),
+      type: subtypeToType(subtype, g(col.category)),
       quantity,
       costPrice: Math.round((costTotal / quantity) * 100) / 100,
       currentPrice: curTotal != null ? Math.round((curTotal / quantity) * 100) / 100 : null,

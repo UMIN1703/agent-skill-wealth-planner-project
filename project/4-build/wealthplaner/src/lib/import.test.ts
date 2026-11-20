@@ -59,12 +59,22 @@ test('เฟส3: importSheetRows map รูปแบบชีตจริง', 
     ['Cash', 'Bank', 'SCB', '', '454.58', '454.58', '-', '-', '', 'N/A'],
     ['หุ้นไทย', 'BANK', 'TISCO', '150.0000', '14198.81', '18825.00', '4626.19', '32.58%', '', 'Direct'],
     ['Retirement', 'PVD', 'PVD', '', '132667.28', '141060.37', '8393.09', '6.33%', 'Provident Fund', 'PVD'],
+    ['หุ้นต่างประเทศ', 'SSF USA EQ', 'SSF-SP500', '', '50000', '58000', '', '', '', 'SSF'],
+    ['หุ้นต่างประเทศ', 'RMF World EQ', 'RMF-World', '', '40000', '45000', '', '', '', 'RMF'],
+    ['หุ้นต่างประเทศ', 'ETF', 'VOO', '5', '95000', '110000', '', '', '', 'N/A'],
     ['', '', '', '', '', '', '', '', '', ''],                       // แถวว่าง → ข้าม
     ['หุ้นไทย', 'FOOD', 'NOCOST', '10', '', '', '', '', '', ''],    // ไม่มีต้นทุน → error
   ];
   const r = importSheetRows(sheetHeader, rows);
   assert.equal(r.headerOk, true);
-  assert.equal(r.imported.length, 3);
+  assert.equal(r.imported.length, 6);
+
+  // option 1 — sub-type กองทุนจับแบบขึ้นต้น → ประเภทถูก (หมวดมาจาก Category)
+  assert.equal(r.imported.find((d) => d.name === 'SSF-SP500')!.type, 'fund_ssf');
+  assert.equal(r.imported.find((d) => d.name === 'SSF-SP500')!.taxBucket, 'ssf');
+  assert.equal(r.imported.find((d) => d.name === 'RMF-World')!.type, 'fund_rmf');
+  assert.equal(r.imported.find((d) => d.name === 'VOO')!.type, 'etf');
+  assert.equal(r.imported.find((d) => d.name === 'VOO')!.category, 'global'); // หมวดจากชีต
 
   const scb = r.imported.find((d) => d.name === 'SCB')!;
   assert.equal(scb.quantity, 1);           // เงินสดไม่มีหน่วย → 1
