@@ -263,6 +263,13 @@ a:focus-visible, button:focus-visible, select:focus-visible { outline: 2px solid
 .seg-chip { display: grid; grid-template-columns: 11px 1fr auto auto; align-items: center; gap: 10px; font-size: 13px; padding: 12px 0; border-bottom: 1px solid var(--border); }
 .seg-chip:last-child { border-bottom: 0; padding-bottom: 0; }
 .seg-chip:first-child { padding-top: 2px; }
+
+/* แถบเลือกหมวดสินทรัพย์ (chip เลื่อนแนวนอน) — CR-WPN-008 */
+.cat-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 8px; scrollbar-width: none; }
+.cat-chips::-webkit-scrollbar { display: none; }
+.cat-chip { flex-shrink: 0; border: 1px solid var(--border); background: var(--surface-2); color: var(--muted); font-family: inherit; font-size: 13px; font-weight: 600; padding: 7px 14px; border-radius: var(--radius-pill); cursor: pointer; white-space: nowrap; transition: background var(--motion), color var(--motion); }
+.cat-chip.on { background: var(--brand); color: #fff; border-color: var(--brand); }
+.cat-chip:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 .seg-chip .dot { width: 11px; height: 11px; border-radius: 50%; }
 .seg-chip .nm { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .seg-chip .pc { text-align: right; font-weight: 700; min-width: 62px; font-variant-numeric: tabular-nums; }

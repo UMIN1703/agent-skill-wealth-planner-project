@@ -1,4 +1,7 @@
-// ลิสต์สินทรัพย์ (restyle) — จัดกลุ่มตาม "หมวด" (เหมือนชีต) + ยอดรวม/สัดส่วนต่อกลุ่ม
+'use client';
+
+// ลิสต์สินทรัพย์ (restyle) — แถบเลือกหมวด (chip เลื่อนได้) โชว์ทีละหมวด + "ทั้งหมด" · ยอดรวม/สัดส่วนต่อกลุ่ม
+import { useState } from 'react';
 import { AssetRow } from './AssetRow.tsx';
 
 export type AssetRowData = { name: string; broker: string; group: string; valueTHB: number; pct: number | null; stale: boolean };
@@ -10,7 +13,7 @@ const compact = (n: number) => {
 };
 
 export default function AssetList({ rows, totalTHB }: { rows: AssetRowData[]; totalTHB: number }) {
-  // จัดกลุ่มตามหมวด แล้วเรียงกลุ่มใหญ่→เล็กตามมูลค่า
+  // จัดกลุ่มตามหมวด เรียงใหญ่→เล็ก
   const groups = new Map<string, AssetRowData[]>();
   for (const r of rows) {
     const arr = groups.get(r.group) ?? [];
@@ -21,12 +24,24 @@ export default function AssetList({ rows, totalTHB }: { rows: AssetRowData[]; to
     .map(([group, items]) => ({ group, items, sub: items.reduce((x, r) => x + r.valueTHB, 0) }))
     .sort((a, b) => b.sub - a.sub);
 
+  const [sel, setSel] = useState<string>(ordered[0]?.group ?? 'all'); // เริ่มที่หมวดใหญ่สุด (สั้น)
+  const shown = sel === 'all' ? ordered : ordered.filter((g) => g.group === sel);
+
+  if (rows.length === 0) {
+    return <section className="card"><h2>สินทรัพย์</h2><p className="empty">ยังไม่มีสินทรัพย์</p></section>;
+  }
+
   return (
     <section className="card">
-      <h2>สินทรัพย์ตามหมวด</h2>
-      {rows.length === 0 ? (
-        <p className="empty">ยังไม่มีสินทรัพย์</p>
-      ) : ordered.map((g) => (
+      <h2>สินทรัพย์</h2>
+      <div className="cat-chips" role="tablist" aria-label="หมวดสินทรัพย์">
+        <button type="button" role="tab" aria-selected={sel === 'all'} className={'cat-chip' + (sel === 'all' ? ' on' : '')} onClick={() => setSel('all')}>ทั้งหมด</button>
+        {ordered.map((g) => (
+          <button type="button" key={g.group} role="tab" aria-selected={sel === g.group} className={'cat-chip' + (sel === g.group ? ' on' : '')} onClick={() => setSel(g.group)}>{g.group}</button>
+        ))}
+      </div>
+
+      {shown.map((g) => (
         <div key={g.group} className="pf-group-wrap">
           <div className="pf-group">
             <span className="gt">{g.group}</span>
