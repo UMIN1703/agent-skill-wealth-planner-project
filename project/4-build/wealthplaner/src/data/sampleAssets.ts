@@ -6,13 +6,12 @@ export type DisplayAsset = HeldAsset & { source: string; updatedMin: number; not
 const USD = 33.96;
 
 export const sampleAssets: DisplayAsset[] = [
-  // ── เงินสำรองฉุกเฉิน / เงินสด / สำรองครอบครัว / ประกัน ──
+  // ── เงินสำรองฉุกเฉิน / เงินสด ──
   { name: 'SCB (ฉุกเฉิน)', type: 'เงินสด', brokerChannel: 'SCB', quantity: 1, costPrice: 153816.48, marketPrice: 153816.48, fxToThb: 1, source: 'manual', updatedMin: 0, category: 'เงินสำรองฉุกเฉิน' },
-  { name: 'สำรองพ่อแม่', type: 'เงินสด', brokerChannel: 'KEPT', quantity: 1, costPrice: 211030.89, marketPrice: 211030.89, fxToThb: 1, source: 'manual', updatedMin: 0, category: 'สำรองครอบครัว' },
+  { name: 'สำรองพ่อแม่', type: 'เงินสด', brokerChannel: 'KEPT', quantity: 1, costPrice: 211030.89, marketPrice: 211030.89, fxToThb: 1, source: 'manual', updatedMin: 0, category: 'เงินสำรองฉุกเฉิน' },
   { name: 'INVX Cash', type: 'เงินสด', brokerChannel: 'INVX', quantity: 1, costPrice: 20023.36, marketPrice: 20023.36, fxToThb: 1, source: 'manual', updatedMin: 0, category: 'เงินสด' },
   { name: 'Dime', type: 'เงินสด', brokerChannel: 'Dime', quantity: 1, costPrice: 41427.2, marketPrice: 41427.2, fxToThb: 1, source: 'manual', updatedMin: 0, category: 'เงินสด' },
   { name: 'KBANK', type: 'เงินสด', brokerChannel: 'KBANK', quantity: 1, costPrice: 4262.85, marketPrice: 4262.85, fxToThb: 1, source: 'manual', updatedMin: 0, category: 'เงินสด' },
-  { name: 'เบี้ยประกันรวม', type: 'ประกัน', brokerChannel: 'manual', quantity: 1, costPrice: 19000, marketPrice: 19000, fxToThb: 1, source: 'manual', updatedMin: 0, category: 'ประกัน', taxBucket: 'ประกันลดหย่อน', note: 'ชีวิต/สุขภาพ' },
 
   // ── เกษียณ ──
   { name: 'PVD', type: 'กองทุนสำรองเลี้ยงชีพ', brokerChannel: 'PVD', quantity: 1, costPrice: 132667.28, marketPrice: 141060.37, fxToThb: 1, source: 'manual', updatedMin: 0, category: 'เกษียณ', taxBucket: 'PVD' },

@@ -46,13 +46,11 @@ export function categoryAllocation(assets: (HeldAsset & { category?: string })[]
     .sort((x, y) => y.valueTHB - x.valueTHB);
 }
 
-// เป้าหมาย allocation ตามหมวด 9 หมวด (โมเดลกลาง · รวม = 100)
+// เป้าหมาย allocation ตามหมวด 7 หมวด (โมเดลกลาง · รวม = 100)
 export const CATEGORY_TARGETS: { category: string; percent: number }[] = [
   { category: 'เงินสด', percent: 10 },
-  { category: 'เงินสำรองฉุกเฉิน', percent: 8 },
-  { category: 'สำรองครอบครัว', percent: 2 },
-  { category: 'ประกัน', percent: 3 },
-  { category: 'เกษียณ', percent: 17 },
+  { category: 'เงินสำรองฉุกเฉิน', percent: 10 },
+  { category: 'เกษียณ', percent: 20 },
   { category: 'หุ้นไทย', percent: 15 },
   { category: 'หุ้นต่างประเทศ', percent: 25 },
   { category: 'ทองคำ', percent: 10 },

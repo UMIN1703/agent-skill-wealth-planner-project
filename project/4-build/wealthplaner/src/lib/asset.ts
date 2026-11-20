@@ -10,9 +10,9 @@ export type AssetType =
   | 'th_stock' | 'foreign_stock' | 'etf' | 'fund' | 'fund_ssf' | 'fund_rmf'
   | 'gold' | 'crypto' | 'cash' | 'bond' | 'provident' | 'insurance' | 'other';
 
-// หมวดใหญ่ (ให้ตรงชีต 9 หมวด) + Tax Bucket (สิทธิลดหย่อนภาษี)
+// หมวดใหญ่ 7 หมวด (รวมสำรองครอบครัวเข้าฉุกเฉิน · ไม่มีประกันเป็นหมวด) + Tax Bucket
 export type AssetCategory =
-  | 'cash' | 'emergency' | 'family' | 'insurance' | 'retirement'
+  | 'cash' | 'emergency' | 'retirement'
   | 'th_equity' | 'global' | 'gold' | 'crypto';
 export type TaxBucket = 'none' | 'ssf' | 'rmf' | 'pvd' | 'insurance';
 
@@ -85,12 +85,10 @@ export const ASSET_TYPE_LABELS: Record<AssetType, string> = {
   other: 'อื่นๆ',
 };
 
-/** หมวดใหญ่ 9 หมวด — ตรงกับคอลัมน์ Category ในชีต (F002) */
+/** หมวดใหญ่ 7 หมวด (F002) */
 export const ASSET_CATEGORY_LABELS: Record<AssetCategory, string> = {
   cash: 'เงินสด',
   emergency: 'เงินสำรองฉุกเฉิน',
-  family: 'สำรองครอบครัว',
-  insurance: 'ประกัน',
   retirement: 'เกษียณ',
   th_equity: 'หุ้นไทย',
   global: 'หุ้นต่างประเทศ',
@@ -98,16 +96,16 @@ export const ASSET_CATEGORY_LABELS: Record<AssetCategory, string> = {
   crypto: 'คริปโต',
 };
 
-/** หมวดเริ่มต้นตามประเภท (ผู้ใช้แก้ได้ · Family/Emergency เลือกเองเพราะแยกจาก type ไม่ได้) */
+/** หมวดเริ่มต้นตามประเภท (ผู้ใช้แก้ได้) · ประกัน→ฉุกเฉิน (ไม่มีหมวดประกันแล้ว) */
 export const DEFAULT_CATEGORY: Record<AssetType, AssetCategory> = {
   th_stock: 'th_equity', foreign_stock: 'global', etf: 'global', fund: 'global',
   fund_ssf: 'global', fund_rmf: 'global', gold: 'gold', crypto: 'crypto',
-  cash: 'cash', bond: 'cash', provident: 'retirement', insurance: 'insurance', other: 'cash',
+  cash: 'cash', bond: 'cash', provident: 'retirement', insurance: 'emergency', other: 'cash',
 };
 
-/** map ค่าคอลัมน์ Category ในชีต → หมวดของแอป (ใช้ตอน import เฟส 3) */
+/** map ค่าคอลัมน์ Category ในชีต → หมวดของแอป (ใช้ตอน import เฟส 3) · Family/Insurance → ฉุกเฉิน */
 export const SHEET_CATEGORY_MAP: Record<string, AssetCategory> = {
-  'Family Reserve': 'family', 'Emergency Fund': 'emergency', 'Cash': 'cash', 'Insurance': 'insurance',
+  'Family Reserve': 'emergency', 'Emergency Fund': 'emergency', 'Cash': 'cash', 'Insurance': 'emergency',
   'Retirement': 'retirement', 'หุ้นไทย': 'th_equity', 'หุ้นต่างประเทศ': 'global', 'ทอง': 'gold', 'Crypto': 'crypto',
 };
 
