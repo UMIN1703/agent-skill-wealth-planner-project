@@ -9,7 +9,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton.tsx';
-import { summarizePortfolio } from '@/lib/portfolio.ts';
+import { summarizePortfolio, categoryAllocation } from '@/lib/portfolio.ts';
 import { computeRebalanceGap, type Target } from '@/lib/rebalance.ts';
 import { sampleAssets } from '@/data/sampleAssets.ts';
 import { AllocationDonut } from '@/components/AllocationDonut.tsx';
@@ -18,7 +18,8 @@ const pct = (n: number) => n.toFixed(1) + '%';
 
 export default function RebalancePage() {
   const summary = summarizePortfolio(sampleAssets);
-  const types = summary.allocation.map((a) => a.type);
+  const alloc = categoryAllocation(sampleAssets); // จัดกลุ่มตามหมวด 7 (ETF/SSF/RMF ยุบเข้าหุ้น)
+  const types = alloc.map((a) => a.type);
   const centerLabel = '฿' + (summary.totalTHB / 1e6).toFixed(2) + 'M';
 
   const [target, setTarget] = useState<Record<string, string>>(() =>
@@ -28,7 +29,7 @@ export default function RebalancePage() {
   const anySet = types.some((t) => target[t].trim() !== '');
   const targets: Target[] = types.map((t) => ({ type: t, targetPercent: Number(target[t] || 0) }));
   const sum = targets.reduce((s, t) => s + t.targetPercent, 0);
-  const result = computeRebalanceGap(summary.allocation, targets);
+  const result = computeRebalanceGap(alloc, targets);
 
   const setT = (type: string, v: string) => setTarget((m) => ({ ...m, [type]: v }));
 
@@ -41,14 +42,14 @@ export default function RebalancePage() {
 
       <section className="card">
         <h2>สัดส่วนปัจจุบัน</h2>
-        <AllocationDonut allocation={summary.allocation} centerLabel={centerLabel} />
+        <AllocationDonut allocation={alloc} centerLabel={centerLabel} />
       </section>
 
       {/* empty state (DSN §5.3): ยังไม่ตั้งเป้า → ชวนตั้ง/ทำแบบประเมิน F007 */}
       {!anySet && (
         <div className="notice warn" role="note">
           ยังไม่ได้ตั้งเป้าหมาย allocation — กรอกเป้าด้านล่าง หรือ{' '}
-          <Link href="/risk" className="inlink">ทำแบบประเมินความเสี่ยง (F007)</Link> เพื่อรับสัดส่วนตัวอย่าง
+          <Link href="/profile" className="inlink">ทำแบบประเมินความเสี่ยง (F007)</Link> เพื่อรับสัดส่วนตัวอย่าง
         </div>
       )}
 
@@ -58,7 +59,7 @@ export default function RebalancePage() {
           <div className="trow" key={t}>
             <label htmlFor={'tg-' + t} className="tname">{t}</label>
             <span className="tcur num" aria-label={'ปัจจุบัน ' + t}>
-              ปัจจุบัน {pct(summary.allocation.find((a) => a.type === t)?.percent ?? 0)}
+              ปัจจุบัน {pct(alloc.find((a) => a.type === t)?.percent ?? 0)}
             </span>
             <span className="tin">
               <input

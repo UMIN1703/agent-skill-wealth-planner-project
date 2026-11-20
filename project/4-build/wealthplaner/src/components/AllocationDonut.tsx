@@ -2,10 +2,13 @@ import type { Allocation } from '@/lib/portfolio.ts';
 
 // สี categorical (brand-aligned) — ครอบคลุมทุกประเภทสินทรัพย์ (CR-WPN-008)
 const COLORS: Record<string, string> = {
+  // ประเภทย่อย
   'หุ้นไทย': '#7B72FF', 'หุ้น ตปท.': '#F982FB', 'ETF': '#4FD1C5', 'กองทุนรวม': '#60A5FA',
   'กองทุน SSF': '#38BDF8', 'กองทุน RMF': '#818CF8', 'ทองคำ': '#C1FD42', 'คริปโต': '#FB923C',
   'เงินสด': '#9CA3AF', 'ตราสารหนี้': '#34D399', 'กองทุนสำรองเลี้ยงชีพ': '#A78BFA',
   'ประกัน': '#F472B6', 'อื่นๆ': '#6B7280',
+  // หมวดใหญ่ 7 (ตรงกับ AllocationTabs)
+  'หุ้นต่างประเทศ': '#60A5FA', 'เกษียณ': '#4FD1C5', 'เงินสำรองฉุกเฉิน': '#34D399',
 };
 // fallback แบบ deterministic (ถ้ามี label นอกเหนือ map เช่น หมวด) — ไม่ซ้ำเทาทั้งหมด
 const PALETTE = ['#7B72FF', '#F982FB', '#4FD1C5', '#60A5FA', '#C1FD42', '#FB923C', '#34D399', '#A78BFA', '#F472B6', '#38BDF8', '#FBBF24', '#2DD4BF'];
