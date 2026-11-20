@@ -16,7 +16,7 @@ export default function RiskStat() {
     <div className="pf-stat">
       <span className="t">ความเสี่ยงที่ประเมิน</span>
       {r
-        ? <span className="p">{r.short} <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 400 }}>({r.level}/5)</span></span>
+        ? <span className="p num">{r.level}<span style={{ fontSize: 13, color: 'var(--muted)', fontWeight: 400 }}>/5</span></span>
         : <Link href="/profile" className="p" style={{ fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}>ทำแบบประเมิน →</Link>}
     </div>
   );
