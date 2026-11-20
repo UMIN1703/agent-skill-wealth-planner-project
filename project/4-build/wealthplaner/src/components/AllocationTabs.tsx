@@ -15,8 +15,9 @@ const compact = (n: number) => {
 
 // สีประจำหมวด (CI เดิม) + fallback แบบ deterministic
 const CAT_COLORS: Record<string, string> = {
-  'หุ้นไทย': '#7B72FF', 'ต่างประเทศ': '#60A5FA', 'เกษียณ': '#4FD1C5',
-  'สินทรัพย์ทางเลือก': '#C1FD42', 'เงินสำรอง/ฉุกเฉิน': '#F982FB',
+  'หุ้นไทย': '#7B72FF', 'หุ้นต่างประเทศ': '#60A5FA', 'เกษียณ': '#4FD1C5',
+  'ทองคำ': '#C1FD42', 'คริปโต': '#FB923C', 'เงินสด': '#9CA3AF',
+  'เงินสำรองฉุกเฉิน': '#34D399', 'สำรองครอบครัว': '#A78BFA', 'ประกัน': '#F472B6',
 };
 const PALETTE = ['#7B72FF', '#F982FB', '#4FD1C5', '#60A5FA', '#C1FD42', '#FB923C', '#34D399', '#A78BFA'];
 function colorFor(name: string): string {

@@ -80,13 +80,13 @@ test('currentPrice → marketPrice + note carried · ราคาปัจจุ
 // Phase 2 — หมวด/สิทธิลดหย่อน auto จากประเภท (override ได้)
 test('เฟส2: category/taxBucket auto ตามประเภท + override', () => {
   const ssf = draftToDisplayAsset({ ...valid, type: 'fund_ssf', name: 'SSF' });
-  assert.equal(ssf.category, 'เกษียณ');
+  assert.equal(ssf.category, 'หุ้นต่างประเทศ'); // 9 หมวด: กองทุนรวม→ต่างประเทศ
   assert.equal(ssf.taxBucket, 'SSF');
   const btc = draftToDisplayAsset({ ...valid, type: 'crypto', name: 'BTC' });
-  assert.equal(btc.category, 'สินทรัพย์ทางเลือก');
+  assert.equal(btc.category, 'คริปโต');
   assert.equal(btc.taxBucket, ''); // ไม่มีสิทธิลดหย่อน
-  const ov = draftToDisplayAsset({ ...valid, category: 'reserve', taxBucket: 'rmf' });
-  assert.equal(ov.category, 'เงินสำรอง/ฉุกเฉิน');
+  const ov = draftToDisplayAsset({ ...valid, category: 'cash', taxBucket: 'rmf' });
+  assert.equal(ov.category, 'เงินสด');
   assert.equal(ov.taxBucket, 'RMF');
 });
 

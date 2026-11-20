@@ -4,7 +4,7 @@
 // Policy (F005 AC-E01): report which row/column is wrong; never import partially
 // in silence — invalid rows come back as explicit errors alongside the good ones.
 
-import { validateAssetDraft, type AssetDraft, type AssetType, type TaxBucket } from './asset.ts';
+import { validateAssetDraft, SHEET_CATEGORY_MAP, type AssetDraft, type AssetType, type TaxBucket } from './asset.ts';
 
 export const IMPORT_COLUMNS = ['name', 'type', 'quantity', 'costPrice', 'brokerChannel'] as const;
 
@@ -153,7 +153,7 @@ export function importSheetRows(header: string[], rows: string[][]): ImportResul
       quantity,
       costPrice: Math.round((costTotal / quantity) * 100) / 100,
       currentPrice: curTotal != null ? Math.round((curTotal / quantity) * 100) / 100 : null,
-      category: '', // ให้ draftToDisplayAsset หาเริ่มต้นตามประเภท (ตรงกับหมวดชีตอยู่แล้ว)
+      category: SHEET_CATEGORY_MAP[g(col.category)] ?? '', // ใช้หมวดตรงจากชีต (ไม่เจอ → เริ่มต้นตามประเภท)
       taxBucket: taxFromCell(g(col.tax)),
       brokerChannel: subtype || 'manual', // ชีตไม่มีโบรก → ใช้ sub-type เป็นช่องทาง
       note: g(col.note),

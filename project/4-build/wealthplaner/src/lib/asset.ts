@@ -10,8 +10,10 @@ export type AssetType =
   | 'th_stock' | 'foreign_stock' | 'etf' | 'fund' | 'fund_ssf' | 'fund_rmf'
   | 'gold' | 'crypto' | 'cash' | 'bond' | 'provident' | 'insurance' | 'other';
 
-// หมวดใหญ่ (จัดกลุ่มพอร์ตแบบชีต) + Tax Bucket (สิทธิลดหย่อนภาษี)
-export type AssetCategory = 'reserve' | 'retirement' | 'th_equity' | 'global' | 'alternative' | 'other';
+// หมวดใหญ่ (ให้ตรงชีต 9 หมวด) + Tax Bucket (สิทธิลดหย่อนภาษี)
+export type AssetCategory =
+  | 'cash' | 'emergency' | 'family' | 'insurance' | 'retirement'
+  | 'th_equity' | 'global' | 'gold' | 'crypto';
 export type TaxBucket = 'none' | 'ssf' | 'rmf' | 'pvd' | 'insurance';
 
 export type AssetDraft = {
@@ -83,21 +85,30 @@ export const ASSET_TYPE_LABELS: Record<AssetType, string> = {
   other: 'อื่นๆ',
 };
 
-/** หมวดใหญ่ — ใช้จัดกลุ่มพอร์ต (F002) ให้เหมือนชีต */
+/** หมวดใหญ่ 9 หมวด — ตรงกับคอลัมน์ Category ในชีต (F002) */
 export const ASSET_CATEGORY_LABELS: Record<AssetCategory, string> = {
-  reserve: 'เงินสำรอง/ฉุกเฉิน',
+  cash: 'เงินสด',
+  emergency: 'เงินสำรองฉุกเฉิน',
+  family: 'สำรองครอบครัว',
+  insurance: 'ประกัน',
   retirement: 'เกษียณ',
   th_equity: 'หุ้นไทย',
-  global: 'ต่างประเทศ',
-  alternative: 'สินทรัพย์ทางเลือก',
-  other: 'อื่นๆ',
+  global: 'หุ้นต่างประเทศ',
+  gold: 'ทองคำ',
+  crypto: 'คริปโต',
 };
 
-/** หมวดเริ่มต้นตามประเภท (ผู้ใช้แก้ได้) */
+/** หมวดเริ่มต้นตามประเภท (ผู้ใช้แก้ได้ · Family/Emergency เลือกเองเพราะแยกจาก type ไม่ได้) */
 export const DEFAULT_CATEGORY: Record<AssetType, AssetCategory> = {
   th_stock: 'th_equity', foreign_stock: 'global', etf: 'global', fund: 'global',
-  fund_ssf: 'retirement', fund_rmf: 'retirement', gold: 'alternative', crypto: 'alternative',
-  cash: 'reserve', bond: 'reserve', provident: 'retirement', insurance: 'reserve', other: 'other',
+  fund_ssf: 'global', fund_rmf: 'global', gold: 'gold', crypto: 'crypto',
+  cash: 'cash', bond: 'cash', provident: 'retirement', insurance: 'insurance', other: 'cash',
+};
+
+/** map ค่าคอลัมน์ Category ในชีต → หมวดของแอป (ใช้ตอน import เฟส 3) */
+export const SHEET_CATEGORY_MAP: Record<string, AssetCategory> = {
+  'Family Reserve': 'family', 'Emergency Fund': 'emergency', 'Cash': 'cash', 'Insurance': 'insurance',
+  'Retirement': 'retirement', 'หุ้นไทย': 'th_equity', 'หุ้นต่างประเทศ': 'global', 'ทอง': 'gold', 'Crypto': 'crypto',
 };
 
 export const TAX_BUCKET_LABELS: Record<TaxBucket, string> = {
