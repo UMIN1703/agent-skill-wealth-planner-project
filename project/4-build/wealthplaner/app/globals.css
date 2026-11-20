@@ -261,8 +261,7 @@ a:focus-visible, button:focus-visible, select:focus-visible { outline: 2px solid
 .seg-bar > span { border-radius: 999px; min-width: 5px; transition: width var(--motion); }
 .seg-leg2 { display: flex; flex-direction: column; }
 .seg-chip { display: grid; grid-template-columns: 11px 1fr auto auto; align-items: center; gap: 10px; font-size: 13px; padding: 12px 0; border-bottom: 1px solid var(--border); }
-.seg-chip:last-child { border-bottom: 0; padding-bottom: 0; }
-.seg-chip:first-child { padding-top: 2px; }
+.seg-chip:last-child { border-bottom: 0; }
 
 /* แถบเลือกหมวดสินทรัพย์ (chip เลื่อนแนวนอน) — CR-WPN-008 */
 .cat-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 8px; scrollbar-width: none; }

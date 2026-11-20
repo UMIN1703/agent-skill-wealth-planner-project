@@ -72,9 +72,9 @@ export default async function PortfolioPage() {
         <section className="card">
           <h2>สิทธิลดหย่อนภาษี (ต้นทุนที่ลงทุน)</h2>
           {taxRows.map((t) => (
-            <div key={t.bucket} className="pf-group" style={{ marginTop: 0, paddingTop: 10 }}>
-              <span className="gt">{t.bucket}</span>
-              <span className="gv num">฿{compact(t.costTHB)}</span>
+            <div key={t.bucket} className="arow">
+              <span className="nm">{t.bucket}</span>
+              <span className="rt"><div className="price num">฿{compact(t.costTHB)}</div></span>
             </div>
           ))}
         </section>
