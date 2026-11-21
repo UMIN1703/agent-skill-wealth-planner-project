@@ -9,7 +9,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import LogoutButton from '@/components/LogoutButton.tsx';
-import { summarizePortfolio, categoryAllocation } from '@/lib/portfolio.ts';
+import { summarizePortfolio, categoryAllocation, CATEGORY_TARGETS } from '@/lib/portfolio.ts';
 import { computeRebalanceGap, type Target } from '@/lib/rebalance.ts';
 import { sampleAssets } from '@/data/sampleAssets.ts';
 import { AllocationDonut } from '@/components/AllocationDonut.tsx';
@@ -22,8 +22,14 @@ export default function RebalancePage() {
   const types = alloc.map((a) => a.type);
   const centerLabel = '฿' + (summary.totalTHB / 1e6).toFixed(2) + 'M';
 
+  // เติมเป้าหมายเริ่มต้นจาก CATEGORY_TARGETS (ตรงกับแท็บ Targets ในชีต) — ไม่ขึ้น 0 ทั้งแถว
   const [target, setTarget] = useState<Record<string, string>>(() =>
-    Object.fromEntries(types.map((t) => [t, ''])),
+    Object.fromEntries(
+      types.map((t) => {
+        const tg = CATEGORY_TARGETS.find((c) => c.category === t);
+        return [t, tg ? String(tg.percent) : ''];
+      }),
+    ),
   );
 
   const anySet = types.some((t) => target[t].trim() !== '');

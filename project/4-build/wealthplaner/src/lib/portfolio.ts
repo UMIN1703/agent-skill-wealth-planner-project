@@ -47,14 +47,16 @@ export function categoryAllocation(assets: (HeldAsset & { category?: string })[]
 }
 
 // เป้าหมาย allocation ตามหมวด 7 หมวด (โมเดลกลาง · รวม = 100)
+// เป้าหมาย allocation — ตรงกับแท็บ Targets ในชีต Personal_Wealth_2026
+// (Insurance 2% ของชีตยุบรวมเข้าเงินสำรองฉุกเฉิน 10% → 12% ตาม taxonomy 7 หมวด)
 export const CATEGORY_TARGETS: { category: string; percent: number }[] = [
-  { category: 'เงินสด', percent: 10 },
-  { category: 'เงินสำรองฉุกเฉิน', percent: 10 },
-  { category: 'เกษียณ', percent: 20 },
-  { category: 'หุ้นไทย', percent: 15 },
-  { category: 'หุ้นต่างประเทศ', percent: 25 },
+  { category: 'เงินสด', percent: 0 },
+  { category: 'เงินสำรองฉุกเฉิน', percent: 12 },
+  { category: 'เกษียณ', percent: 13 },
+  { category: 'หุ้นไทย', percent: 18 },
+  { category: 'หุ้นต่างประเทศ', percent: 45 },
   { category: 'ทองคำ', percent: 10 },
-  { category: 'คริปโต', percent: 10 },
+  { category: 'คริปโต', percent: 2 },
 ];
 
 export type TaxSummaryRow = { bucket: string; costTHB: number };
