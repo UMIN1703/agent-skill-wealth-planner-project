@@ -64,6 +64,11 @@ async function ensureHeaderRow(token: string, spreadsheetId: string): Promise<vo
   });
 }
 
+/** หาสเปรดชีต ledger ที่มีอยู่ (ไม่สร้างใหม่) — คืน id หรือ null · ใช้โชว์สถานะในหน้าตั้งค่า Drive */
+export async function findLedger(token: string): Promise<string | null> {
+  return findFile(token, driveSearchQuery(LEDGER_NAME, 'application/vnd.google-apps.spreadsheet'));
+}
+
 /** หา/สร้างสเปรดชีต ledger คืน spreadsheetId (รับประกันว่ามีหัวคอลัมน์เสมอ) */
 export async function ensureLedger(token: string): Promise<string> {
   const existing = await findFile(

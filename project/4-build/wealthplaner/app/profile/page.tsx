@@ -1,20 +1,15 @@
 // หน้าโปรไฟล์ (mockup) — แสดงข้อมูลผู้ใช้จาก session + รายการตั้งค่า (ยังไม่ทำงานจริง)
 // ฟีเจอร์จริง (แก้โปรไฟล์/แจ้งเตือน/ความเป็นส่วนตัว) เป็นงานถัดไป — ตอนนี้เป็นภาพตัวอย่าง
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { User, Bell, Settings, Shield, Link2, ChevronRight } from 'lucide-react';
 import { auth } from '@/auth.ts';
 import LogoutButton from '@/components/LogoutButton.tsx';
 import RiskAssessment from '@/components/RiskAssessment.tsx';
+import DisplayName from '@/components/DisplayName.tsx';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
-
-const ROWS = [
-  { Icon: Settings, label: 'ตั้งค่าบัญชี' },
-  { Icon: Bell, label: 'การแจ้งเตือน' },
-  { Icon: Link2, label: 'เชื่อมบัญชี Google Drive' },
-  { Icon: Shield, label: 'ความเป็นส่วนตัว' },
-];
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -25,6 +20,14 @@ export default async function ProfilePage() {
   const provider = session.provider === 'google' ? 'Google' : session.provider === 'line' ? 'LINE' : '—';
   const contact = session.user.email
     ?? (session.lineUserId ? 'LINE ID: ' + session.lineUserId.slice(0, 10) + '…' : 'ไม่ระบุ');
+
+  const driveConnected = session.provider === 'google' && !!session.accessToken;
+  const ROWS = [
+    { Icon: Settings, label: 'ตั้งค่าบัญชี', status: '', href: '/profile/account' },
+    { Icon: Bell, label: 'การแจ้งเตือน', status: '', href: '/profile/notifications' },
+    { Icon: Link2, label: 'เชื่อมบัญชี Google Drive', status: driveConnected ? 'เชื่อมแล้ว' : 'ยังไม่เชื่อม', href: '/profile/drive' },
+    { Icon: Shield, label: 'ความเป็นส่วนตัว', status: '', href: '/profile/privacy' },
+  ];
 
   return (
     <main className="app">
@@ -42,7 +45,7 @@ export default async function ProfilePage() {
           {image ? <img src={image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <User size={34} />}
         </span>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 18, fontWeight: 700 }}>{name}</div>
+          <div style={{ fontSize: 18, fontWeight: 700 }}><DisplayName fallback={name} /></div>
           <div className="sub" style={{ fontSize: 13, opacity: 0.8, wordBreak: 'break-all' }}>{contact}</div>
           <span className="chip" style={{ fontSize: 12, marginTop: 6, display: 'inline-block', padding: '2px 10px' }}>
             เข้าสู่ระบบด้วย {provider}
@@ -53,17 +56,24 @@ export default async function ProfilePage() {
       <RiskAssessment />
 
       <section className="card" aria-label="ตั้งค่า">
-        {ROWS.map(({ Icon, label }) => (
-          <div key={label} style={{
+        {ROWS.map(({ Icon, label, status, href }, i) => {
+          const live = status !== 'เร็วๆ นี้';
+          const inner = (
+            <>
+              <Icon size={20} style={{ opacity: 0.85 }} />
+              <span style={{ flex: 1 }}>{label}</span>
+              <span className="sub" style={{ fontSize: 12, opacity: live ? 0.85 : 0.6, color: status === 'เชื่อมแล้ว' ? '#34D399' : undefined }}>{status}</span>
+              <ChevronRight size={18} style={{ opacity: 0.4 }} />
+            </>
+          );
+          const rowStyle = {
             display: 'flex', alignItems: 'center', gap: 12, padding: '14px 2px',
-            borderBottom: '1px solid var(--border)',
-          }}>
-            <Icon size={20} style={{ opacity: 0.85 }} />
-            <span style={{ flex: 1 }}>{label}</span>
-            <span className="sub" style={{ fontSize: 12, opacity: 0.6 }}>เร็วๆ นี้</span>
-            <ChevronRight size={18} style={{ opacity: 0.4 }} />
-          </div>
-        ))}
+            borderBottom: i < ROWS.length - 1 ? '1px solid var(--border)' : 'none',
+          } as const;
+          return href
+            ? <Link key={label} href={href} style={{ ...rowStyle, color: 'inherit', textDecoration: 'none' }}>{inner}</Link>
+            : <div key={label} style={rowStyle}>{inner}</div>;
+        })}
       </section>
 
       <p className="note" style={{ textAlign: 'center' }}>หน้านี้เป็นตัวอย่าง (mockup) — ฟีเจอร์จะตามมาภายหลัง</p>
