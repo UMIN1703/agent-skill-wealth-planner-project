@@ -1,13 +1,8 @@
-import { summarizePortfolio, marketValueTHB, taxDeductionSummary, categoryAllocation, CATEGORY_TARGETS } from '@/lib/portfolio.ts';
-import { computeIncomePercent } from '@/lib/finance.ts';
-import { sampleAssets } from '@/data/sampleAssets.ts';
+import { summarizePortfolio, taxDeductionSummary, categoryAllocation, CATEGORY_TARGETS, categoryRiskRank } from '@/lib/portfolio.ts';
 import AllocationTabs, { type AllocRow } from '@/components/AllocationTabs.tsx';
 import RiskStat from '@/components/RiskStat.tsx';
 import PortfolioHero from '@/components/PortfolioHero.tsx';
-import AssetList, { type AssetRowData } from '@/components/AssetList.tsx';
-import LogoutButton from '@/components/LogoutButton.tsx';
-import { auth } from '@/auth.ts';
-import { listHoldings, userKeyFromSession } from '@/lib/supabase.ts';
+import { loadAssets } from '@/lib/portfolioData.ts';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic'; // ข้อมูลเฉพาะผู้ใช้ — เรนเดอร์สดทุกครั้ง
@@ -21,23 +16,13 @@ const compact = (n: number) => {
 
 // หน้า Portfolio (F002) — restyle · ยอดจริงจาก Supabase (CR-WPN-006) · ยังไม่ตั้งค่า → เดโม
 export default async function PortfolioPage() {
-  const session = await auth();
-  const userKey = userKeyFromSession(session);
-  const real = userKey ? await listHoldings(userKey) : null;
-  // ยังไม่มีข้อมูลจริง (ยังไม่เชื่อม / ล็อกเอาต์ / พอร์ตว่าง) → โชว์พอร์ตตัวอย่างเต็ม ๆ (ป้ายเดโม)
-  const useDemo = !real || real.length === 0;
-  const assets = useDemo ? sampleAssets : real;
-  const isDemo = useDemo;
+  const { assets, isDemo } = await loadAssets();
 
   const s = summarizePortfolio(assets);
   const cost = s.totalTHB - s.totalIncomeTHB;
   const incomePct = cost > 0 ? (s.totalIncomeTHB / cost) * 100 : 0;
   const up = s.totalIncomeTHB >= 0;
 
-  const rows: AssetRowData[] = assets.map((a) => ({
-    name: a.name, broker: a.brokerChannel, group: a.category ?? a.type, valueTHB: marketValueTHB(a),
-    pct: computeIncomePercent(a), stale: a.updatedMin > 15,
-  }));
   const taxRows = taxDeductionSummary(assets);
 
   // สัดส่วนตามหมวด (ปัจจุบัน) + เป้าหมาย → รวมเป็นแถวให้ AllocationTabs
@@ -49,13 +34,12 @@ export default async function PortfolioPage() {
       const a = catAlloc.find((x) => x.type === name);
       return { name, curPct: a?.percent ?? 0, curValueTHB: a?.valueTHB ?? 0, tgtPct: tgt.get(name) ?? 0 };
     })
-    .sort((x, y) => y.curValueTHB - x.curValueTHB || y.tgtPct - x.tgtPct);
+    .sort((x, y) => categoryRiskRank(x.name) - categoryRiskRank(y.name)); // เรียงตามความเสี่ยงน้อย→มาก
 
   return (
     <main className="app">
       <div className="topbar">
         <h1>พอร์ตรวมทุกโบรก</h1>
-        <span className="topbar-actions"><LogoutButton /></span>
       </div>
 
       <PortfolioHero totalTHB={s.totalTHB} incomeTHB={s.totalIncomeTHB} incomePct={incomePct} />
@@ -79,8 +63,6 @@ export default async function PortfolioPage() {
           ))}
         </section>
       )}
-
-      <AssetList rows={rows} totalTHB={s.totalTHB} />
 
       {isDemo && <p className="note" style={{ textAlign: 'center' }}>ข้อมูลเดโม (ตัวอย่าง) — เพิ่มสินทรัพย์หรือนำเข้าชีตเพื่อดูพอร์ตจริงของคุณ</p>}
     </main>

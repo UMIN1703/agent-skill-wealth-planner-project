@@ -8,7 +8,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowUp, ArrowDown, Minus } from 'lucide-react';
-import LogoutButton from '@/components/LogoutButton.tsx';
 import { summarizePortfolio, categoryAllocation, CATEGORY_TARGETS } from '@/lib/portfolio.ts';
 import { computeRebalanceGap, type Target } from '@/lib/rebalance.ts';
 import { sampleAssets } from '@/data/sampleAssets.ts';
@@ -43,7 +42,6 @@ export default function RebalancePage() {
     <main className="app">
       <div className="topbar">
         <h1>ปรับสัดส่วน (Rebalance)</h1>
-        <LogoutButton />
       </div>
 
       <section className="card">

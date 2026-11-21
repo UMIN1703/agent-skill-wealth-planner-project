@@ -47,6 +47,16 @@ export function categoryAllocation(assets: (HeldAsset & { category?: string })[]
 }
 
 // เป้าหมาย allocation ตามหมวด 7 หมวด (โมเดลกลาง · รวม = 100)
+// ลำดับความเสี่ยงของหมวด (น้อย→มาก) — ใช้เรียงลิสต์สินทรัพย์/สัดส่วนให้สอดคล้องกันทั้งแอป
+export const CATEGORY_RISK_ORDER = [
+  'เงินสด', 'เงินสำรองฉุกเฉิน', 'เกษียณ', 'ทองคำ', 'หุ้นไทย', 'หุ้นต่างประเทศ', 'คริปโต',
+] as const;
+/** อันดับความเสี่ยง (0 = เสี่ยงน้อยสุด) · หมวดนอกรายการ → 99 (ไปท้ายสุด) */
+export function categoryRiskRank(name: string): number {
+  const i = (CATEGORY_RISK_ORDER as readonly string[]).indexOf(name);
+  return i === -1 ? 99 : i;
+}
+
 // เป้าหมาย allocation — ตรงกับแท็บ Targets ในชีต Personal_Wealth_2026
 // (Insurance 2% ของชีตยุบรวมเข้าเงินสำรองฉุกเฉิน 10% → 12% ตาม taxonomy 7 หมวด)
 export const CATEGORY_TARGETS: { category: string; percent: number }[] = [

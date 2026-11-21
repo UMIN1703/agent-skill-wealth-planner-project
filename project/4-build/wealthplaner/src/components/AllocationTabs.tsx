@@ -3,6 +3,7 @@
 // สัดส่วน Asset Allocation แบบ 2 แท็บ (CR-WPN-008) — ไม่มี donut · กรุ๊ปตามหมวดใหญ่
 //  ① ปัจจุบัน: แถบ % ต่อหมวด · ② เป้าหมาย: แถบคู่ ปัจจุบัน vs เป้า + ส่วนต่าง (read-only)
 import { useState } from 'react';
+import Link from 'next/link';
 
 export type AllocRow = { name: string; curPct: number; curValueTHB: number; tgtPct: number };
 
@@ -77,6 +78,10 @@ export default function AllocationTabs({ rows }: { rows: AllocRow[] }) {
           <p className="note-muted" style={{ marginTop: 4 }}>เป้าหมายอิงโมเดลกลาง — แก้ค่าเป้าได้ที่หน้า “ปรับสมดุล”</p>
         </div>
       )}
+
+      <Link href="/rebalance" className="btn-ghost" style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+        ปรับสมดุลพอร์ต
+      </Link>
     </section>
   );
 }

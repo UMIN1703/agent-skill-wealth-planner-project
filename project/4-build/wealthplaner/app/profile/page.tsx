@@ -2,7 +2,7 @@
 // ฟีเจอร์จริง (แก้โปรไฟล์/แจ้งเตือน/ความเป็นส่วนตัว) เป็นงานถัดไป — ตอนนี้เป็นภาพตัวอย่าง
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { User, Bell, Settings, Shield, Link2, ChevronRight } from 'lucide-react';
+import { User, Bell, Settings, Shield, Link2, Scale, FileUp, ChevronRight } from 'lucide-react';
 import { auth } from '@/auth.ts';
 import LogoutButton from '@/components/LogoutButton.tsx';
 import RiskAssessment from '@/components/RiskAssessment.tsx';
@@ -17,12 +17,13 @@ export default async function ProfilePage() {
 
   const name = session.user.name ?? 'ผู้ใช้ WealthPlaner';
   const image = session.user.image ?? undefined;
-  const provider = session.provider === 'google' ? 'Google' : session.provider === 'line' ? 'LINE' : '—';
   const contact = session.user.email
     ?? (session.lineUserId ? 'LINE ID: ' + session.lineUserId.slice(0, 10) + '…' : 'ไม่ระบุ');
 
   const driveConnected = session.provider === 'google' && !!session.accessToken;
   const ROWS = [
+    { Icon: Scale, label: 'ปรับสมดุลพอร์ต (Rebalance)', status: '', href: '/rebalance' },
+    { Icon: FileUp, label: 'นำเข้าจาก Google Sheet', status: '', href: '/import' },
     { Icon: Settings, label: 'ตั้งค่าบัญชี', status: '', href: '/profile/account' },
     { Icon: Bell, label: 'การแจ้งเตือน', status: '', href: '/profile/notifications' },
     { Icon: Link2, label: 'เชื่อมบัญชี Google Drive', status: driveConnected ? 'เชื่อมแล้ว' : 'ยังไม่เชื่อม', href: '/profile/drive' },
@@ -33,7 +34,6 @@ export default async function ProfilePage() {
     <main className="app">
       <div className="topbar">
         <h1>โปรไฟล์</h1>
-        <LogoutButton />
       </div>
 
       <section className="card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -47,9 +47,7 @@ export default async function ProfilePage() {
         <div style={{ minWidth: 0 }}>
           <div style={{ fontSize: 18, fontWeight: 700 }}><DisplayName fallback={name} /></div>
           <div className="sub" style={{ fontSize: 13, opacity: 0.8, wordBreak: 'break-all' }}>{contact}</div>
-          <span className="chip" style={{ fontSize: 12, marginTop: 6, display: 'inline-block', padding: '2px 10px' }}>
-            เข้าสู่ระบบด้วย {provider}
-          </span>
+          <LogoutButton label />
         </div>
       </section>
 

@@ -48,7 +48,7 @@ type HoldingRow = {
   name: string; type: string; broker_channel: string;
   quantity: number; cost_price: number; market_price: number | null;
   fx_to_thb: number; currency: string | null; source: string; note: string | null;
-  category: string | null; tax_bucket: string | null;
+  category: string | null; tax_bucket: string | null; created_at?: string;
 };
 
 function rowToHeld(r: HoldingRow): DisplayAsset {
@@ -57,7 +57,7 @@ function rowToHeld(r: HoldingRow): DisplayAsset {
     quantity: r.quantity, costPrice: r.cost_price, marketPrice: r.market_price,
     fxToThb: r.fx_to_thb, currency: r.currency ?? undefined,
     note: r.note ?? undefined, category: r.category ?? undefined, taxBucket: r.tax_bucket ?? undefined,
-    source: r.source, updatedMin: 0,
+    source: r.source, updatedMin: 0, createdAt: r.created_at,
   };
 }
 

@@ -7,7 +7,6 @@
 
 import { useState } from 'react';
 import { FileUp, CheckCircle2, AlertTriangle } from 'lucide-react';
-import LogoutButton from '@/components/LogoutButton.tsx';
 import { importAssets, IMPORT_COLUMNS, type ImportResult } from '@/lib/import.ts';
 
 const TEMPLATE = [
@@ -62,7 +61,6 @@ export default function ImportPage() {
     <main className="app">
       <div className="topbar">
         <h1>นำเข้าจากสเปรดชีต</h1>
-        <LogoutButton />
       </div>
 
       {/* เฟส 3 — นำเข้าจาก Google Sheet จริง */}

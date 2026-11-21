@@ -9,7 +9,6 @@
 import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Check, Plus, Sparkles } from 'lucide-react';
-import LogoutButton from '@/components/LogoutButton.tsx';
 import {
   validateAssetDraft,
   isDuplicate,
@@ -147,7 +146,6 @@ function AddAssetInner() {
     <main className="app">
       <div className="topbar">
         <h1>เพิ่มสินทรัพย์</h1>
-        <LogoutButton />
       </div>
 
       {fromSlip && (

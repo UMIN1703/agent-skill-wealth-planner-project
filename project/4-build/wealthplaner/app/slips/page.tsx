@@ -4,7 +4,6 @@
 import { redirect } from 'next/navigation';
 import { Receipt, Link2, CheckCircle2 } from 'lucide-react';
 import { auth } from '@/auth.ts';
-import LogoutButton from '@/components/LogoutButton.tsx';
 import SlipReview from '@/components/SlipReview.tsx';
 import { listPendingSlips, stagingConfigured, demoPendingSlip } from '@/lib/slipStore.ts';
 import { isGoogleLinked } from '@/lib/googleLink.ts';
@@ -52,7 +51,6 @@ export default async function SlipsPage({ searchParams }: { searchParams: { demo
     <main className="app">
       <div className="topbar">
         <h1>สลิปรอยืนยัน</h1>
-        <LogoutButton />
       </div>
 
       {linkMsg && (
