@@ -4,7 +4,8 @@
 // รองรับ "ซ่อนจำนวนเงิน" (wp_privacy) — ปิดบังตัวเลข + ปุ่มรูปตาสลับได้ (ซิงค์กับหน้าความเป็นส่วนตัว)
 import { useState, useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
-import { PRIVACY_KEY, type Privacy } from '@/components/PrivacySettings.tsx';
+import { PRIVACY_KEY } from '@/components/PrivacySettings.tsx';
+import { readHideAmounts } from '@/components/Amount.tsx';
 
 const fmt = (n: number) => new Intl.NumberFormat('th-TH', { maximumFractionDigits: 0 }).format(Math.round(n));
 const MASK = '••••••';
@@ -18,16 +19,18 @@ export default function PortfolioHero({
   const sign = up ? '+' : '−';
 
   useEffect(() => {
-    try {
-      const s = localStorage.getItem(PRIVACY_KEY);
-      if (s) setHidden(!!(JSON.parse(s) as Privacy).hideAmounts);
-    } catch { /* ignore */ }
+    const sync = () => setHidden(readHideAmounts());
+    sync();
+    window.addEventListener('wp-privacy', sync);
+    window.addEventListener('storage', sync);
+    return () => { window.removeEventListener('wp-privacy', sync); window.removeEventListener('storage', sync); };
   }, []);
 
   function toggleHidden() {
     setHidden((v) => {
       const next = !v;
       try { localStorage.setItem(PRIVACY_KEY, JSON.stringify({ hideAmounts: next })); } catch { /* ignore */ }
+      window.dispatchEvent(new Event('wp-privacy')); // sync ทุก <Amount> ในหน้าเดียวกัน
       return next;
     });
   }

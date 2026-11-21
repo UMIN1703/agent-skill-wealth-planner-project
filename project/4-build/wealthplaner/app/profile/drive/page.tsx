@@ -41,9 +41,9 @@ export default async function DriveSettingsPage() {
           <span style={{
             width: 44, height: 44, borderRadius: 12, flexShrink: 0, display: 'inline-flex',
             alignItems: 'center', justifyContent: 'center',
-            background: connected ? 'rgba(52,211,153,.14)' : 'var(--brand-tint)',
-            border: `1px solid ${connected ? '#34D399' : 'var(--brand)'}`,
-            color: connected ? '#34D399' : 'var(--text)',
+            background: connected ? 'color-mix(in srgb, var(--gain) 14%, transparent)' : 'var(--brand-tint)',
+            border: `1px solid ${connected ? 'var(--gain)' : 'var(--brand)'}`,
+            color: connected ? 'var(--gain)' : 'var(--text)',
           }}>
             {connected ? <Check size={22} /> : <FolderOpen size={22} />}
           </span>
@@ -66,12 +66,12 @@ export default async function DriveSettingsPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 2px' }}>
               <FileSpreadsheet size={18} style={{ opacity: 0.85, flexShrink: 0 }} />
               <span style={{ flex: 1 }}>สร้าง/แก้ไฟล์ที่แอปสร้าง (Drive)</span>
-              <Check size={16} style={{ color: '#34D399' }} />
+              <Check size={16} style={{ color: 'var(--gain)' }} />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 2px' }}>
               <ShieldCheck size={18} style={{ opacity: 0.85, flexShrink: 0 }} />
               <span style={{ flex: 1 }}>อ่าน/เขียน Google Sheets ของแอป</span>
-              <Check size={16} style={{ color: '#34D399' }} />
+              <Check size={16} style={{ color: 'var(--gain)' }} />
             </div>
           </section>
 

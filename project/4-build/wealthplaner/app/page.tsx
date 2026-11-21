@@ -2,6 +2,7 @@ import { summarizePortfolio, taxDeductionSummary, categoryAllocation, CATEGORY_T
 import AllocationTabs, { type AllocRow } from '@/components/AllocationTabs.tsx';
 import RiskStat from '@/components/RiskStat.tsx';
 import PortfolioHero from '@/components/PortfolioHero.tsx';
+import Amount from '@/components/Amount.tsx';
 import { loadAssets } from '@/lib/portfolioData.ts';
 
 export const runtime = 'edge';
@@ -45,8 +46,8 @@ export default async function PortfolioPage() {
       <PortfolioHero totalTHB={s.totalTHB} incomeTHB={s.totalIncomeTHB} incomePct={incomePct} />
 
       <div className="pf-stats">
-        <div className="pf-stat"><span className="t">ต้นทุนรวม</span><span className="p num">฿{compact(cost)}</span></div>
-        <div className="pf-stat"><span className="t">Total P&amp;L</span><span className={'p num ' + (up ? 'g' : 'l')}>{up ? '+' : '−'}฿{compact(Math.abs(s.totalIncomeTHB))}</span></div>
+        <div className="pf-stat"><span className="t">ต้นทุนรวม</span><span className="p num">฿<Amount>{compact(cost)}</Amount></span></div>
+        <div className="pf-stat"><span className="t">Total P&amp;L</span><span className={'p num ' + (up ? 'g' : 'l')}>{up ? '+' : '−'}฿<Amount>{compact(Math.abs(s.totalIncomeTHB))}</Amount></span></div>
         <RiskStat />
       </div>
 
@@ -58,7 +59,7 @@ export default async function PortfolioPage() {
           {taxRows.map((t) => (
             <div key={t.bucket} className="arow">
               <span className="nm">{t.bucket}</span>
-              <span className="rt"><div className="price num">฿{compact(t.costTHB)}</div></span>
+              <span className="rt"><div className="price num">฿<Amount>{compact(t.costTHB)}</Amount></div></span>
             </div>
           ))}
         </section>

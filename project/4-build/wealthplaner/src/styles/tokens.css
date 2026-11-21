@@ -19,6 +19,8 @@
   --gain: #3DDC84;
   --loss: #FF6B6B;
   --warn: #C9A227;
+  --info: #60A5FA;   /* กลาง/สับเปลี่ยน (neutral action) */
+  --line: #06C755;   /* แบรนด์ LINE (ช่องทางแจ้งเตือน) */
 
   /* text */
   --text: #F4F4F5;

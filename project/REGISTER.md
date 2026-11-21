@@ -31,7 +31,7 @@
 | DSN-WPN-001 | ระบบออกแบบและข้อกำหนดหน้าจอ (Neon Dark) — WealthPlaner | 00 | ร่าง | 2026-08-31 |
 | QAR-WPN-001 | รายงานการประกันคุณภาพ (F001–F006) — WealthPlaner | 00 | ร่าง | 2026-09-19 |
 | RVW-WPN-001 | รายงานผลการทบทวนโค้ด — รอบ IA restructure (CR-WPN-009) | 00 | อนุมัติแล้ว | 2026-11-21 |
-| QAR-WPN-002 | รายงานการประกันคุณภาพ — รอบ IA restructure (CR-WPN-009) | 00 | อนุมัติแล้ว | 2026-11-21 |
+| QAR-WPN-002 | รายงานการประกันคุณภาพ — รอบ IA restructure (CR-WPN-009) | 01 | อนุมัติแล้ว | 2026-11-21 |
 
 สถานะที่ใช้ได้ — `ร่าง` · `รอทบทวน` · `อนุมัติแล้ว` · `ยกเลิก`
 
@@ -87,3 +87,4 @@ skill `document-control`
 | 2026-11-21 | — (build) | สร้าง (code) | สร้างตาม CR-WPN-009: /assets, /activity, /profile/{account,notifications,drive,privacy}, portfolioData.loadAssets, categoryRiskRank, LogoutButton label variant · tsc สะอาด · commits a52c74f/192dbfa/fd208e7 push แล้ว |
 | 2026-11-21 | RVW-WPN-001 | สร้าง+อนุมัติ | ทบทวนโค้ดรอบ CR-WPN-009 (27 ไฟล์) · 1 MAJOR (ขาดเทส categoryRiskRank/CATEGORY_TARGETS) + 4 MINOR → แก้ MAJOR (เพิ่ม 2 เทส, 54/54 ผ่าน) + reuse (ดึง Toggle รวมเป็น Toggle.tsx) → APPROVE · เหลือ 3 MINOR รับทราบ/เลื่อน/ส่ง QA (privacy mask hero-only) |
 | 2026-11-21 | QAR-WPN-002 | สร้าง+อนุมัติ | QA รอบ CR-WPN-009 (functional/visual/a11y, static) · Verdict PASS WITH ADVISORIES · 0 BLOCKER, 2 MAJOR (ซ่อนเงินปิดแค่ hero หน้าแรก · token drift hardcode สีแทน var(--gain)/--loss), 4 MINOR · a11y โครงสร้างผ่าน · gap: ยังไม่รัน axe/Playwright + browsers=TBD |
+| 2026-11-21 | QAR-WPN-002 | แก้ไข (rev 01) | ปิด 2 MAJOR: (1) `<Amount>` ซ่อนยอดทุกหน้า (home/assets/activity/legend) sync สดผ่าน event wp-privacy (2) token drift → เพิ่ม --info/--line + color-mix, แทน hardcode สีหมด · เหลือเฉพาะ MINOR · tsc สะอาด, 54/54 |

@@ -60,7 +60,7 @@ export default async function ProfilePage() {
             <>
               <Icon size={20} style={{ opacity: 0.85 }} />
               <span style={{ flex: 1 }}>{label}</span>
-              <span className="sub" style={{ fontSize: 12, opacity: live ? 0.85 : 0.6, color: status === 'เชื่อมแล้ว' ? '#34D399' : undefined }}>{status}</span>
+              <span className="sub" style={{ fontSize: 12, opacity: live ? 0.85 : 0.6, color: status === 'เชื่อมแล้ว' ? 'var(--gain)' : undefined }}>{status}</span>
               <ChevronRight size={18} style={{ opacity: 0.4 }} />
             </>
           );

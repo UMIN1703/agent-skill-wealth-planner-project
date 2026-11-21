@@ -1,6 +1,7 @@
 import { Delta } from './Delta.tsx';
+import Amount from './Amount.tsx';
 
-const baht = (n: number) => '฿' + new Intl.NumberFormat('th-TH', { maximumFractionDigits: 0 }).format(Math.round(n));
+const num = (n: number) => new Intl.NumberFormat('th-TH', { maximumFractionDigits: 0 }).format(Math.round(n));
 
 export function AssetRow({
   name, broker, valueTHB, percent, stale,
@@ -12,7 +13,7 @@ export function AssetRow({
         <span className="broker">{broker}</span>
       </span>
       <span className="rt">
-        <div className="price num">{baht(valueTHB)}</div>
+        <div className="price num">฿<Amount>{num(valueTHB)}</Amount></div>
         {stale ? <span className="pstatus stale num">ราคาเก่า</span> : <Delta percent={percent} />}
       </span>
     </div>

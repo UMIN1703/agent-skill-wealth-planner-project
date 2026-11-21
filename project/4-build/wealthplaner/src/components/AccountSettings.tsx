@@ -57,7 +57,7 @@ export default function AccountSettings({
           {initial !== defaultName && (
             <button type="button" className="btn-ghost" onClick={reset}>ใช้ชื่อจาก {provider}</button>
           )}
-          {savedTick && <span className="sub" style={{ fontSize: 13, color: '#34D399' }}>บันทึกแล้ว</span>}
+          {savedTick && <span className="sub" style={{ fontSize: 13, color: 'var(--gain)' }}>บันทึกแล้ว</span>}
         </div>
         <p className="note-muted">ชื่อนี้จะแสดงที่หัวโปรไฟล์แทนชื่อจากผู้ให้บริการ (เก็บในเครื่องนี้)</p>
       </section>

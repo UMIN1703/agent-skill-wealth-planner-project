@@ -4,6 +4,7 @@
 // เรียงหมวดตามความเสี่ยงน้อย→มาก · ยอดรวม/สัดส่วนต่อกลุ่ม
 import { useState } from 'react';
 import { AssetRow } from './AssetRow.tsx';
+import Amount from './Amount.tsx';
 import { categoryRiskRank } from '@/lib/portfolio.ts';
 
 export type AssetRowData = { name: string; broker: string; group: string; valueTHB: number; pct: number | null; stale: boolean };
@@ -49,7 +50,7 @@ export default function AssetList({ rows, totalTHB }: { rows: AssetRowData[]; to
         <div key={g.group} className="pf-group-wrap">
           <div className="pf-group">
             <span className="gt">{g.group}</span>
-            <span className="gv num">฿{compact(g.sub)} · {totalTHB > 0 ? Math.round((g.sub / totalTHB) * 100) : 0}%</span>
+            <span className="gv num">฿<Amount>{compact(g.sub)}</Amount> · {totalTHB > 0 ? Math.round((g.sub / totalTHB) * 100) : 0}%</span>
           </div>
           {g.items.map((r, i) => (
             <AssetRow key={r.name + r.broker + i} name={r.name} broker={r.broker} valueTHB={r.valueTHB} percent={r.pct} stale={r.stale} />

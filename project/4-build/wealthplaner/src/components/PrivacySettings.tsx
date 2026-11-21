@@ -25,6 +25,7 @@ export default function PrivacySettings() {
     setHideAmounts((v) => {
       const next = !v;
       try { localStorage.setItem(PRIVACY_KEY, JSON.stringify({ hideAmounts: next })); } catch { /* ignore */ }
+      window.dispatchEvent(new Event('wp-privacy')); // sync ทุก <Amount> + hero
       return next;
     });
   }
@@ -46,7 +47,7 @@ export default function PrivacySettings() {
           <Eye size={20} style={{ opacity: 0.85, flexShrink: 0 }} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontWeight: 600 }}>ซ่อนจำนวนเงิน</div>
-            <div className="sub" style={{ fontSize: 12, color: 'var(--muted)' }}>ปิดบังตัวเลขมูลค่า/กำไร-ขาดทุนในหน้าพอร์ต</div>
+            <div className="sub" style={{ fontSize: 12, color: 'var(--muted)' }}>ปิดบังตัวเลขยอดเงินทุกหน้า (พอร์ต · สินทรัพย์ · ล่าสุด)</div>
           </div>
           <Toggle on={hideAmounts} onClick={toggleHide} label="ซ่อนจำนวนเงิน" />
         </div>
@@ -73,10 +74,10 @@ export default function PrivacySettings() {
       </section>
 
       <button type="button" className="btn-ghost" onClick={clearLocal}
-        style={{ display: 'flex', justifyContent: 'center', width: '100%', color: '#F87171', borderColor: 'rgba(248,113,113,.4)' }}>
+        style={{ display: 'flex', justifyContent: 'center', width: '100%', color: 'var(--loss)', borderColor: 'color-mix(in srgb, var(--loss) 40%, transparent)' }}>
         <Trash2 size={17} /> ล้างข้อมูลในเครื่องนี้
       </button>
-      {cleared && <p className="note" style={{ textAlign: 'center', color: '#34D399' }}>ล้างข้อมูลในเครื่องแล้ว</p>}
+      {cleared && <p className="note" style={{ textAlign: 'center', color: 'var(--gain)' }}>ล้างข้อมูลในเครื่องแล้ว</p>}
       <p className="note-muted">การล้างในเครื่องไม่กระทบรายการพอร์ตในฐานข้อมูลหรือไฟล์ใน Google Drive</p>
     </>
   );

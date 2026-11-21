@@ -43,9 +43,9 @@ export default function NotificationSettings({ lineConnected }: { lineConnected:
           <span style={{
             width: 40, height: 40, borderRadius: 12, flexShrink: 0, display: 'inline-flex',
             alignItems: 'center', justifyContent: 'center',
-            background: lineConnected ? 'rgba(6,199,85,.14)' : 'var(--brand-tint)',
-            border: '1px solid ' + (lineConnected ? '#06C755' : 'var(--border)'),
-            color: lineConnected ? '#06C755' : 'var(--muted)',
+            background: lineConnected ? 'color-mix(in srgb, var(--line) 14%, transparent)' : 'var(--brand-tint)',
+            border: '1px solid ' + (lineConnected ? 'var(--line)' : 'var(--border)'),
+            color: lineConnected ? 'var(--line)' : 'var(--muted)',
           }}>
             <MessageSquareText size={20} />
           </span>

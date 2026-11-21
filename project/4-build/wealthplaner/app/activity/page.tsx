@@ -3,6 +3,7 @@
 import { marketValueTHB } from '@/lib/portfolio.ts';
 import { loadAssets } from '@/lib/portfolioData.ts';
 import type { TxAction } from '@/data/sampleAssets.ts';
+import Amount from '@/components/Amount.tsx';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -11,9 +12,9 @@ const fmt = (n: number) => new Intl.NumberFormat('th-TH', { maximumFractionDigit
 
 // ป้ายการกระทำ (ซื้อ/ขาย/สับเปลี่ยน) — สีบอกประเภท
 const ACTION: Record<TxAction, { label: string; color: string }> = {
-  buy: { label: 'ซื้อ', color: '#34D399' },
-  sell: { label: 'ขาย', color: '#F87171' },
-  switch: { label: 'สับเปลี่ยน', color: '#60A5FA' },
+  buy: { label: 'ซื้อ', color: 'var(--gain)' },
+  sell: { label: 'ขาย', color: 'var(--loss)' },
+  switch: { label: 'สับเปลี่ยน', color: 'var(--info)' },
 };
 // เดโมไม่มี action จริง → วนให้เห็นครบ 3 แบบ · ของจริง default = ซื้อ (ทุกการบันทึก holding = เพิ่ม/ซื้อ)
 const DEMO_CYCLE: TxAction[] = ['buy', 'buy', 'sell', 'buy', 'switch'];
@@ -78,7 +79,7 @@ export default async function ActivityPage() {
                     {hhmm(date)}
                   </span>
                 </span>
-                <span className="rt"><div className="price num">฿{fmt(marketValueTHB(a))}</div></span>
+                <span className="rt"><div className="price num">฿<Amount>{fmt(marketValueTHB(a))}</Amount></div></span>
               </div>
             );
           })}

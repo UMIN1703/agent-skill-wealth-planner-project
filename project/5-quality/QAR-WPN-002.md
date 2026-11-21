@@ -3,7 +3,7 @@
 | รายการ | รายละเอียด |
 |---|---|
 | รหัสเอกสาร | QAR-WPN-002 |
-| ฉบับแก้ไขครั้งที่ | 00 |
+| ฉบับแก้ไขครั้งที่ | 01 |
 | วันที่มีผลบังคับใช้ | 2026-11-21 |
 | สถานะ | อนุมัติแล้ว |
 | เอกสารอ้างอิง | CR-WPN-009 · RVW-WPN-001 · REQ-WPN-001 F002/F005/F006/F008 · DSN-WPN-001 |
@@ -20,15 +20,15 @@
 
 ## 2. คำตัดสิน
 
-| รายการ | ผล |
-|---|---|
-| Verdict | **PASS WITH ADVISORIES** |
-| BLOCKER | 0 |
-| MAJOR | 2 |
-| MINOR | 4 |
-| Gap | 3 |
+| รายการ | ผล (rev 00) | หลังแก้ (rev 01) |
+|---|---|---|
+| Verdict | PASS WITH ADVISORIES | **PASS WITH ADVISORIES** (เหลือ MINOR) |
+| BLOCKER | 0 | 0 |
+| MAJOR | 2 | **0 — แก้แล้วทั้งคู่** |
+| MINOR | 4 | 4 (รับทราบ/เลื่อน) |
+| Gap | 3 | 3 |
 
-คำตัดสินคำนวณจากข้อค้นพบ: ไม่มี BLOCKER แต่มี MAJOR ⇒ PASS WITH ADVISORIES (ขึ้น release ได้ แต่ควรปิด advisories)
+**rev 01 (2026-11-21):** เจ้าของสั่งปิด advisories → แก้ 2 MAJOR แล้ว (ดู §3 สถานะ) · re-run dimension ที่กระทบ (functional ซ่อนเงิน + visual token) ผ่าน · เหลือเฉพาะ MINOR → ไม่มี MAJOR/BLOCKER · tsc สะอาด, เทส 54/54
 
 ## 3. ข้อค้นพบ
 
@@ -36,7 +36,7 @@
 
 | ระดับ | ตำแหน่ง | ปัญหา | วิธีแก้ |
 |---|---|---|---|
-| MAJOR | `PrivacySettings.tsx` · `PortfolioHero.tsx` | "ซ่อนจำนวนเงิน" ปิดบังแค่ hero หน้าแรก · `/assets`, `/activity`, legend allocation ยังโชว์ตัวเลข | ต่อ flag `wp_privacy.hideAmounts` ไปหน้าเหล่านั้น หรือเปลี่ยน label เป็น "ซ่อนยอดหน้าแรก" |
+| MAJOR → **แก้แล้ว** | `PrivacySettings.tsx` · `PortfolioHero.tsx` | "ซ่อนจำนวนเงิน" ปิดบังแค่ hero หน้าแรก · `/assets`, `/activity`, legend ยังโชว์ | สร้าง `<Amount>` (อ่าน wp_privacy + ฟัง event `wp-privacy`) ครอบยอดทุกจุด: hero/สถิติ/ภาษี (หน้าแรก), AssetRow+ยอดรวมกลุ่ม (/assets), activity, legend → ซ่อนพร้อมกันสด |
 | MINOR | `app/assets`, `app/activity` | ไม่ redirect เมื่อไม่ล็อกอิน (โชว์เดโม) ขณะ `/profile/*` redirect → unauthorized ไม่สม่ำเสมอ | ตัดสินใจแพตเทิร์นเดียว (เดโม-public เหมือนหน้าแรก หรือ redirect) |
 | MINOR | `BottomNav.tsx` | ไม่มี active state ตอนอยู่ `/rebalance` (ย้ายออกจาก tabs) | ยอมรับได้ (เข้าจาก Profile) หรือไฮไลต์ Profile |
 
@@ -44,7 +44,7 @@
 
 | ระดับ | ตำแหน่ง | ปัญหา | วิธีแก้ |
 |---|---|---|---|
-| MAJOR | `app/activity`, `app/profile/drive`, `PrivacySettings`, `NotificationSettings`, `app/profile` | token drift — hardcode `#34D399`/`#F87171`/`#60A5FA`/`#06C755` แทน token · สีเขียว/แดง ซื้อ/ขาย ไม่ตรงพาเลตต์กำไร/ขาดทุน (`--gain #3DDC84`/`--loss #FF6B6B`) | ใช้ `var(--gain)`/`var(--loss)` · เพิ่ม token สี "สับเปลี่ยน" + LINE green |
+| MAJOR → **แก้แล้ว** | `app/activity`, `app/profile/drive`, `PrivacySettings`, `NotificationSettings`, `app/profile`, `AccountSettings` | token drift — hardcode `#34D399`/`#F87171`/`#60A5FA`/`#06C755` แทน token | เพิ่ม token `--info`/`--line` ใน tokens.css · แทนสีทั้งหมด → `var(--gain)`/`var(--loss)`/`var(--info)`/`var(--line)` · rgba tints → `color-mix()` · ซื้อ/ขายใช้พาเลตต์กำไร/ขาดทุนของแอปแล้ว · ไม่เหลือ hardcode สี |
 | MINOR | หน้าตั้งค่าหลายไฟล์ | spacing/สไตล์ inline กระจาย แทน token/class | ย้ายเป็น utility class/token เมื่อสะดวก |
 
 ### 3.3 Accessibility (WCAG 2.2 AA)
@@ -73,3 +73,4 @@
 | ฉบับที่ | วันที่ | สาระสำคัญ |
 |---|---|---|
 | 00 | 2026-11-21 | ตรวจรอบ CR-WPN-009 · Verdict PASS WITH ADVISORIES (0 BLOCKER, 2 MAJOR: privacy mask hero-only + token drift, 4 MINOR) · static review (ไม่มี harness axe/Playwright) |
+| 01 | 2026-11-21 | ปิด 2 MAJOR ตามคำสั่งเจ้าของ: (1) `<Amount>` ซ่อนยอดทุกหน้า sync สด (2) token drift → `--info`/`--line` + color-mix, ไม่เหลือ hardcode สี · re-run functional+visual ผ่าน · เหลือเฉพาะ MINOR · tsc สะอาด, 54/54 |

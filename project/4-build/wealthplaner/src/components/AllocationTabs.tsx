@@ -4,6 +4,7 @@
 //  ① ปัจจุบัน: แถบ % ต่อหมวด · ② เป้าหมาย: แถบคู่ ปัจจุบัน vs เป้า + ส่วนต่าง (read-only)
 import { useState } from 'react';
 import Link from 'next/link';
+import Amount from '@/components/Amount.tsx';
 
 export type AllocRow = { name: string; curPct: number; curValueTHB: number; tgtPct: number };
 
@@ -52,7 +53,7 @@ export default function AllocationTabs({ rows }: { rows: AllocRow[] }) {
                   <span className="dot" style={{ background: colorFor(r.name) }} />
                   <span className="nm">{r.name}</span>
                   <span className="pc num">{r.curPct.toFixed(2)}%</span>
-                  <span className="vl num">฿{fmt(r.curValueTHB)}</span>
+                  <span className="vl num">฿<Amount>{fmt(r.curValueTHB)}</Amount></span>
                 </span>
               ))}
             </div>
