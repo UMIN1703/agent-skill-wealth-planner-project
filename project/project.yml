@@ -129,9 +129,9 @@ quality:
   design_reference: TBD — ต้องการ [ไฟล์แบบที่ใช้เทียบ]   # ไฟล์แบบที่ใช้เทียบ ถ้าไม่มีให้ระบุว่าไม่มี
 
 release:
-  target: TBD — ต้องการ [ปล่อยขึ้นที่ไหน]            # ปล่อยขึ้นที่ไหน
-  approver: TBD — ต้องการ [ใครกดปล่อย]               # ใครกดปล่อย
-  rollback: TBD — ต้องการ [วิธีถอยกลับ]              # ถอยกลับยังไง ใช้เวลาเท่าไหร่
+  target: "Cloudflare Pages (โปรเจกต์ wealthplaner · next-on-pages) — เริ่ม preview URL ก่อน แล้ว promote เป็น production · เลือกโดยเจ้าของ 2026-11-21 (REL-WPN-001)"   # ปล่อยขึ้นที่ไหน
+  approver: "เจ้าของโครงการ (solo)"               # ใครกดปล่อย
+  rollback: "Cloudflare Pages เก็บทุก deployment → Dashboard → Deployments → 'Rollback to this deployment' (1 คลิก ~1 นาที) · preview ไม่โปรโมต = ไม่กระทบ prod · ซ้อม 1 ครั้งหลัง deploy แรก"   # ถอยกลับยังไง ใช้เวลาเท่าไหร่
 
 # ผลการตรวจประตู — เขียนโดย /gate เท่านั้น
 gates:
