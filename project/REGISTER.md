@@ -26,6 +26,7 @@
 | CR-WPN-006 | Change request — ชั้นข้อมูลพอร์ตจริง (Supabase) สำหรับ F001/F002 | 00 | อนุมัติแล้ว | 2026-11-18 |
 | CR-WPN-007 | Change request — ยืนยันเข้าพอร์ตผ่านการ์ด LINE (confirm/cancel → success) | 00 | อนุมัติแล้ว | 2026-11-18 |
 | CR-WPN-008 | Change request — ขยายระบบให้เทียบเท่าชีตพอร์ตจริง (เฟส 1–3: ราคาปัจจุบัน/P&L, taxonomy+tax bucket, import Sheet) | 00 | อนุมัติแล้ว | 2026-11-18 |
+| CR-WPN-009 | Change request — ปรับโครงนำทาง (IA): /assets + /activity, ย้าย Rebalance/Import เข้า Profile, หน้าตั้งค่าใช้งานจริง, ย้าย logout, เรียงความเสี่ยง, เป้าหมายตรงชีต | 00 | อนุมัติแล้ว | 2026-11-21 |
 | TST-WPN-001 | Test cases + traceability matrix — WealthPlaner | 00 | ร่าง | 2026-08-29 |
 | DSN-WPN-001 | ระบบออกแบบและข้อกำหนดหน้าจอ (Neon Dark) — WealthPlaner | 00 | ร่าง | 2026-08-31 |
 | QAR-WPN-001 | รายงานการประกันคุณภาพ (F001–F006) — WealthPlaner | 00 | ร่าง | 2026-09-19 |
@@ -80,3 +81,5 @@ skill `document-control`
 | 2026-11-18 | CR-WPN-008 | สร้าง+อนุมัติ | เปิดคำขอขยายระบบเทียบชีตพอร์ตจริง (เฟส 1–3) · เฟส1 ราคาปัจจุบัน→P&L+note · เฟส2 taxonomy+หมวด+tax bucket · เฟส3 import Google Sheet · เฟส4 (price/FX live)=backlog · Class B = Supabase creds + รัน migration |
 | 2026-11-21 | CR-WPN-008 | แก้ไข (build) | ปรับ taxonomy ตามชีตจริง: หมวดใหญ่ 7 (รวมครอบครัว→ฉุกเฉิน, ตัดประกันออกจากหมวด) · ETF/SSF/RMF = ประเภทย่อยใต้หุ้น (import จับ sub-type ขึ้นต้น) · / และ /rebalance group ตามหมวด 7 |
 | 2026-11-20 | — (build F007) | สร้าง (code) | F007 Risk MVP: แบบประเมิน Suitability 10 ข้อ (ร่างตามแนว กลต., เกณฑ์ 5 ระดับ) ที่ /profile · เก็บ localStorage · การ์ดความเสี่ยงในพอร์ต · ยังไม่มีเอกสาร CR แยก (อยู่ภายใต้ REQ F007 เดิม + project.yml progress) |
+| 2026-11-21 | CR-WPN-009 | สร้าง+อนุมัติ | เปิดคำขอปรับโครงนำทาง (IA): แยก /assets (รายการสินทรัพย์) ออกจากหน้าแรก (=ภาพรวม), เพิ่ม /activity (รายการล่าสุด จัดกลุ่มตามวัน + ป้ายซื้อ/ขาย/สับเปลี่ยน), bottom nav ใหม่ (พอร์ต/สินทรัพย์/เพิ่ม/ล่าสุด/โปรไฟล์) + ย้าย Rebalance/Import เข้าการ์ด Profile, หน้าตั้งค่าใช้งานจริง 4 หน้า (account/notifications/drive/privacy), ย้าย logout ไปการ์ด Profile จุดเดียว, เรียงหมวดตามความเสี่ยง + คืนแถบ "ทั้งหมด", CATEGORY_TARGETS ตรงแท็บ Targets ในชีต · ไม่มี Class B เพิ่ม · migration note/category/tax_bucket รันแล้ว (ปลดบล็อกสุดท้าย CR-WPN-008) |
+| 2026-11-21 | — (build) | สร้าง (code) | สร้างตาม CR-WPN-009: /assets, /activity, /profile/{account,notifications,drive,privacy}, portfolioData.loadAssets, categoryRiskRank, LogoutButton label variant · tsc สะอาด · commits a52c74f/192dbfa/fd208e7 push แล้ว |
