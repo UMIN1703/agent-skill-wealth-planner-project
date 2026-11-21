@@ -16,13 +16,14 @@ npx wrangler login          # เปิดเบราว์เซอร์ใ�
 npx wrangler whoami         # เช็กว่าล็อกอินบัญชีถูกตัว
 ```
 
-### 2. สร้าง KV + R2 (สำหรับ F009 Slip-to-Ledger)
+### 2. สร้าง KV + R2 — **ข้ามได้สำหรับ preview ฟรี**
+preview แค่เรนเดอร์หน้า (เดโม) ไม่แตะ KV/R2 · binding ถูกปิดไว้ใน `wrangler.toml` แล้ว →
+**ไม่ต้องทำขั้นนี้ ไม่ต้องผูกบัตร** · ค่อยเปิดกลับตอนทำ F009 บน production:
 ```sh
-npx wrangler kv namespace create SLIP_INDEX
-#  → คัดลอก id ที่ได้ ไปแทน REPLACE_WITH_KV_NAMESPACE_ID ใน wrangler.toml
-npx wrangler r2 bucket create wpn-slips
+npx wrangler kv namespace create SLIP_INDEX   # KV ฟรี ไม่ต้องบัตร
+npx wrangler r2 bucket create wpn-slips        # R2 ต้องผูกบัตร (ฟรี tier)
 ```
-> แก้ `wrangler.toml` บรรทัด `id = "REPLACE_WITH_KV_NAMESPACE_ID"` ให้เป็น id จริง แล้ว commit
+> แล้วเอาคอมเมนต์บล็อก `[[kv_namespaces]]` / `[[r2_buckets]]` ใน `wrangler.toml` ออก + ใส่ id จริง
 
 ### 3. ตั้ง secrets (ค่าเดียวกับ .env.local — อย่า commit ค่า)
 ตั้งผ่าน Dashboard (Pages → wealthplaner → Settings → Environment variables)

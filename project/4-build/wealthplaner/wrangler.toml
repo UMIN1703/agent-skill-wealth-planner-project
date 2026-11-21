@@ -10,12 +10,15 @@ compatibility_flags = ["nodejs_compat"]
 # — อย่าใส่ค่าจริงในไฟล์นี้
 
 # F009 Slip-to-Ledger (CR-WPN-002) — staging: KV (index) + R2 (ไฟล์รูป)
-# สร้างก่อน: `wrangler kv namespace create SLIP_INDEX` และ `wrangler r2 bucket create wpn-slips`
-# แล้วแทน id ด้านล่าง (ดู runbook: project/4-build/wealthplaner/docs/F009-classb-runbook.md)
-[[kv_namespaces]]
-binding = "SLIP_INDEX"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
-
-[[r2_buckets]]
-binding = "SLIP_FILES"
-bucket_name = "wpn-slips"
+# ปิดไว้สำหรับ preview ฟรี (ไม่ต้อง provision/บัตร) — โค้ดรองรับ binding ไม่มีได้ (cfEnv.ts optional)
+# เปิดกลับเมื่อทำ F009 บน production:
+#   1) `npx wrangler kv namespace create SLIP_INDEX` → เอา id มาใส่
+#   2) `npx wrangler r2 bucket create wpn-slips` (R2 ต้องผูกบัตร — ฟรี tier)
+#   แล้วเอาคอมเมนต์ 2 บล็อกล่างออก
+# [[kv_namespaces]]
+# binding = "SLIP_INDEX"
+# id = "REPLACE_WITH_KV_NAMESPACE_ID"
+#
+# [[r2_buckets]]
+# binding = "SLIP_FILES"
+# bucket_name = "wpn-slips"
