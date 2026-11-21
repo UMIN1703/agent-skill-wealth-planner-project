@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { summarizePortfolio, holdingSummary, taxDeductionSummary, categoryAllocation, type HeldAsset } from './portfolio.ts';
+import { summarizePortfolio, holdingSummary, taxDeductionSummary, categoryAllocation, categoryRiskRank, CATEGORY_RISK_ORDER, CATEGORY_TARGETS, type HeldAsset } from './portfolio.ts';
 
 const two: HeldAsset[] = [
   { name: 'A', type: 'หุ้นไทย', brokerChannel: 'SCBS', quantity: 10, costPrice: 10, marketPrice: 15, fxToThb: 1 },       // value 150, income 50
@@ -76,4 +76,24 @@ test('TC-F002-E02: บางรายการไม่มีราคาตล�
   const s = summarizePortfolio(mixed);
   assert.equal(s.totalTHB, 200);            // 150 + 50 (fallback ต้นทุน)
   assert.equal(s.totalIncomeTHB, 50);       // income เฉพาะ A (C ไม่มี market → ไม่นับ)
+});
+
+// CR-WPN-009 — ลำดับความเสี่ยงหมวด (น้อย→มาก) ต้องคงที่ · หมวดนอกรายการไปท้ายสุด
+test('TC-F002-risk-order: categoryRiskRank เรียงเงินสด→คริปโต, นอกรายการ = 99', () => {
+  assert.deepEqual([...CATEGORY_RISK_ORDER],
+    ['เงินสด', 'เงินสำรองฉุกเฉิน', 'เกษียณ', 'ทองคำ', 'หุ้นไทย', 'หุ้นต่างประเทศ', 'คริปโต']);
+  assert.ok(categoryRiskRank('เงินสด') < categoryRiskRank('คริปโต'));
+  assert.ok(categoryRiskRank('เกษียณ') < categoryRiskRank('หุ้นไทย'));
+  assert.equal(categoryRiskRank('ไม่รู้จัก'), 99); // นอกรายการ → ท้ายสุด
+  const sorted = ['คริปโต', 'เงินสด', 'หุ้นไทย', 'ทองคำ'].sort((a, b) => categoryRiskRank(a) - categoryRiskRank(b));
+  assert.deepEqual(sorted, ['เงินสด', 'ทองคำ', 'หุ้นไทย', 'คริปโต']);
+});
+
+// CR-WPN-009 — เป้าหมาย allocation ต้องตรงแท็บ Targets ในชีต + รวม = 100%
+test('TC-F006-targets: CATEGORY_TARGETS ตรงชีต + รวม 100%', () => {
+  assert.equal(CATEGORY_TARGETS.reduce((s, t) => s + t.percent, 0), 100);
+  assert.deepEqual(
+    Object.fromEntries(CATEGORY_TARGETS.map((t) => [t.category, t.percent])),
+    { 'เงินสด': 0, 'เงินสำรองฉุกเฉิน': 12, 'เกษียณ': 13, 'หุ้นไทย': 18, 'หุ้นต่างประเทศ': 45, 'ทองคำ': 10, 'คริปโต': 2 },
+  );
 });

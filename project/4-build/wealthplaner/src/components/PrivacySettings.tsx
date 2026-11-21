@@ -5,25 +5,10 @@
 // - ล้างข้อมูลที่เก็บในเครื่องนี้ (localStorage wp_*) · + โน้ตบอกว่าข้อมูลอยู่ที่ไหนบ้าง
 import { useState, useEffect } from 'react';
 import { Eye, Trash2, Database, HardDrive } from 'lucide-react';
+import Toggle from '@/components/Toggle.tsx';
 
 export const PRIVACY_KEY = 'wp_privacy';
 export type Privacy = { hideAmounts: boolean };
-
-function Toggle({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) {
-  return (
-    <button type="button" role="switch" aria-checked={on} aria-label={label} onClick={onClick}
-      style={{
-        width: 46, height: 28, borderRadius: 999, flexShrink: 0, cursor: 'pointer', position: 'relative',
-        border: '1px solid ' + (on ? 'var(--brand)' : 'var(--border)'),
-        background: on ? 'var(--brand)' : 'transparent', transition: 'background .15s, border-color .15s',
-      }}>
-      <span style={{
-        position: 'absolute', top: 2, left: on ? 20 : 2, width: 22, height: 22, borderRadius: '50%',
-        background: on ? '#fff' : 'var(--muted)', transition: 'left .15s',
-      }} />
-    </button>
-  );
-}
 
 export default function PrivacySettings() {
   const [hideAmounts, setHideAmounts] = useState(false);

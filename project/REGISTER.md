@@ -30,6 +30,7 @@
 | TST-WPN-001 | Test cases + traceability matrix — WealthPlaner | 00 | ร่าง | 2026-08-29 |
 | DSN-WPN-001 | ระบบออกแบบและข้อกำหนดหน้าจอ (Neon Dark) — WealthPlaner | 00 | ร่าง | 2026-08-31 |
 | QAR-WPN-001 | รายงานการประกันคุณภาพ (F001–F006) — WealthPlaner | 00 | ร่าง | 2026-09-19 |
+| RVW-WPN-001 | รายงานผลการทบทวนโค้ด — รอบ IA restructure (CR-WPN-009) | 00 | อนุมัติแล้ว | 2026-11-21 |
 
 สถานะที่ใช้ได้ — `ร่าง` · `รอทบทวน` · `อนุมัติแล้ว` · `ยกเลิก`
 
@@ -83,3 +84,4 @@ skill `document-control`
 | 2026-11-20 | — (build F007) | สร้าง (code) | F007 Risk MVP: แบบประเมิน Suitability 10 ข้อ (ร่างตามแนว กลต., เกณฑ์ 5 ระดับ) ที่ /profile · เก็บ localStorage · การ์ดความเสี่ยงในพอร์ต · ยังไม่มีเอกสาร CR แยก (อยู่ภายใต้ REQ F007 เดิม + project.yml progress) |
 | 2026-11-21 | CR-WPN-009 | สร้าง+อนุมัติ | เปิดคำขอปรับโครงนำทาง (IA): แยก /assets (รายการสินทรัพย์) ออกจากหน้าแรก (=ภาพรวม), เพิ่ม /activity (รายการล่าสุด จัดกลุ่มตามวัน + ป้ายซื้อ/ขาย/สับเปลี่ยน), bottom nav ใหม่ (พอร์ต/สินทรัพย์/เพิ่ม/ล่าสุด/โปรไฟล์) + ย้าย Rebalance/Import เข้าการ์ด Profile, หน้าตั้งค่าใช้งานจริง 4 หน้า (account/notifications/drive/privacy), ย้าย logout ไปการ์ด Profile จุดเดียว, เรียงหมวดตามความเสี่ยง + คืนแถบ "ทั้งหมด", CATEGORY_TARGETS ตรงแท็บ Targets ในชีต · ไม่มี Class B เพิ่ม · migration note/category/tax_bucket รันแล้ว (ปลดบล็อกสุดท้าย CR-WPN-008) |
 | 2026-11-21 | — (build) | สร้าง (code) | สร้างตาม CR-WPN-009: /assets, /activity, /profile/{account,notifications,drive,privacy}, portfolioData.loadAssets, categoryRiskRank, LogoutButton label variant · tsc สะอาด · commits a52c74f/192dbfa/fd208e7 push แล้ว |
+| 2026-11-21 | RVW-WPN-001 | สร้าง+อนุมัติ | ทบทวนโค้ดรอบ CR-WPN-009 (27 ไฟล์) · 1 MAJOR (ขาดเทส categoryRiskRank/CATEGORY_TARGETS) + 4 MINOR → แก้ MAJOR (เพิ่ม 2 เทส, 54/54 ผ่าน) + reuse (ดึง Toggle รวมเป็น Toggle.tsx) → APPROVE · เหลือ 3 MINOR รับทราบ/เลื่อน/ส่ง QA (privacy mask hero-only) |

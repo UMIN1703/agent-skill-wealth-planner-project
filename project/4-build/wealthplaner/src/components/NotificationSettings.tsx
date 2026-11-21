@@ -4,6 +4,7 @@
 // ช่องทางส่งจริงคือ LINE push (F009) — ต้องเชื่อม LINE ถึงจะส่งได้ (โชว์สถานะด้านบน)
 import { useState, useEffect } from 'react';
 import { MessageSquareText } from 'lucide-react';
+import Toggle from '@/components/Toggle.tsx';
 
 const NOTIF_KEY = 'wp_notif';
 
@@ -15,22 +16,6 @@ const ITEMS: { key: keyof Prefs; title: string; desc: string }[] = [
   { key: 'rebalance', title: 'เตือนเมื่อพอร์ตเบี่ยงจากเป้า', desc: 'แจ้งเมื่อสัดส่วนคลาสใดห่างเป้าหมายเกิน 5%' },
   { key: 'monthly', title: 'สรุปพอร์ตรายเดือน', desc: 'ส่งภาพรวมมูลค่า/กำไร-ขาดทุน ต้นเดือน' },
 ];
-
-function Toggle({ on, onClick, label }: { on: boolean; onClick: () => void; label: string }) {
-  return (
-    <button type="button" role="switch" aria-checked={on} aria-label={label} onClick={onClick}
-      style={{
-        width: 46, height: 28, borderRadius: 999, flexShrink: 0, cursor: 'pointer', position: 'relative',
-        border: '1px solid ' + (on ? 'var(--brand)' : 'var(--border)'),
-        background: on ? 'var(--brand)' : 'transparent', transition: 'background .15s, border-color .15s',
-      }}>
-      <span style={{
-        position: 'absolute', top: 2, left: on ? 20 : 2, width: 22, height: 22, borderRadius: '50%',
-        background: on ? '#fff' : 'var(--muted)', transition: 'left .15s',
-      }} />
-    </button>
-  );
-}
 
 export default function NotificationSettings({ lineConnected }: { lineConnected: boolean }) {
   const [prefs, setPrefs] = useState<Prefs>(DEFAULTS);
