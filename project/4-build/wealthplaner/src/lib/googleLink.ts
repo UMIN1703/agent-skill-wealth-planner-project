@@ -2,6 +2,7 @@
 // session login ด้วย LINE (มี lineUserId แต่ไม่มี Google token) → เชื่อม Google ผ่าน OAuth เสริม
 // → endpoint บันทึกสลิปดึง token นี้มาเขียน Google Drive ได้ (แก้ dual-identity gap)
 import { kv, getVar } from './cfEnv.ts';
+import { signClaim, verifyClaim } from './claim.ts';
 
 const AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
@@ -79,16 +80,13 @@ export async function getGoogleAccessToken(lineUserId: string): Promise<string |
   return link.access_token;
 }
 
-// state nonce กัน CSRF — ผูก nonce → lineUserId ชั่วคราวใน KV (10 นาที)
+// state กัน CSRF — ใช้ signed token (stateless, HMAC) แทน KV
+// เดิมเก็บ nonce ใน KV แต่ connect→callback ห่างแค่ ~10 วิ → ชน KV eventual-consistency (sync ได้ถึง 60 วิ)
+// → consumeState คืน null → เก็บ Google link ไม่สำเร็จ · signed token ไม่ต้องอ่าน KV เลย
 export async function makeState(lineUserId: string): Promise<string> {
-  const nonce = crypto.randomUUID();
-  await kv()?.put(`oauthstate:${nonce}`, lineUserId, { expirationTtl: 600 });
-  return nonce;
+  return signClaim({ u: lineUserId, id: 'oauthstate' }, 600); // อายุ 10 นาที
 }
-export async function consumeState(nonce: string): Promise<string | null> {
-  const k = kv();
-  if (!k) return null;
-  const u = await k.get(`oauthstate:${nonce}`);
-  if (u) await k.delete(`oauthstate:${nonce}`);
-  return u;
+export async function consumeState(state: string): Promise<string | null> {
+  const c = await verifyClaim(state);
+  return c && c.id === 'oauthstate' ? c.u : null;
 }
