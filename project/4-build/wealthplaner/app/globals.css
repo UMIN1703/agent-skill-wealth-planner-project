@@ -273,3 +273,30 @@ a:focus-visible, button:focus-visible, select:focus-visible { outline: 2px solid
 .seg-chip .nm { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .seg-chip .pc { text-align: right; font-weight: 700; min-width: 62px; font-variant-numeric: tabular-nums; }
 .seg-chip .vl { text-align: right; color: var(--muted); min-width: 100px; font-variant-numeric: tabular-nums; }
+
+/* ───────── Responsive: tablet / desktop (project.yml design.devices) ─────────
+   โมบายเฟิร์ส (LINE OA) → จอใหญ่ขึ้น ขยายคอลัมน์กลางให้สบายตา + nav ลอยมน
+   ไม่เปลี่ยนโครงหน้า แค่กว้างขึ้น/จัดวางให้ดูตั้งใจ ไม่ใช่แถบแคบกลางจอโล่ง */
+@media (min-width: 680px) {
+  .app { max-width: 600px; padding: 28px 22px 108px; gap: 16px; }
+  .bottomnav { max-width: 600px; }
+  .topbar h1 { font-size: 18px; }
+}
+@media (min-width: 1024px) {
+  .app { max-width: 680px; padding: 40px 28px 120px; gap: 18px; }
+  .card { padding: 22px; }
+  /* bottom nav = แถบลอยมุมมน อยู่ใน "แผงแอป" ไม่ชนขอบจอ */
+  .bottomnav {
+    max-width: 680px; left: 16px; right: 16px; bottom: 18px;
+    border: var(--border-width) solid var(--border);
+    border-radius: 22px;
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.38);
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+  .bn-item { font-size: 12px; }
+}
+/* จอกว้างมาก — คุมไม่ให้ยืดเกินอ่านสบาย */
+@media (min-width: 1440px) {
+  .app { max-width: 720px; }
+  .bottomnav { max-width: 720px; }
+}

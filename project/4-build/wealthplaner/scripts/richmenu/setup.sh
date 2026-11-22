@@ -8,6 +8,8 @@ ENV=.env.local
 TOKEN=$( { grep -E '^LINE_CHANNEL_ACCESS_TOKEN=' "$ENV" || true; } | head -1 | cut -d= -f2- | tr -d ' \r')
 BASE=$( { grep -E '^AUTH_URL=' "$ENV" 2>/dev/null || true; } | head -1 | cut -d= -f2- | tr -d ' \r')
 BASE=${BASE:-http://localhost:3000}
+# override ด้วย env: `RICHMENU_BASE=https://xxx.pages.dev bash scripts/richmenu/setup.sh`
+BASE=${RICHMENU_BASE:-$BASE}
 IMG=scripts/richmenu/richmenu.png
 
 [ -n "$TOKEN" ] || { echo "❌ ไม่พบ LINE_CHANNEL_ACCESS_TOKEN ใน $ENV"; exit 1; }
