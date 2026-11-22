@@ -45,20 +45,50 @@ async function sb(path: string, init?: RequestInit): Promise<Response> {
 }
 
 type HoldingRow = {
+  id?: string;
   name: string; type: string; broker_channel: string;
   quantity: number; cost_price: number; market_price: number | null;
   fx_to_thb: number; currency: string | null; source: string; note: string | null;
-  category: string | null; tax_bucket: string | null; created_at?: string;
+  category: string | null; tax_bucket: string | null; created_at?: string; updated_at?: string;
 };
 
 function rowToHeld(r: HoldingRow): DisplayAsset {
   return {
-    name: r.name, type: r.type, brokerChannel: r.broker_channel,
+    id: r.id, name: r.name, type: r.type, brokerChannel: r.broker_channel,
     quantity: r.quantity, costPrice: r.cost_price, marketPrice: r.market_price,
     fxToThb: r.fx_to_thb, currency: r.currency ?? undefined,
     note: r.note ?? undefined, category: r.category ?? undefined, taxBucket: r.tax_bucket ?? undefined,
-    source: r.source, updatedMin: 0, createdAt: r.created_at,
+    source: r.source, updatedMin: 0, createdAt: r.created_at, updatedAt: r.updated_at ?? r.created_at,
   };
+}
+
+/** ฟิลด์ที่แก้ไขได้ (undefined = ไม่แก้) */
+export type HoldingPatch = {
+  name?: string; brokerChannel?: string; quantity?: number;
+  costPrice?: number; currentPrice?: number | null; note?: string;
+};
+
+/** แก้ไขรายการถือครอง (เฉพาะของ user_key นั้น) · ตั้ง updated_at = now → เด้งขึ้น "ล่าสุด" */
+export async function updateHolding(userKey: string, id: string, patch: HoldingPatch): Promise<boolean> {
+  if (!supabaseConfigured()) return false;
+  const row: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (patch.name !== undefined) row.name = patch.name;
+  if (patch.brokerChannel !== undefined) row.broker_channel = patch.brokerChannel;
+  if (patch.quantity !== undefined) row.quantity = patch.quantity;
+  if (patch.costPrice !== undefined) row.cost_price = patch.costPrice;
+  if (patch.currentPrice !== undefined) row.market_price = patch.currentPrice;
+  if (patch.note !== undefined) row.note = patch.note || null;
+  const q = `${TABLE}?id=eq.${encodeURIComponent(id)}&user_key=eq.${encodeURIComponent(userKey)}`;
+  await sb(q, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify(row) });
+  return true;
+}
+
+/** ลบรายการถือครอง (เฉพาะของ user_key นั้น) */
+export async function deleteHolding(userKey: string, id: string): Promise<boolean> {
+  if (!supabaseConfigured()) return false;
+  const q = `${TABLE}?id=eq.${encodeURIComponent(id)}&user_key=eq.${encodeURIComponent(userKey)}`;
+  await sb(q, { method: 'DELETE', headers: { Prefer: 'return=minimal' } });
+  return true;
 }
 
 /** รายการถือครองของผู้ใช้ (เรียงใหม่→เก่า) · ไม่ได้ตั้งค่า Supabase → null (caller fallback mock) */

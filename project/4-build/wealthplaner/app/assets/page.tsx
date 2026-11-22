@@ -15,8 +15,9 @@ export default async function AssetsPage() {
   const s = summarizePortfolio(assets);
 
   const rows: AssetRowData[] = assets.map((a) => ({
-    name: a.name, broker: a.brokerChannel, group: a.category ?? a.type, valueTHB: marketValueTHB(a),
-    pct: computeIncomePercent(a), stale: a.updatedMin > 15,
+    id: a.id, name: a.name, broker: a.brokerChannel, group: a.category ?? a.type,
+    quantity: a.quantity, costPrice: a.costPrice, currentPrice: a.marketPrice, note: a.note,
+    valueTHB: marketValueTHB(a), pct: computeIncomePercent(a), stale: a.updatedMin > 15,
   }));
 
   return (

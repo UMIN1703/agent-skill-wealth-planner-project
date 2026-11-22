@@ -31,15 +31,20 @@ function dayLabel(d: Date): string {
   return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', ...(diff > 300 ? { year: 'numeric' } : {}) });
 }
 
+const ms = (s?: string) => (s ? new Date(s).getTime() : 0);
+
 export default async function ActivityPage() {
   const { assets, isDemo } = await loadAssets();
-  const recent = assets.slice(0, 15); // ใหม่→เก่า อยู่แล้วจาก listHoldings
+  // เรียงตาม "เวลาแก้ไขล่าสุด" (updatedAt) → รายการที่เพิ่งแก้เด้งขึ้นบนสุด · เดโมคงลำดับเดิม
+  const sorted = isDemo ? assets : [...assets].sort((x, y) => ms(y.updatedAt) - ms(x.updatedAt));
+  const recent = sorted.slice(0, 15);
 
-  // ผูกวันที่ให้แต่ละรายการ · เดโมไม่มี createdAt → กระจาย ~7 ชม./รายการ ให้เห็นการแบ่งวัน
+  // ผูกวันที่ (= เวลาล่าสุด) · เดโมไม่มีเวลา → กระจาย ~7 ชม./รายการ ให้เห็นการแบ่งวัน
   const now = Date.now();
   const dated = recent.map((a, i) => ({
     a, i,
-    date: a.createdAt ? new Date(a.createdAt) : new Date(now - i * 7 * 3600 * 1000),
+    date: a.updatedAt ? new Date(a.updatedAt) : a.createdAt ? new Date(a.createdAt) : new Date(now - i * 7 * 3600 * 1000),
+    edited: !!(a.updatedAt && a.createdAt && ms(a.updatedAt) - ms(a.createdAt) > 2000), // แก้ไขภายหลัง
   }));
 
   // จัดกลุ่มตามวัน (เรียงใหม่→เก่าอยู่แล้ว → กลุ่มที่ติดกันพอ)
@@ -62,9 +67,11 @@ export default async function ActivityPage() {
       ) : groups.map((g) => (
         <section className="card" key={g.label}>
           <div className="sub" style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)', padding: '0 2px 8px' }}>{g.label}</div>
-          {g.items.map(({ a, i, date }) => {
+          {g.items.map(({ a, i, date, edited }) => {
             const fromSlip = a.source === 'slip';
-            const act = ACTION[a.action ?? (isDemo ? DEMO_CYCLE[i % DEMO_CYCLE.length] : 'buy')];
+            const act = edited
+              ? { label: 'แก้ไข', color: 'var(--warn)' }
+              : ACTION[a.action ?? (isDemo ? DEMO_CYCLE[i % DEMO_CYCLE.length] : 'buy')];
             return (
               <div key={a.name + a.brokerChannel + i} className="arow" style={{ alignItems: 'center' }}>
                 <span className="nm" style={{ minWidth: 0, flex: 1 }}>

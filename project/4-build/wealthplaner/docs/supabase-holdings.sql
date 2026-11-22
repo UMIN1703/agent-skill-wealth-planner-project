@@ -34,3 +34,6 @@ alter table holdings enable row level security;
 -- โปรเจ็กต์ที่ใช้ API key ระบบใหม่ (sb_secret_…) บางทีไม่ auto-grant → ให้สิทธิ์ service_role เอง
 -- (service_role มี BYPASSRLS อยู่แล้ว · secret key ฝั่งเซิร์ฟเวอร์ map เป็น role นี้)
 grant all privileges on table public.holdings to service_role;
+
+-- แก้ไขรายการ (CR edit/delete) — updated_at ให้ "รายการล่าสุด" เด้งเมื่อแก้ (รันซ้ำได้)
+alter table holdings add column if not exists updated_at timestamptz not null default now();
