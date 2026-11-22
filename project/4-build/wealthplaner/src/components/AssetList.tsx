@@ -15,12 +15,20 @@ export type AssetRowData = {
   valueTHB: number; pct: number | null; stale: boolean;
 };
 
-const ALL = 'ทั้งหมด';
 const fmt = (n: number) => new Intl.NumberFormat('th-TH', { maximumFractionDigits: 0 }).format(Math.round(n));
-const compact = (n: number) => {
-  const a = Math.abs(n);
-  return a >= 1e6 ? (n / 1e6).toFixed(2) + 'M' : a >= 1e4 ? Math.round(n / 1e3) + 'k' : fmt(n);
+
+// สีจุดประจำหมวด (ตรงกับ AllocationTabs) + fallback deterministic
+const CAT_COLORS: Record<string, string> = {
+  'เงินสด': '#9CA3AF', 'เงินสำรองฉุกเฉิน': '#34D399', 'เกษียณ': '#4FD1C5',
+  'ทองคำ': '#C1FD42', 'หุ้นไทย': '#7B72FF', 'หุ้นต่างประเทศ': '#60A5FA', 'คริปโต': '#FB923C',
 };
+const PALETTE = ['#7B72FF', '#F982FB', '#4FD1C5', '#60A5FA', '#C1FD42', '#FB923C', '#34D399', '#A78BFA'];
+function dotColor(name: string): string {
+  if (CAT_COLORS[name]) return CAT_COLORS[name];
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  return PALETTE[h % PALETTE.length];
+}
 
 // field wrapper ระดับโมดูล (ถ้านิยามในคอมโพเนนต์ จะ remount ทุก render → input หลุดโฟกัส)
 function Field({ label, children }: { label: string; children: ReactNode }) {
@@ -91,7 +99,6 @@ function EditForm({ row, onCancel, onSaved }: { row: AssetRowData; onCancel: () 
 
 export default function AssetList({ rows, totalTHB }: { rows: AssetRowData[]; totalTHB: number }) {
   const router = useRouter();
-  const [sel, setSel] = useState<string>(ALL);
   const [editing, setEditing] = useState<string | null>(null);
 
   const groups = new Map<string, AssetRowData[]>();
@@ -104,7 +111,6 @@ export default function AssetList({ rows, totalTHB }: { rows: AssetRowData[]; to
     .map(([group, items]) => ({ group, items, sub: items.reduce((x, r) => x + r.valueTHB, 0) }))
     .sort((a, b) => categoryRiskRank(a.group) - categoryRiskRank(b.group) || b.sub - a.sub);
 
-  const shown = sel === ALL ? ordered : ordered.filter((g) => g.group === sel);
   const onSaved = () => { setEditing(null); router.refresh(); };
 
   if (rows.length === 0) {
@@ -114,18 +120,17 @@ export default function AssetList({ rows, totalTHB }: { rows: AssetRowData[]; to
   return (
     <section className="card">
       <h2>สินทรัพย์</h2>
-      <div className="cat-chips" role="tablist" aria-label="หมวดสินทรัพย์">
-        <button type="button" role="tab" aria-selected={sel === ALL} className={'cat-chip' + (sel === ALL ? ' on' : '')} onClick={() => setSel(ALL)}>{ALL}</button>
-        {ordered.map((g) => (
-          <button type="button" key={g.group} role="tab" aria-selected={sel === g.group} className={'cat-chip' + (sel === g.group ? ' on' : '')} onClick={() => setSel(g.group)}>{g.group}</button>
-        ))}
-      </div>
-
-      {shown.map((g) => (
-        <div key={g.group} className="pf-group-wrap">
-          <div className="pf-group">
-            <span className="gt">{g.group}</span>
-            <span className="gv num">฿<Amount>{compact(g.sub)}</Amount> · {totalTHB > 0 ? Math.round((g.sub / totalTHB) * 100) : 0}%</span>
+      {ordered.map((g) => (
+        <div key={g.group}>
+          {/* หัว section ต่อหมวด — จุดสี · ชื่อ · % · ยอด */}
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'auto 1fr auto auto', alignItems: 'center', gap: 10,
+            padding: '15px 2px 11px', borderTop: '1px solid var(--border)',
+          }}>
+            <span style={{ width: 11, height: 11, borderRadius: '50%', background: dotColor(g.group), flexShrink: 0 }} />
+            <span style={{ fontWeight: 700 }}>{g.group}</span>
+            <span className="num" style={{ fontWeight: 800, textAlign: 'right' }}>{totalTHB > 0 ? (g.sub / totalTHB * 100).toFixed(2) : '0.00'}%</span>
+            <span className="num" style={{ color: 'var(--muted)', textAlign: 'right', minWidth: 90 }}>฿<Amount>{fmt(g.sub)}</Amount></span>
           </div>
           {g.items.map((r, i) => (
             <div key={r.id ?? r.name + r.broker + i}>
