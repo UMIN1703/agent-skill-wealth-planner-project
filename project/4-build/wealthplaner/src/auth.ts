@@ -25,6 +25,7 @@ declare module 'next-auth' {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true, // self-hosted (Cloudflare Pages) — เชื่อ host เสมอ (แทน AUTH_TRUST_HOST ที่อาจไม่ถึง runtime)
   providers: [
     Google({
       authorization: {

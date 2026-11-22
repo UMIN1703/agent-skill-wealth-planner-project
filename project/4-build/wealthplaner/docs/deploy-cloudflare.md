@@ -62,19 +62,24 @@ npm run deploy        # = next-on-pages build + wrangler pages deploy
 
 ---
 
-## C. ก่อน promote เป็น production (รอบถัดไป)
+## C. เปิด login + สลิป (LINE/Google console)
 
-เมื่อได้ production domain (`<project>.pages.dev` หรือ custom domain) ต้องเพิ่ม URL ใน console:
+> **Production live แล้วที่ `https://wealthplaner.pages.dev`** (auth config ทำงาน) — เหลือแค่เพิ่ม redirect URL ใน console ให้ login/สลิปใช้ได้
 
 1. **Google OAuth** (console.cloud.google.com → Credentials):
-   - Authorized redirect URI: `https://<domain>/api/auth/callback/google`
+   - Authorized redirect URI: `https://wealthplaner.pages.dev/api/auth/callback/google`
 2. **LINE Login** (developers.line.biz → channel LINE Login):
-   - Callback URL: `https://<domain>/api/auth/callback/line`
+   - Callback URL: `https://wealthplaner.pages.dev/api/auth/callback/line`
 3. **LINE Messaging** (channel Messaging API):
-   - Webhook URL: `https://<domain>/api/line/webhook` → Verify
-4. **LINE Rich menu**: ปุ่มที่ชี้ localhost → รัน `scripts/richmenu/setup.sh` ใหม่ด้วย domain จริง
+   - Webhook URL: `https://wealthplaner.pages.dev/api/line/webhook` → Verify
+   - ต้องเปิด KV (ขั้น A2) สำหรับ staging สลิป
+4. **LINE Rich menu**: ชี้ production แล้ว (`RICHMENU_BASE=https://wealthplaner.pages.dev bash scripts/richmenu/setup.sh`)
 
-แล้ว `npm run deploy` อีกครั้ง (promote) · ตรวจ login + ส่งสลิป 1 ใบ end-to-end
+## ⚠️ Deploy gotcha (สำคัญ)
+- **Production branch = `feature/F008-login-sso`** (Cloudflare ตั้งจาก `npm run deploy` ครั้งแรก) · secrets/env ผูกกับ production env ของ branch นี้
+- **deploy ด้วย `npm run deploy` จาก branch ปัจจุบัน** (feature/F008-login-sso) → เป็น production deployment ที่เห็น secrets
+- อย่า deploy `--branch main`/`--branch preview` → นั่นคือ preview env (ไม่มี secrets → auth 500)
+- `AUTH_TRUST_HOST=true` ตั้งใน wrangler.toml `[vars]` + hardcode `trustHost:true` ใน src/auth.ts
 
 ---
 
