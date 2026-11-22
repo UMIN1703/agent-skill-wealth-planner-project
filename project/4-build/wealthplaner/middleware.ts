@@ -11,6 +11,7 @@ export default auth((req) => {
 });
 
 export const config = {
-  // ข้าม api / static / รูป
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  // จำกัดเฉพาะหน้าที่จะบังคับ login (ปัจจุบัน guard ปิดอยู่) — ไม่ดัก '/' เพื่อเลี่ยงบั๊ก
+  // next-on-pages ที่ทำให้ index route คืน 404 เมื่อ middleware matcher ครอบ '/'
+  matcher: ['/add/:path*', '/import/:path*', '/rebalance/:path*'],
 };

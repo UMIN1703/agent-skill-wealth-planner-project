@@ -83,13 +83,16 @@ Gate inputs: QA = PASS WITH ADVISORIES (ไม่มี BLOCK) · Review = APPRO
 
 ## 6. สิ่งที่เกิดขึ้นจริงหลังปล่อย
 
+Deploy สำเร็จ 2026-11-21/22 · **Live: https://preview.wealthplaner.pages.dev** · ทุกหน้าเรนเดอร์ (/ /assets /activity /login /rebalance /add /import ok · /profile 307 redirect ถูกต้อง)
+
 | รายการ | ค่า |
 |---|---|
-| ผลลัพธ์ | _กรอกหลัง deploy_ |
-| เวลาที่ใช้กว่าจะรู้ว่ามีปัญหา | — |
-| เวลาที่ใช้กว่าจะกลับมาปกติ | — |
-| สาเหตุ | — |
-| สิ่งที่จะทำต่างไปครั้งหน้า | — |
+| ผลลัพธ์ | มีปัญหาแต่แก้ได้ ไม่ต้องถอย |
+| เวลาที่ใช้กว่าจะรู้ว่ามีปัญหา | ทันที (smoke test curl หลัง deploy แรก เจอ `/` คืน "Not Found") |
+| เวลาที่ใช้กว่าจะกลับมาปกติ | ~ภายในรอบ deploy เดียว (upgrade + rebuild + redeploy) |
+| สาเหตุ | (1) secrets ยังไม่ตั้ง → /assets /activity error ก่อน (ตั้ง 9 secrets + AUTH_TRUST_HOST ผ่าน) · (2) **บั๊ก next-on-pages 1.13.10 แมป index route** `/` → serve `_next/static/not-found.txt` (หน้าแรกไปอยู่ `/index`) |
+| วิธีแก้ | ตั้ง secrets ผ่าน `wrangler pages secret put` · **upgrade @cloudflare/next-on-pages 1.13.10 → 1.13.16** → `/` เรนเดอร์ปกติ |
+| สิ่งที่จะทำต่างไปครั้งหน้า | pin next-on-pages ≥1.13.16 · ตั้ง secrets ก่อน smoke test · (ก่อน production: ตั้ง OAuth/LINE console + เปิด KV/R2 สำหรับ F009) |
 
 ---
 
@@ -98,3 +101,4 @@ Gate inputs: QA = PASS WITH ADVISORIES (ไม่มี BLOCK) · Review = APPRO
 | ฉบับที่ | วันที่ | ข้อที่แก้ | สาระสำคัญ | เหตุผล |
 |---|---|---|---|---|
 | 00 | 2026-11-21 | All | release record แรก · GO WITH CONDITIONS สำหรับ preview Cloudflare Pages (commit 0c6640a) · build ผ่าน · ข้อแม้ = provisioning + ซ้อม rollback + ยังไม่ promote prod จนตั้ง OAuth/LINE console | ฉบับแรก |
+| 01 | 2026-11-22 | §6 | **Deploy สำเร็จ — live ที่ preview.wealthplaner.pages.dev** · แก้ 2 ปัญหา: ตั้ง 9 secrets + AUTH_TRUST_HOST, และ upgrade next-on-pages 1.13.10→1.13.16 (บั๊ก index route `/`→404) · ปิด KV/R2 binding (free, ไม่ใช้บัตร) · middleware matcher แคบลง | บันทึกผลจริงหลัง deploy |

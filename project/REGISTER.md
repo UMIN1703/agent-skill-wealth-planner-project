@@ -32,7 +32,7 @@
 | QAR-WPN-001 | รายงานการประกันคุณภาพ (F001–F006) — WealthPlaner | 00 | ร่าง | 2026-09-19 |
 | RVW-WPN-001 | รายงานผลการทบทวนโค้ด — รอบ IA restructure (CR-WPN-009) | 00 | อนุมัติแล้ว | 2026-11-21 |
 | QAR-WPN-002 | รายงานการประกันคุณภาพ — รอบ IA restructure (CR-WPN-009) | 01 | อนุมัติแล้ว | 2026-11-21 |
-| REL-WPN-001 | บันทึกการปล่อยของและแผนถอยกลับ — Cloudflare Pages (preview) | 00 | อนุมัติแล้ว | 2026-11-21 |
+| REL-WPN-001 | บันทึกการปล่อยของและแผนถอยกลับ — Cloudflare Pages (preview) | 01 | อนุมัติแล้ว | 2026-11-21 |
 
 สถานะที่ใช้ได้ — `ร่าง` · `รอทบทวน` · `อนุมัติแล้ว` · `ยกเลิก`
 
@@ -90,3 +90,4 @@ skill `document-control`
 | 2026-11-21 | QAR-WPN-002 | สร้าง+อนุมัติ | QA รอบ CR-WPN-009 (functional/visual/a11y, static) · Verdict PASS WITH ADVISORIES · 0 BLOCKER, 2 MAJOR (ซ่อนเงินปิดแค่ hero หน้าแรก · token drift hardcode สีแทน var(--gain)/--loss), 4 MINOR · a11y โครงสร้างผ่าน · gap: ยังไม่รัน axe/Playwright + browsers=TBD |
 | 2026-11-21 | QAR-WPN-002 | แก้ไข (rev 01) | ปิด 2 MAJOR: (1) `<Amount>` ซ่อนยอดทุกหน้า (home/assets/activity/legend) sync สดผ่าน event wp-privacy (2) token drift → เพิ่ม --info/--line + color-mix, แทน hardcode สีหมด · เหลือเฉพาะ MINOR · tsc สะอาด, 54/54 |
 | 2026-11-21 | REL-WPN-001 | สร้าง+อนุมัติ | release record แรก · GO WITH CONDITIONS สำหรับ preview Cloudflare Pages (commit 0c6640a) · next-on-pages build ผ่าน (22s) · release.* ใน project.yml เติมครบ · runbook docs/deploy-cloudflare.md · ข้อแม้ = provisioning (login/KV/R2/secrets) + ซ้อม rollback + ยังไม่ promote prod จนตั้ง OAuth/LINE console |
+| 2026-11-22 | REL-WPN-001 | แก้ไข (rev 01) | Deploy preview สำเร็จ — live ที่ preview.wealthplaner.pages.dev · ตั้ง 9 secrets + AUTH_TRUST_HOST · upgrade next-on-pages 1.13.10→1.13.16 (แก้บั๊ก index route `/`→404) · ปิด KV/R2 binding (free ไม่ใช้บัตร) · middleware matcher แคบลง · ทุกหน้าเรนเดอร์ |

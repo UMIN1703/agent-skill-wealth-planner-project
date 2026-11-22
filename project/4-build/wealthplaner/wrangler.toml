@@ -4,6 +4,10 @@ pages_build_output_dir = ".vercel/output/static"
 compatibility_date = "2024-11-01"
 compatibility_flags = ["nodejs_compat"]
 
+# ให้ NextAuth เชื่อ host ของ Cloudflare (จำเป็นบน Pages)
+[vars]
+AUTH_TRUST_HOST = "true"
+
 # Secrets/vars (AUTH_SECRET, AUTH_GOOGLE_ID/SECRET, AUTH_LINE_ID/SECRET, AUTH_TRUST_HOST,
 #   F009: LINE_CHANNEL_SECRET, LINE_CHANNEL_ACCESS_TOKEN, SLIP_STAGING)
 # ตั้งใน Cloudflare dashboard (Settings → Environment variables) หรือ `wrangler pages secret put`
