@@ -13,16 +13,13 @@ AUTH_TRUST_HOST = "true"
 # ตั้งใน Cloudflare dashboard (Settings → Environment variables) หรือ `wrangler pages secret put`
 # — อย่าใส่ค่าจริงในไฟล์นี้
 
-# F009 Slip-to-Ledger (CR-WPN-002) — staging: KV (index) + R2 (ไฟล์รูป)
-# ปิดไว้สำหรับ preview ฟรี (ไม่ต้อง provision/บัตร) — โค้ดรองรับ binding ไม่มีได้ (cfEnv.ts optional)
-# เปิดกลับเมื่อทำ F009 บน production:
-#   1) `npx wrangler kv namespace create SLIP_INDEX` → เอา id มาใส่
-#   2) `npx wrangler r2 bucket create wpn-slips` (R2 ต้องผูกบัตร — ฟรี tier)
-#   แล้วเอาคอมเมนต์ 2 บล็อกล่างออก
-# [[kv_namespaces]]
-# binding = "SLIP_INDEX"
-# id = "REPLACE_WITH_KV_NAMESPACE_ID"
-#
+# F009 Slip-to-Ledger (CR-WPN-002) — staging: KV อย่างเดียว (index + ไบต์รูป)
+# เก็บรูปใน KV แทน R2 → ฟรี 100% ไม่ต้องผูกบัตร (slipStore.ts)
+[[kv_namespaces]]
+binding = "SLIP_INDEX"
+id = "59141c63a3f74976bd4dbc892f7312cb"
+
+# R2 (รูปสลิป) — ไม่ใช้แล้ว (ย้ายไป KV) · ถ้าจะกลับมาใช้ R2 ต้องผูกบัตร:
 # [[r2_buckets]]
 # binding = "SLIP_FILES"
 # bucket_name = "wpn-slips"
