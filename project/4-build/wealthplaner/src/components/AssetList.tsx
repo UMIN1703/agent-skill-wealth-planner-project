@@ -4,7 +4,7 @@
 // แก้ไข/ลบรายการได้ในที่ (เฉพาะรายการจริงที่มี id) → บันทึกแล้ว router.refresh() + เด้งขึ้น "ล่าสุด"
 import { useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { Pencil, Trash2, Check, X } from 'lucide-react';
+import { Pencil, Trash2, Check, X, ChevronRight } from 'lucide-react';
 import { Delta } from './Delta.tsx';
 import Amount from './Amount.tsx';
 import { categoryRiskRank } from '@/lib/portfolio.ts';
@@ -100,6 +100,7 @@ function EditForm({ row, onCancel, onSaved }: { row: AssetRowData; onCancel: () 
 export default function AssetList({ rows, totalTHB }: { rows: AssetRowData[]; totalTHB: number }) {
   const router = useRouter();
   const [editing, setEditing] = useState<string | null>(null);
+  const [open, setOpen] = useState<Record<string, boolean>>({}); // หมวดที่กางอยู่ (accordion)
 
   const groups = new Map<string, AssetRowData[]>();
   for (const r of rows) {
@@ -112,48 +113,57 @@ export default function AssetList({ rows, totalTHB }: { rows: AssetRowData[]; to
     .sort((a, b) => categoryRiskRank(a.group) - categoryRiskRank(b.group) || b.sub - a.sub);
 
   const onSaved = () => { setEditing(null); router.refresh(); };
+  const toggle = (g: string) => setOpen((o) => ({ ...o, [g]: !o[g] }));
 
   if (rows.length === 0) {
-    return <section className="card"><h2>สินทรัพย์</h2><p className="empty">ยังไม่มีสินทรัพย์</p></section>;
+    return <section className="card"><p className="empty">ยังไม่มีสินทรัพย์</p></section>;
   }
 
   return (
     <section className="card">
-      <h2>สินทรัพย์</h2>
-      {ordered.map((g) => (
+      {ordered.map((g) => {
+        const expanded = !!open[g.group];
+        return (
         <div key={g.group}>
-          {/* หัว section ต่อหมวด — จุดสี · ชื่อ · % · ยอด */}
-          <div style={{
-            display: 'grid', gridTemplateColumns: 'auto 1fr auto auto', alignItems: 'center', gap: 10,
-            padding: '15px 2px 11px', borderTop: '1px solid var(--border)',
-          }}>
+          {/* หัวหมวด (accordion) — จุดสี · ชื่อ · % กลาง · ยอดชิดขวา(align กับยอดย่อย) · chevron */}
+          <button type="button" aria-expanded={expanded} onClick={() => toggle(g.group)}
+            style={{
+              width: '100%', background: 'none', border: 'none', borderTop: '1px solid var(--border)',
+              color: 'inherit', font: 'inherit', cursor: 'pointer',
+              display: 'grid', gridTemplateColumns: 'auto auto 1fr auto 32px', alignItems: 'center', gap: 10,
+              padding: '15px 0 13px', textAlign: 'left',
+            }}>
             <span style={{ width: 11, height: 11, borderRadius: '50%', background: dotColor(g.group), flexShrink: 0 }} />
             <span style={{ fontWeight: 700 }}>{g.group}</span>
-            <span className="num" style={{ fontWeight: 800, textAlign: 'right' }}>{totalTHB > 0 ? (g.sub / totalTHB * 100).toFixed(2) : '0.00'}%</span>
-            <span className="num" style={{ color: 'var(--muted)', textAlign: 'right', minWidth: 90 }}>฿<Amount>{fmt(g.sub)}</Amount></span>
-          </div>
-          {g.items.map((r, i) => (
+            <span className="num" style={{ fontWeight: 800, textAlign: 'center' }}>{totalTHB > 0 ? (g.sub / totalTHB * 100).toFixed(2) : '0.00'}%</span>
+            <span className="num" style={{ textAlign: 'right' }}>฿<Amount>{fmt(g.sub)}</Amount></span>
+            <ChevronRight size={18} style={{ justifySelf: 'center', color: 'var(--muted)', transition: 'transform .15s', transform: expanded ? 'rotate(90deg)' : 'none' }} />
+          </button>
+          {expanded && g.items.map((r, i) => (
             <div key={r.id ?? r.name + r.broker + i}>
-              <div className="arow" style={{ alignItems: 'center' }}>
+              <div style={{
+                display: 'grid', gridTemplateColumns: '1fr auto 32px', alignItems: 'center', gap: 10,
+                padding: '12px 0', borderBottom: '1px solid var(--border)',
+              }}>
                 <span className="nm" style={{ minWidth: 0 }}>
                   <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
                   <span className="broker">{r.broker}</span>
                 </span>
-                <span className="rt">
+                <span style={{ textAlign: 'right' }}>
                   <div className="price num">฿<Amount>{fmt(r.valueTHB)}</Amount></div>
                   {r.stale ? <span className="pstatus stale num">ราคาเก่า</span> : <Delta percent={r.pct} />}
                 </span>
-                {r.id && (
+                {r.id ? (
                   <button type="button" aria-label={'แก้ไข ' + r.name} onClick={() => setEditing(editing === r.id ? null : (r.id ?? null))}
                     style={{
-                      marginLeft: 10, flexShrink: 0, width: 32, height: 32, borderRadius: 9, cursor: 'pointer',
+                      width: 32, height: 32, borderRadius: 9, cursor: 'pointer',
                       display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                       background: editing === r.id ? 'var(--brand)' : 'var(--surface-2)',
                       border: '1px solid var(--border)', color: editing === r.id ? '#fff' : 'var(--muted)',
                     }}>
                     <Pencil size={15} />
                   </button>
-                )}
+                ) : <span />}
               </div>
               {editing === r.id && r.id && (
                 <EditForm row={r} onCancel={() => setEditing(null)} onSaved={onSaved} />
@@ -161,7 +171,8 @@ export default function AssetList({ rows, totalTHB }: { rows: AssetRowData[]; to
             </div>
           ))}
         </div>
-      ))}
+        );
+      })}
     </section>
   );
 }
