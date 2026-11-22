@@ -130,13 +130,13 @@ export default function AssetList({ rows, totalTHB }: { rows: AssetRowData[]; to
             style={{
               width: '100%', background: 'none', border: 'none',
               color: 'inherit', font: 'inherit', cursor: 'pointer',
-              display: 'grid', gridTemplateColumns: 'auto auto 1fr auto 32px', alignItems: 'center', gap: 10,
+              display: 'grid', gridTemplateColumns: 'auto minmax(0,1fr) 64px 96px 32px', alignItems: 'center', gap: 10,
               padding: '10px 0', textAlign: 'left',
             }}>
             <span style={{ width: 11, height: 11, borderRadius: '50%', background: dotColor(g.group), flexShrink: 0 }} />
-            <span style={{ fontWeight: 700 }}>{g.group}</span>
-            <span className="num" style={{ fontWeight: 800, textAlign: 'center' }}>{totalTHB > 0 ? (g.sub / totalTHB * 100).toFixed(2) : '0.00'}%</span>
-            <span className="num" style={{ textAlign: 'right' }}>฿<Amount>{fmt(g.sub)}</Amount></span>
+            <span style={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{g.group}</span>
+            <span className="num" style={{ fontWeight: 800, textAlign: 'right' }}>{totalTHB > 0 ? (g.sub / totalTHB * 100).toFixed(2) : '0.00'}%</span>
+            <span className="num" style={{ textAlign: 'right', color: 'var(--muted)' }}>฿<Amount>{fmt(g.sub)}</Amount></span>
             <ChevronRight size={18} style={{ justifySelf: 'center', color: 'var(--muted)', transition: 'transform .15s', transform: expanded ? 'rotate(90deg)' : 'none' }} />
           </button>
           {expanded && (
@@ -144,7 +144,7 @@ export default function AssetList({ rows, totalTHB }: { rows: AssetRowData[]; to
           {g.items.map((r, i) => (
             <div key={r.id ?? r.name + r.broker + i}>
               <div style={{
-                display: 'grid', gridTemplateColumns: '1fr auto 32px', alignItems: 'center', gap: 10,
+                display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 96px 32px', alignItems: 'center', gap: 10,
                 padding: '12px 0', borderBottom: '1px solid var(--border)',
               }}>
                 <span className="nm" style={{ minWidth: 0 }}>
