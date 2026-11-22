@@ -120,18 +120,18 @@ export default function AssetList({ rows, totalTHB }: { rows: AssetRowData[]; to
   }
 
   return (
-    <section className="card">
+    <>
       {ordered.map((g) => {
         const expanded = !!open[g.group];
         return (
-        <div key={g.group}>
+        <section className="card" key={g.group} style={{ padding: '10px 18px' }}>
           {/* หัวหมวด (accordion) — จุดสี · ชื่อ · % กลาง · ยอดชิดขวา(align กับยอดย่อย) · chevron */}
           <button type="button" aria-expanded={expanded} onClick={() => toggle(g.group)}
             style={{
-              width: '100%', background: 'none', border: 'none', borderTop: '1px solid var(--border)',
+              width: '100%', background: 'none', border: 'none',
               color: 'inherit', font: 'inherit', cursor: 'pointer',
               display: 'grid', gridTemplateColumns: 'auto auto 1fr auto 32px', alignItems: 'center', gap: 10,
-              padding: '15px 0 13px', textAlign: 'left',
+              padding: '10px 0', textAlign: 'left',
             }}>
             <span style={{ width: 11, height: 11, borderRadius: '50%', background: dotColor(g.group), flexShrink: 0 }} />
             <span style={{ fontWeight: 700 }}>{g.group}</span>
@@ -139,7 +139,9 @@ export default function AssetList({ rows, totalTHB }: { rows: AssetRowData[]; to
             <span className="num" style={{ textAlign: 'right' }}>฿<Amount>{fmt(g.sub)}</Amount></span>
             <ChevronRight size={18} style={{ justifySelf: 'center', color: 'var(--muted)', transition: 'transform .15s', transform: expanded ? 'rotate(90deg)' : 'none' }} />
           </button>
-          {expanded && g.items.map((r, i) => (
+          {expanded && (
+          <div style={{ borderTop: '1px solid var(--border)', marginTop: 4 }}>
+          {g.items.map((r, i) => (
             <div key={r.id ?? r.name + r.broker + i}>
               <div style={{
                 display: 'grid', gridTemplateColumns: '1fr auto 32px', alignItems: 'center', gap: 10,
@@ -170,9 +172,11 @@ export default function AssetList({ rows, totalTHB }: { rows: AssetRowData[]; to
               )}
             </div>
           ))}
-        </div>
+          </div>
+          )}
+        </section>
         );
       })}
-    </section>
+    </>
   );
 }
