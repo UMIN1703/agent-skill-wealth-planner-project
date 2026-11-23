@@ -7,7 +7,7 @@ export async function GET(req: Request): Promise<Response> {
   const url = new URL(req.url);
   const code = url.searchParams.get('code');
   const state = url.searchParams.get('state');
-  const back = (status: string) => new Response(null, { status: 302, headers: { Location: `${url.origin}/slips?link=${status}` } });
+  const back = (status: string) => new Response(null, { status: 302, headers: { Location: `${url.origin}/profile/drive?link=${status}` } });
 
   if (url.searchParams.get('error')) return back('denied'); // ผู้ใช้กดยกเลิก consent
   if (!code || !state) return back('error');

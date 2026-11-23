@@ -6,17 +6,28 @@ import { redirect } from 'next/navigation';
 import { ArrowLeft, Check, FileSpreadsheet, FolderOpen, ShieldCheck, ExternalLink } from 'lucide-react';
 import { auth } from '@/auth.ts';
 import { findLedger } from '@/lib/driveSync.ts';
+import { isGoogleLinked } from '@/lib/googleLink.ts';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
-export default async function DriveSettingsPage() {
+const LINK_MSG: Record<string, { text: string; ok: boolean }> = {
+  ok: { text: 'เชื่อม Google สำเร็จ ✅ ส่งออก Sheet ได้แล้ว', ok: true },
+  denied: { text: 'ยกเลิกการเชื่อม Google', ok: false },
+  fail: { text: 'เชื่อม Google ไม่สำเร็จ ลองใหม่', ok: false },
+  error: { text: 'ลิงก์เชื่อม Google ไม่ถูกต้อง', ok: false },
+  badstate: { text: 'เซสชันเชื่อม Google หมดอายุ ลองใหม่', ok: false },
+};
+
+export default async function DriveSettingsPage({ searchParams }: { searchParams: { link?: string } }) {
   const session = await auth();
   if (!session?.user) redirect('/login?callbackUrl=/profile/drive');
 
   const token = session.provider === 'google' ? session.accessToken : undefined;
-  const connected = !!token;
+  // เชื่อมแล้ว = login Google (มี token) หรือ login LINE + เชื่อม Google ไว้ (account-link ใน KV)
+  const connected = !!token || (await isGoogleLinked(session.lineUserId));
   const email = session.user.email ?? undefined;
+  const linkMsg = searchParams?.link ? LINK_MSG[searchParams.link] : undefined;
 
   // หา ledger ที่มีอยู่ (ถ้า token ใช้ได้) — ล้มเหลว/หมดอายุ → แค่ไม่โชว์ลิงก์ ไม่ throw ทั้งหน้า
   let ledgerId: string | null = null;
@@ -34,6 +45,10 @@ export default async function DriveSettingsPage() {
         </Link>
         <h1 style={{ flex: 1 }}>เชื่อมบัญชี Google Drive</h1>
       </div>
+
+      {linkMsg && (
+        <div className={'notice ' + (linkMsg.ok ? 'warn' : 'error')} role="status">{linkMsg.text}</div>
+      )}
 
       {/* การ์ดสถานะ */}
       <section className="card">
@@ -106,13 +121,20 @@ export default async function DriveSettingsPage() {
         <>
           <section className="card">
             <p className="sub" style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--muted)' }}>
-              ตอนนี้คุณเข้าสู่ระบบด้วย <b>{session.provider === 'line' ? 'LINE' : 'บัญชีอื่น'}</b> ซึ่งยังเชื่อม Google Drive ไม่ได้
-              — เข้าสู่ระบบด้วย Google เพื่อให้แอปซิงค์รายการขึ้น Google Sheets ของคุณได้
+              เชื่อม Google เข้ากับบัญชีนี้ครั้งเดียว เพื่อ<b>ส่งออกรายงานเป็น Google Sheet</b> (และซิงค์ไฟล์) ·
+              ทำแล้วใช้ได้ตลอดแม้เข้าสู่ระบบด้วย {session.provider === 'line' ? 'LINE' : 'บัญชีนี้'}
             </p>
           </section>
-          <Link href="/login?callbackUrl=/profile/drive" className="btn-primary" style={{ display: 'flex', justifyContent: 'center' }}>
-            <FolderOpen size={18} /> เชื่อมด้วย Google
-          </Link>
+          {session.lineUserId ? (
+            // login LINE → เชื่อม Google แบบ account-link (เก็บ token ผูกกับ LINE userId)
+            <a href="/api/google/connect" className="btn-primary" style={{ display: 'flex', justifyContent: 'center' }}>
+              <FolderOpen size={18} /> เชื่อม Google
+            </a>
+          ) : (
+            <Link href="/login?callbackUrl=/profile/drive" className="btn-primary" style={{ display: 'flex', justifyContent: 'center' }}>
+              <FolderOpen size={18} /> เข้าสู่ระบบด้วย Google
+            </Link>
+          )}
         </>
       )}
     </main>
