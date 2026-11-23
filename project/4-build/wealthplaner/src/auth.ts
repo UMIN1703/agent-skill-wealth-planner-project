@@ -42,13 +42,39 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: '/login', // ใช้หน้า login ของเราเอง (ไม่ใช้หน้า default ของ NextAuth)
   },
   callbacks: {
-    // เก็บ access_token + provider ลง JWT ตอน sign in (account มีเฉพาะตอนแรก)
+    // เก็บ access_token/refresh_token + provider ลง JWT ตอน sign in · ต่ออายุ Google token เมื่อใกล้หมด
     async jwt({ token, account }) {
+      const t = token as Record<string, unknown>;
       if (account) {
-        token.accessToken = account.access_token;
-        token.provider = account.provider;
+        t.accessToken = account.access_token;
+        t.refreshToken = account.refresh_token ?? t.refreshToken;
+        t.expiresAt = account.expires_at; // epoch seconds
+        t.provider = account.provider;
         // LINE userId = providerAccountId ของ LINE (ภายใต้ provider เดียวกับ Messaging API → ตรงกัน)
-        if (account.provider === 'line') token.lineUserId = account.providerAccountId;
+        if (account.provider === 'line') t.lineUserId = account.providerAccountId;
+        return token;
+      }
+      // Google login token หมดทุก ~1 ชม. · NextAuth ไม่ refresh ให้เอง → ต่ออายุด้วย refresh_token
+      const exp = t.expiresAt as number | undefined;
+      const rt = t.refreshToken as string | undefined;
+      if (t.provider === 'google' && rt && exp && Date.now() / 1000 > exp - 60) {
+        try {
+          const res = await fetch('https://oauth2.googleapis.com/token', {
+            method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+              client_id: process.env.AUTH_GOOGLE_ID ?? '',
+              client_secret: process.env.AUTH_GOOGLE_SECRET ?? '',
+              grant_type: 'refresh_token',
+              refresh_token: rt,
+            }),
+          });
+          const j = (await res.json()) as { access_token?: string; expires_in?: number; refresh_token?: string };
+          if (res.ok && j.access_token) {
+            t.accessToken = j.access_token;
+            t.expiresAt = Math.floor(Date.now() / 1000) + (j.expires_in ?? 3600);
+            if (j.refresh_token) t.refreshToken = j.refresh_token;
+          }
+        } catch { /* เก็บ token เดิมไว้ — ถ้าหมดจริง API จะ 401 แล้วให้ผู้ใช้ login/เชื่อมใหม่ */ }
       }
       return token;
     },

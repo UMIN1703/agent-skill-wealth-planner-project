@@ -36,6 +36,7 @@ export async function POST(req: Request): Promise<Response> {
     return Response.json({ ok: true, url });
   } catch (e) {
     console.error('[export/sheet] error:', String(e));
-    return Response.json({ ok: false, reason: 'ส่งออกไม่สำเร็จ ลองใหม่' }, { status: 502 });
+    // ชั่วคราว: ใส่ error จริง (ตัดสั้น) ไว้ดีบั๊กสาเหตุ scope/สิทธิ์
+    return Response.json({ ok: false, reason: 'ส่งออกไม่สำเร็จ: ' + String(e).slice(0, 220) }, { status: 502 });
   }
 }
