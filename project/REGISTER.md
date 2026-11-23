@@ -4,7 +4,7 @@
 |---|---|
 | รหัสโครงการ | WPN |
 | เจ้าของโครงการ | TBD — ต้องการ [ชื่อ] |
-| ปรับปรุงทะเบียนล่าสุด | 2026-11-21 |
+| ปรับปรุงทะเบียนล่าสุด | 2026-11-23 |
 
 ทะเบียนนี้ต้องปรับปรุงในการแก้ไขครั้งเดียวกับที่สร้างหรือแก้เอกสาร
 ทะเบียนที่ตามมาปรับทีหลัง คือทะเบียนที่ผิดในช่วงเวลาระหว่างนั้น
@@ -27,12 +27,13 @@
 | CR-WPN-007 | Change request — ยืนยันเข้าพอร์ตผ่านการ์ด LINE (confirm/cancel → success) | 00 | อนุมัติแล้ว | 2026-11-18 |
 | CR-WPN-008 | Change request — ขยายระบบให้เทียบเท่าชีตพอร์ตจริง (เฟส 1–3: ราคาปัจจุบัน/P&L, taxonomy+tax bucket, import Sheet) | 00 | อนุมัติแล้ว | 2026-11-18 |
 | CR-WPN-009 | Change request — ปรับโครงนำทาง (IA): /assets + /activity, ย้าย Rebalance/Import เข้า Profile, หน้าตั้งค่าใช้งานจริง, ย้าย logout, เรียงความเสี่ยง, เป้าหมายตรงชีต | 00 | อนุมัติแล้ว | 2026-11-21 |
+| CR-WPN-010 | Change request — แก้ไข/ลบสินทรัพย์ + หน้าสินทรัพย์ accordion + F009 KV-free + Option B (สลิปไม่พึ่ง Google) + ส่งออกรายงาน Sheet | 00 | อนุมัติแล้ว | 2026-11-23 |
 | TST-WPN-001 | Test cases + traceability matrix — WealthPlaner | 00 | ร่าง | 2026-08-29 |
 | DSN-WPN-001 | ระบบออกแบบและข้อกำหนดหน้าจอ (Neon Dark) — WealthPlaner | 00 | ร่าง | 2026-08-31 |
 | QAR-WPN-001 | รายงานการประกันคุณภาพ (F001–F006) — WealthPlaner | 00 | ร่าง | 2026-09-19 |
 | RVW-WPN-001 | รายงานผลการทบทวนโค้ด — รอบ IA restructure (CR-WPN-009) | 00 | อนุมัติแล้ว | 2026-11-21 |
 | QAR-WPN-002 | รายงานการประกันคุณภาพ — รอบ IA restructure (CR-WPN-009) | 01 | อนุมัติแล้ว | 2026-11-21 |
-| REL-WPN-001 | บันทึกการปล่อยของและแผนถอยกลับ — Cloudflare Pages (preview) | 01 | อนุมัติแล้ว | 2026-11-21 |
+| REL-WPN-001 | บันทึกการปล่อยของและแผนถอยกลับ — Cloudflare Pages (production) | 03 | อนุมัติแล้ว | 2026-11-23 |
 
 สถานะที่ใช้ได้ — `ร่าง` · `รอทบทวน` · `อนุมัติแล้ว` · `ยกเลิก`
 
@@ -91,3 +92,7 @@ skill `document-control`
 | 2026-11-21 | QAR-WPN-002 | แก้ไข (rev 01) | ปิด 2 MAJOR: (1) `<Amount>` ซ่อนยอดทุกหน้า (home/assets/activity/legend) sync สดผ่าน event wp-privacy (2) token drift → เพิ่ม --info/--line + color-mix, แทน hardcode สีหมด · เหลือเฉพาะ MINOR · tsc สะอาด, 54/54 |
 | 2026-11-21 | REL-WPN-001 | สร้าง+อนุมัติ | release record แรก · GO WITH CONDITIONS สำหรับ preview Cloudflare Pages (commit 0c6640a) · next-on-pages build ผ่าน (22s) · release.* ใน project.yml เติมครบ · runbook docs/deploy-cloudflare.md · ข้อแม้ = provisioning (login/KV/R2/secrets) + ซ้อม rollback + ยังไม่ promote prod จนตั้ง OAuth/LINE console |
 | 2026-11-22 | REL-WPN-001 | แก้ไข (rev 01) | Deploy preview สำเร็จ — live ที่ preview.wealthplaner.pages.dev · ตั้ง 9 secrets + AUTH_TRUST_HOST · upgrade next-on-pages 1.13.10→1.13.16 (แก้บั๊ก index route `/`→404) · ปิด KV/R2 binding (free ไม่ใช้บัตร) · middleware matcher แคบลง · ทุกหน้าเรนเดอร์ |
+| 2026-11-22 | REL-WPN-001 | แก้ไข (rev 02) | Production live ที่ wealthplaner.pages.dev — แก้ auth 500 (secrets ผูก production branch feature/F008-login-sso + trustHost:true) · login LINE/Google ใช้งานจริง |
+| 2026-11-23 | CR-WPN-010 | สร้าง+อนุมัติ | เปิดคำขอ: แก้ไข/ลบสินทรัพย์ (+activity ป้าย "แก้ไข"), หน้าสินทรัพย์ accordion/กล่องแยก/% align, F009 staging ฟรี (KV แทน R2), Option B สลิป→พอร์ตไม่พึ่ง Google, ส่งออกรายงาน Google Sheet (สรุป+log รายเดือน) · Class B = migration updated_at |
+| 2026-11-23 | — (build) | สร้าง (code) | ตาม CR-WPN-010: updateHolding/deleteHolding + PATCH/DELETE /api/holdings + AssetList edit/delete, slipStore KV-only, /api/slips/confirm ไม่พึ่ง Google, sheetExport + /api/export/sheet + ExportSheetButton · tsc สะอาด, 56 เทส · commits 5ad42c6/09af518/3ad56e4/0e63261 push+deploy |
+| 2026-11-23 | REL-WPN-001 | แก้ไข (rev 03) | deploy CR-WPN-010 ขึ้น production (0e63261) · ยังค้าง: รัน migration updated_at |
