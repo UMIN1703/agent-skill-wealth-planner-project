@@ -5,6 +5,7 @@ import { FileUp } from 'lucide-react';
 import { summarizePortfolio, marketValueTHB } from '@/lib/portfolio.ts';
 import { computeIncomePercent } from '@/lib/finance.ts';
 import AssetList, { type AssetRowData } from '@/components/AssetList.tsx';
+import ExportSheetButton from '@/components/ExportSheetButton.tsx';
 import { loadAssets } from '@/lib/portfolioData.ts';
 
 export const runtime = 'edge';
@@ -25,6 +26,7 @@ export default async function AssetsPage() {
       <div className="topbar">
         <h1>สินทรัพย์</h1>
         <span className="topbar-actions">
+          <ExportSheetButton />
           <Link href="/import" className="btn-ghost" aria-label="นำเข้าจากชีต" style={{ padding: 8, borderRadius: 999 }}><FileUp size={18} /></Link>
         </span>
       </div>
