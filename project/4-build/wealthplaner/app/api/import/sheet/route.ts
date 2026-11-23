@@ -5,7 +5,7 @@ import { getGoogleAccessToken } from '@/lib/googleLink.ts';
 import { parseSheetRef, readSheetValues } from '@/lib/sheetsRead.ts';
 import { importSheetRows } from '@/lib/import.ts';
 import { draftToDisplayAsset } from '@/lib/asset.ts';
-import { insertHolding, userKeyFromSession, supabaseConfigured } from '@/lib/supabase.ts';
+import { insertHolding, resolveUserKey, supabaseConfigured } from '@/lib/supabase.ts';
 
 export const runtime = 'edge';
 
@@ -48,7 +48,7 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   // บันทึกจริง
-  const userKey = userKeyFromSession(session);
+  const userKey = await resolveUserKey(session);
   if (!userKey || !supabaseConfigured()) return Response.json({ ok: false, reason: 'ยังไม่เชื่อมฐานข้อมูล (Supabase)' }, { status: 503 });
   let inserted = 0;
   const errors = [...result.errors];

@@ -4,7 +4,7 @@
 // ยังไม่ตั้งค่า Supabase → 200 { ok:false, configured:false } (client เก็บเฉพาะในเซสชันเหมือนเดิม)
 import { auth } from '@/auth.ts';
 import { validateAssetDraft, draftToDisplayAsset, type AssetDraft } from '@/lib/asset.ts';
-import { insertHolding, updateHolding, deleteHolding, userKeyFromSession, supabaseConfigured, type HoldingPatch } from '@/lib/supabase.ts';
+import { insertHolding, updateHolding, deleteHolding, resolveUserKey, supabaseConfigured, type HoldingPatch } from '@/lib/supabase.ts';
 
 export const runtime = 'edge';
 
@@ -12,7 +12,7 @@ export const runtime = 'edge';
 async function requireUserKey(): Promise<{ userKey: string } | { error: Response }> {
   const session = await auth();
   if (!session?.user) return { error: Response.json({ ok: false, reason: 'unauthenticated' }, { status: 401 }) };
-  const userKey = userKeyFromSession(session);
+  const userKey = await resolveUserKey(session);
   if (!userKey) return { error: Response.json({ ok: false, reason: 'ระบุผู้ใช้ไม่ได้' }, { status: 400 }) };
   if (!supabaseConfigured()) return { error: Response.json({ ok: false, configured: false, reason: 'ยังไม่เชื่อมฐานข้อมูล' }, { status: 503 }) };
   return { userKey };
@@ -58,7 +58,7 @@ export async function POST(req: Request): Promise<Response> {
   const session = await auth();
   if (!session?.user) return Response.json({ ok: false, reason: 'unauthenticated' }, { status: 401 });
 
-  const userKey = userKeyFromSession(session);
+  const userKey = await resolveUserKey(session);
   if (!userKey) return Response.json({ ok: false, reason: 'ระบุผู้ใช้ไม่ได้' }, { status: 400 });
 
   let body: { draft?: AssetDraft; source?: string; claim?: string };

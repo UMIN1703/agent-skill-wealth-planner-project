@@ -1,5 +1,5 @@
 // Google OAuth callback (F009 account linking) — รับ code → แลก token → เก็บผูกกับ lineUserId
-import { exchangeCodeForTokens, saveGoogleLink, consumeState } from '@/lib/googleLink.ts';
+import { exchangeCodeForTokens, saveGoogleLink, consumeState, saveEmailLink, fetchGoogleEmail } from '@/lib/googleLink.ts';
 
 export const runtime = 'edge';
 
@@ -20,6 +20,9 @@ export async function GET(req: Request): Promise<Response> {
     const base = process.env.AUTH_URL ?? url.origin;
     const tokens = await exchangeCodeForTokens(code, `${base}/api/google/callback`);
     await saveGoogleLink(lineUserId, tokens);
+    // ผูก Google email ↔ LINE userId → login Google (email นี้) จะใช้พอร์ตเดียวกับ LINE
+    const email = await fetchGoogleEmail(tokens.access_token);
+    if (email) await saveEmailLink(email, lineUserId);
     return back('ok');
   } catch {
     return back('fail');

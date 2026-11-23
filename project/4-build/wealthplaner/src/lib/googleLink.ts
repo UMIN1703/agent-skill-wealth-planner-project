@@ -66,6 +66,29 @@ export async function isGoogleLinked(lineUserId: string | undefined): Promise<bo
   return !!(await kv()?.get(linkKey(lineUserId)));
 }
 
+// แมป Google email ↔ LINE userId — ให้ login Google กับ login LINE ของคนเดียวกันใช้ "พอร์ตเดียวกัน"
+const emailKey = (email: string) => `emaillink:${email.toLowerCase()}`;
+
+export async function saveEmailLink(email: string, lineUserId: string): Promise<void> {
+  await kv()?.put(emailKey(email), lineUserId);
+}
+/** คืน user_key แบบ 'line:<id>' ถ้า email นี้ผูกกับบัญชี LINE ไว้ · ไม่ผูก → null */
+export async function getLineKeyForEmail(email: string | undefined | null): Promise<string | null> {
+  if (!email) return null;
+  const id = await kv()?.get(emailKey(email));
+  return id ? `line:${id}` : null;
+}
+
+/** ดึงอีเมลจาก Google access token (ใช้ตอน account-link เพื่อทำ email↔line mapping) */
+export async function fetchGoogleEmail(accessToken: string): Promise<string | null> {
+  try {
+    const res = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', { headers: { Authorization: `Bearer ${accessToken}` } });
+    if (!res.ok) return null;
+    const j = (await res.json()) as { email?: string };
+    return j.email ?? null;
+  } catch { return null; }
+}
+
 /** access token ที่ใช้งานได้ (refresh ให้ถ้าใกล้หมดอายุ) หรือ null ถ้ายังไม่เชื่อม */
 export async function getGoogleAccessToken(lineUserId: string): Promise<string | null> {
   const k = kv();

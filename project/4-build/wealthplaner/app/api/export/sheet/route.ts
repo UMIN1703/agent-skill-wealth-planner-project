@@ -1,7 +1,7 @@
 // ส่งออกรายงานพอร์ตเป็น Google Sheet (CR-WPN-010) — on-demand จากหน้าสินทรัพย์
 // ต้องมี Google token (login Google หรือเชื่อม Google ไว้) · ไม่มี → บอกให้เชื่อม Google ก่อน (needLink)
 import { auth } from '@/auth.ts';
-import { userKeyFromSession, supabaseConfigured, listHoldings } from '@/lib/supabase.ts';
+import { resolveUserKey, supabaseConfigured, listHoldings } from '@/lib/supabase.ts';
 import { getGoogleAccessToken } from '@/lib/googleLink.ts';
 import { exportReport } from '@/lib/sheetExport.ts';
 
@@ -11,7 +11,7 @@ export async function POST(req: Request): Promise<Response> {
   const session = await auth();
   if (!session?.user) return Response.json({ ok: false, reason: 'unauthenticated' }, { status: 401 });
 
-  const userKey = userKeyFromSession(session);
+  const userKey = await resolveUserKey(session);
   if (!userKey || !supabaseConfigured()) {
     return Response.json({ ok: false, reason: 'ยังไม่เชื่อมฐานข้อมูล (Supabase)' }, { status: 503 });
   }

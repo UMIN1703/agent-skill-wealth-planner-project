@@ -2,8 +2,11 @@
 // ใช้ Supabase PostgREST ตรง ๆ ด้วย service_role key (ฝั่งเซิร์ฟเวอร์เท่านั้น — อย่าส่งไปฝั่ง client)
 // ไม่มี creds (เช่น dev ที่ยังไม่ตั้งค่า) → ทุกฟังก์ชันคืน null/เงียบ แล้ว caller fallback เป็น sampleAssets
 import { getVar } from './cfEnv.ts';
+import { getLineKeyForEmail } from './googleLink.ts';
 import type { HeldAsset } from './portfolio.ts';
 import type { DisplayAsset } from '../data/sampleAssets.ts';
+
+type SessionLike = { provider?: string; lineUserId?: string; user?: { email?: string | null } | null } | null;
 
 const TABLE = 'holdings';
 
@@ -18,14 +21,25 @@ export function supabaseConfigured(): boolean {
   return cfg() !== null;
 }
 
-/** user_key คงที่ต่อผู้ใช้ — 'line:<id>' เมื่อ login LINE, ไม่งั้น 'google:<email>' */
-export function userKeyFromSession(
-  session: { provider?: string; lineUserId?: string; user?: { email?: string | null } | null } | null,
-): string | null {
+/** user_key คงที่ต่อผู้ใช้ — 'line:<id>' เมื่อ login LINE, ไม่งั้น 'google:<email>' (แบบ sync, ไม่ map) */
+export function userKeyFromSession(session: SessionLike): string | null {
   if (!session) return null;
   if (session.provider === 'line' && session.lineUserId) return `line:${session.lineUserId}`;
   const email = session.user?.email;
   return email ? `google:${email}` : (session.lineUserId ? `line:${session.lineUserId}` : null);
+}
+
+/** user_key แบบรวมบัญชี — login Google (email ที่ผูกกับ LINE ไว้) จะได้ 'line:<id>' เดียวกัน
+ *  → login LINE หรือ Google ของคนเดียวกัน เห็นพอร์ตเดียวกัน (ใช้แทน userKeyFromSession ทุกที่ที่อ่าน/เขียนพอร์ต) */
+export async function resolveUserKey(session: SessionLike): Promise<string | null> {
+  if (!session) return null;
+  if (session.provider === 'line' && session.lineUserId) return `line:${session.lineUserId}`;
+  const email = session.user?.email;
+  if (email) {
+    const linked = await getLineKeyForEmail(email); // Google email → line:<id> ถ้าผูกไว้
+    return linked ?? `google:${email}`;
+  }
+  return session.lineUserId ? `line:${session.lineUserId}` : null;
 }
 
 async function sb(path: string, init?: RequestInit): Promise<Response> {

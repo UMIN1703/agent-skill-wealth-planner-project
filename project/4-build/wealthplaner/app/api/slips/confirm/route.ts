@@ -7,7 +7,7 @@ import { removePendingSlip } from '@/lib/slipStore.ts';
 import { verifyClaim } from '@/lib/claim.ts';
 import { getVar } from '@/lib/cfEnv.ts';
 import { pushLineButtons } from '@/lib/lineApi.ts';
-import { userKeyFromSession, supabaseConfigured, insertHolding } from '@/lib/supabase.ts';
+import { resolveUserKey, supabaseConfigured, insertHolding } from '@/lib/supabase.ts';
 import { holdingSummary } from '@/lib/portfolio.ts';
 
 export const runtime = 'edge';
@@ -31,7 +31,7 @@ export async function POST(req: Request): Promise<Response> {
   if (!p || !p.name?.trim() || !(p.quantity > 0)) {
     return Response.json({ ok: false, reason: 'กรอกชื่อสินทรัพย์และจำนวนหน่วยเพื่อบันทึกเข้าพอร์ต' }, { status: 422 });
   }
-  const userKey = userKeyFromSession(session);
+  const userKey = await resolveUserKey(session);
   if (!userKey || !supabaseConfigured()) {
     return Response.json({ ok: false, reason: 'ยังไม่เชื่อมฐานข้อมูล (Supabase)' }, { status: 503 });
   }
