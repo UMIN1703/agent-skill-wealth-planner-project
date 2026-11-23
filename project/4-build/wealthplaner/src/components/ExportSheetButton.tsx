@@ -10,16 +10,18 @@ export default function ExportSheetButton() {
   const [busy, setBusy] = useState(false);
   const [url, setUrl] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [reauth, setReauth] = useState(false);
   const [askConnect, setAskConnect] = useState(false);
 
   async function run() {
     if (busy) return;
-    setBusy(true); setErr(null); setUrl(null);
+    setBusy(true); setErr(null); setUrl(null); setReauth(false);
     try {
       const res = await fetch('/api/export/sheet', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-      const j = (await res.json().catch(() => ({}))) as { ok?: boolean; url?: string; needLink?: boolean; reason?: string };
+      const j = (await res.json().catch(() => ({}))) as { ok?: boolean; url?: string; needLink?: boolean; needReauth?: boolean; reason?: string };
       if (res.ok && j.ok && j.url) setUrl(j.url);
       else if (j.needLink) setAskConnect(true);           // ยังไม่เชื่อม Google → เปิด modal
+      else if (j.needReauth) { setReauth(true); setErr(j.reason ?? 'สิทธิ์ Google หมดอายุ — เข้าสู่ระบบใหม่'); }
       else setErr(res.status === 401 ? 'ต้องเข้าสู่ระบบก่อน' : (j.reason ?? 'ส่งออกไม่สำเร็จ ลองใหม่'));
     } catch { setErr('เครือข่ายขัดข้อง ลองใหม่'); }
     setBusy(false);
@@ -79,8 +81,17 @@ export default function ExportSheetButton() {
                 <ExternalLink size={15} /> เปิดรายงาน
               </a>
             </>
-          ) : <span style={{ color: 'var(--loss)' }}>{err}</span>}
-          <button type="button" aria-label="ปิด" onClick={() => { setUrl(null); setErr(null); }}
+          ) : (
+            <>
+              <span style={{ color: 'var(--loss)' }}>{err}</span>
+              {reauth && (
+                <a href="/login?callbackUrl=/assets" className="btn-primary" style={{ width: 'auto', padding: '7px 14px', whiteSpace: 'nowrap' }}>
+                  เข้าสู่ระบบใหม่
+                </a>
+              )}
+            </>
+          )}
+          <button type="button" aria-label="ปิด" onClick={() => { setUrl(null); setErr(null); setReauth(false); }}
             style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', display: 'inline-flex' }}>
             <X size={16} />
           </button>

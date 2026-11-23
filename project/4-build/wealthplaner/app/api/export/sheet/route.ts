@@ -36,7 +36,10 @@ export async function POST(req: Request): Promise<Response> {
     return Response.json({ ok: true, url });
   } catch (e) {
     console.error('[export/sheet] error:', String(e));
-    // ชั่วคราว: ใส่ error จริง (ตัดสั้น) ไว้ดีบั๊กสาเหตุ scope/สิทธิ์
-    return Response.json({ ok: false, reason: 'ส่งออกไม่สำเร็จ: ' + String(e).slice(0, 220) }, { status: 502 });
+    // token Google หมดอายุ/เพิกถอน → ให้ผู้ใช้เข้าสู่ระบบ/เชื่อม Google ใหม่
+    if (String(e).includes('Google 401') || String(e).includes('Google 403')) {
+      return Response.json({ ok: false, needReauth: true, reason: 'สิทธิ์ Google หมดอายุ — เข้าสู่ระบบด้วย Google ใหม่อีกครั้ง' }, { status: 401 });
+    }
+    return Response.json({ ok: false, reason: 'ส่งออกไม่สำเร็จ ลองใหม่' }, { status: 502 });
   }
 }
