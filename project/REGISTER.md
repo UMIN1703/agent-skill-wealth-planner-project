@@ -33,6 +33,7 @@
 | CR-WPN-013 | Change request — หน้านโยบายความเป็นส่วนตัว (/privacy) + Google Limited Use disclosure | 00 | อนุมัติแล้ว | 2026-11-24 |
 | CR-WPN-014 | Change request — ราคา/อัตราแลกเปลี่ยนสด (USD/THB dual-FX + คริปโต CoinGecko + หุ้น ตปท. Finnhub) | 00 | อนุมัติแล้ว | 2026-11-24 |
 | CR-WPN-015 | Change request — ปรับ UX/ดีไซน์ (แก้ฟอร์ม, .icon-btn, topbar) + SSO-only + แบบประเมินหน้าแยก + risk onboarding | 00 | อนุมัติแล้ว | 2026-11-24 |
+| CR-WPN-016 | Change request — rebalance อ่านพอร์ตจริง + ฟิลด์ symbol/ticker ต่อรายการ (ปิด 2 MAJOR จาก RVW-003/QAR-004) | 00 | อนุมัติแล้ว | 2026-11-24 |
 | TST-WPN-001 | Test cases + traceability matrix — WealthPlaner | 00 | ร่าง | 2026-08-29 |
 | DSN-WPN-001 | ระบบออกแบบและข้อกำหนดหน้าจอ (Neon Dark) — WealthPlaner | 00 | ร่าง | 2026-08-31 |
 | QAR-WPN-001 | รายงานการประกันคุณภาพ (F001–F006) — WealthPlaner | 00 | ร่าง | 2026-09-19 |
@@ -122,3 +123,4 @@ skill `document-control`
 | 2026-11-24 | RVW-WPN-003 | สร้าง+อนุมัติ | ทบทวนโค้ด CR-010/012/013/014/015 (งานที่ยังไม่เคย gate) · **APPROVE WITH CHANGES** · 0 BLOCKER · 2 MAJOR (rebalance ใช้ mock → 4.1, เดา symbol ราคาจากชื่อ → 4.2) + MINOR (DRY compact, recordSnapshot await, dead CSS) → backlog · tsc สะอาด, 59 เทส |
 | 2026-11-24 | QAR-WPN-004 | สร้าง+อนุมัติ | QA CR-010/012/013/014/015 (functional/visual/a11y, static) · **PASS WITH ADVISORIES** · 0 BLOCKER · 1 MAJOR (rebalance mock) + MINOR (modal ไม่ focus-trap/Esc, chart a11y alt, ยังไม่รัน axe) · visual ผ่าน (.icon-btn/topbar/chevron/date/.note) |
 | 2026-11-24 | REL-WPN-001 | แก้ไข (rev 05) | ปล่อย CR-012/013/014/015 ขึ้น production (ล่าสุด cd9b8bd9) · **GO** (RVW-003 + QAR-004) · migration รอบนี้มีแค่ user_prefs (รัน+ยืนยันแล้ว) · rollback-safe (additive) · MAJOR ค้าง = rebalance mock (4.1) |
+| 2026-11-24 | CR-WPN-016 | สร้าง+อนุมัติ | ปิด 2 MAJOR จาก gate: (4.1) /rebalance อ่านพอร์ตจริง — server+RebalanceForm, 7 หมวด union, demo notice (commit 120a1d1) · (4.2) ฟิลด์ symbol/ticker ต่อรายการ (AssetDraft/DisplayAsset/holdings+insert/update/patch, ฟอร์มเพิ่ม+แก้, applyLivePrices ใช้ symbol ก่อนเดาชื่อ) · Class B = migration holdings.symbol (รัน+ยืนยัน read200/insert201) · tsc สะอาด, 59 เทส · deploy 581ea0bb · commit a77eb30 |
