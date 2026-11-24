@@ -8,16 +8,11 @@ import GrowthChart from '@/components/GrowthChart.tsx';
 import Amount from '@/components/Amount.tsx';
 import { loadAssets } from '@/lib/portfolioData.ts';
 import { listSnapshots, recordSnapshot, getPrefs } from '@/lib/supabase.ts';
+import { waitUntil } from '@/lib/cfEnv.ts';
+import { compact } from '@/lib/format.ts';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic'; // ข้อมูลเฉพาะผู้ใช้ — เรนเดอร์สดทุกครั้ง
-
-const fmt = (n: number) => new Intl.NumberFormat('th-TH', { maximumFractionDigits: 0 }).format(Math.round(n));
-// ย่อเลขให้พอดีการ์ดสถิติ (฿1.58M / ฿420k / ฿9,800)
-const compact = (n: number) => {
-  const a = Math.abs(n);
-  return a >= 1e6 ? (n / 1e6).toFixed(2) + 'M' : a >= 1e4 ? Math.round(n / 1e3) + 'k' : fmt(n);
-};
 
 // หน้า Portfolio (F002) — restyle · ยอดจริงจาก Supabase (CR-WPN-006) · ยังไม่ตั้งค่า → เดโม
 export default async function PortfolioPage() {
@@ -33,7 +28,7 @@ export default async function PortfolioPage() {
   const nowYear = new Date().getFullYear();
   let growthYears: GrowthSeries[] | null = null;
   if (!s.isEmpty) {
-    if (!isDemo && userKey) await recordSnapshot(userKey, cost, s.totalTHB); // best-effort (ไม่ throw)
+    if (!isDemo && userKey) waitUntil(recordSnapshot(userKey, cost, s.totalTHB)); // เบื้องหลัง (ไม่บล็อกหน้า · best-effort)
     const snaps = !isDemo && userKey ? await listSnapshots(userKey) : [];
     const yrs = [
       ...assets.map((a) => (a.createdAt ? new Date(a.createdAt).getFullYear() : nowYear)),

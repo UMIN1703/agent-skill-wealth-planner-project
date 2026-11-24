@@ -216,14 +216,7 @@ a:focus-visible, button:focus-visible, select:focus-visible { outline: 2px solid
 .sso-btn:hover { background: var(--surface-2); border-color: var(--brand); }
 .sso-btn .ic { position: absolute; left: 14px; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
 
-.auth-div { display: flex; align-items: center; gap: 12px; color: var(--muted-2); font-size: 12px; margin: 2px 0; }
-.auth-div::before, .auth-div::after { content: ""; flex: 1; height: 1px; background: var(--border); }
-
-.auth-form { display: flex; flex-direction: column; gap: 12px; }
-.auth-row { display: flex; align-items: center; justify-content: space-between; }
-.auth-link { background: none; border: 0; padding: 0; font-family: inherit; font-size: 12px; color: var(--accent); cursor: pointer; text-decoration: underline; }
-.auth-foot { text-align: center; font-size: 12px; color: var(--muted); line-height: 1.6; }
-.auth-foot a, .auth-foot .auth-link { font-size: 12px; }
+/* (ลบ CSS ฟอร์มอีเมล/สมัคร: .auth-div/.auth-form/.auth-row/.auth-link/.auth-foot — SSO-only · CR-WPN-015) */
 .auth-legal { text-align: center; font-size: 11px; color: var(--muted-2); line-height: 1.6; margin-top: 2px; }
 .auth-legal a { color: var(--muted); text-decoration: underline; }
 .spin { animation: spin 0.8s linear infinite; }

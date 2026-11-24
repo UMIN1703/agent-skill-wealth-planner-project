@@ -29,6 +29,14 @@ function env(): Partial<CloudflareEnv> {
   return (getOptionalRequestContext()?.env ?? {}) as Partial<CloudflareEnv>;
 }
 
+/** รันงานเบื้องหลังให้จบหลังส่ง response (เช่นเขียน snapshot) โดยไม่บล็อกหน้า ·
+ *  บน Cloudflare ใช้ ctx.waitUntil · dev/ไม่มี ctx → ปล่อยให้รันไป (best-effort, ดัก error กันค้าง) */
+export function waitUntil(p: Promise<unknown>): void {
+  const ctx = getOptionalRequestContext()?.ctx as { waitUntil?: (p: Promise<unknown>) => void } | undefined;
+  if (ctx?.waitUntil) ctx.waitUntil(p.catch(() => {}));
+  else void p.catch(() => {});
+}
+
 export function kv(): KVNamespace | undefined {
   return env().SLIP_INDEX;
 }

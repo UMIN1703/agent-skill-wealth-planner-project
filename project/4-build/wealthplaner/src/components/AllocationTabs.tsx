@@ -5,15 +5,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Amount from '@/components/Amount.tsx';
+import { fmt } from '@/lib/format.ts';
 
 export type AllocRow = { name: string; curPct: number; curValueTHB: number; tgtPct: number };
 
 const pct = (n: number) => n.toFixed(0) + '%';
-const fmt = (n: number) => new Intl.NumberFormat('th-TH', { maximumFractionDigits: 0 }).format(Math.round(n));
-const compact = (n: number) => {
-  const a = Math.abs(n);
-  return a >= 1e6 ? (n / 1e6).toFixed(2) + 'M' : a >= 1e4 ? Math.round(n / 1e3) + 'k' : fmt(n);
-};
 
 // สีประจำหมวด (CI เดิม) + fallback แบบ deterministic
 const CAT_COLORS: Record<string, string> = {

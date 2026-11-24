@@ -5,16 +5,11 @@
 import { useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { GrowthSeries } from '@/lib/portfolio.ts';
+import { compact } from '@/lib/format.ts';
 import Amount from './Amount.tsx';
 
 const MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 const LABEL_AT = new Set([0, 3, 6, 9, 11]);
-
-const compact = (n: number) => {
-  const a = Math.abs(n);
-  return a >= 1e6 ? (n / 1e6).toFixed(2) + 'M' : a >= 1e4 ? Math.round(n / 1e3) + 'k'
-    : new Intl.NumberFormat('th-TH', { maximumFractionDigits: 0 }).format(Math.round(n));
-};
 
 // พิกัดกราฟ
 const PL = 12, PR = 308, PT = 16, PB = 132, VB_W = 320;
