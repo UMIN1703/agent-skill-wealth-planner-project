@@ -1,4 +1,4 @@
-import { summarizePortfolio, taxDeductionSummary, categoryAllocation, targetsForRisk, categoryRiskRank, buildGrowthSeries } from '@/lib/portfolio.ts';
+import { summarizePortfolio, taxDeductionSummary, categoryAllocation, targetsForRisk, categoryRiskRank, buildGrowthSeries, type GrowthSeries } from '@/lib/portfolio.ts';
 import AllocationTabs, { type AllocRow } from '@/components/AllocationTabs.tsx';
 import RiskStat from '@/components/RiskStat.tsx';
 import PortfolioHero from '@/components/PortfolioHero.tsx';
@@ -27,12 +27,21 @@ export default async function PortfolioPage() {
   const up = s.totalIncomeTHB >= 0;
 
   // กราฟการเติบโต (CR-WPN-011): บันทึก snapshot ของวันนี้ (ของจริงเท่านั้น) แล้วอ่านประวัติมาวาด
-  const year = new Date().getFullYear();
-  let growth = null;
+  // ข้อ 8: สร้าง series ต่อปี (ช่วงปีที่มีข้อมูล ≤ 6 ปีล่าสุด) ให้สลับปีได้
+  const nowYear = new Date().getFullYear();
+  let growthYears: GrowthSeries[] | null = null;
   if (!s.isEmpty) {
     if (!isDemo && userKey) await recordSnapshot(userKey, cost, s.totalTHB); // best-effort (ไม่ throw)
     const snaps = !isDemo && userKey ? await listSnapshots(userKey) : [];
-    growth = buildGrowthSeries(assets, snaps, year, cost, s.totalTHB);
+    const yrs = [
+      ...assets.map((a) => (a.createdAt ? new Date(a.createdAt).getFullYear() : nowYear)),
+      ...snaps.map((sn) => Number(sn.asOf.slice(0, 4))),
+      nowYear,
+    ].filter((y) => Number.isFinite(y));
+    const minY = Math.max(Math.min(...yrs), nowYear - 5);
+    const years: number[] = [];
+    for (let y = minY; y <= nowYear; y++) years.push(y);
+    growthYears = years.map((y) => buildGrowthSeries(assets, snaps, y, cost, s.totalTHB));
   }
 
   const taxRows = taxDeductionSummary(assets);
@@ -71,7 +80,7 @@ export default async function PortfolioPage() {
         <RiskStat initial={prefs?.risk ? { level: prefs.risk.level, short: prefs.risk.short } : null} />
       </div>
 
-      {growth && <GrowthChart series={growth} returnPct={incomePct} up={up} />}
+      {growthYears && <GrowthChart seriesByYear={growthYears} nowYear={nowYear} returnPct={incomePct} up={up} />}
 
       {!s.isEmpty && <AllocationTabs rows={allocRows} />}
 
