@@ -1,16 +1,14 @@
 'use client';
 
-// ฟอร์มเข้าสู่ระบบ + Single Sign-On (F008) — DSN-WPN-001 §5.x
-// client component: ปุ่ม SSO + ฟอร์มอีเมล · session guard อยู่ที่ page.tsx (server)
-// backend = Auth.js (NextAuth v5) · session เป็น JWT ไม่ผูก DB/Supabase
-// provider ตาม spec PRD: Google + LINE (ใช้ได้จริงทั้งคู่)
+// ฟอร์มเข้าสู่ระบบ (F008) — Single Sign-On เท่านั้น: Google + LINE
+// client component · session guard อยู่ที่ page.tsx (server) · backend = Auth.js (NextAuth v5), session เป็น JWT
 //   • Google — AUTH_GOOGLE_ID/SECRET · LINE — AUTH_LINE_ID/SECRET · + AUTH_SECRET ใน .env.local
-//   • อีเมล/รหัสผ่าน — UI มีแต่ยังไม่เปิด (ต้องมี Credentials provider + ที่เก็บผู้ใช้) จะแจ้งตรงๆ ไม่แกล้งสำเร็จ
+// (เอาอีเมล/รหัสผ่าน + สมัครสมาชิกออก — แอปใช้ SSO อย่างเดียว · CR-WPN-015)
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { signIn as naSignIn } from 'next-auth/react';
-import { Mail, Lock, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 type Provider = 'google' | 'line'; // id ตรงกับ provider id ของ NextAuth
 type Notice = { kind: 'warn' | 'error'; text: string } | null;
@@ -20,51 +18,23 @@ const PROVIDERS: { id: Provider; label: string; Icon: () => JSX.Element }[] = [
   { id: 'line', label: 'ดำเนินการต่อด้วย LINE', Icon: LineIcon },
 ];
 
-const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 export default function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-  const [pending, setPending] = useState<string | null>(null); // provider/'email' ที่กำลังดำเนินการ
+  const [pending, setPending] = useState<string | null>(null); // provider ที่กำลังดำเนินการ
   const [notice, setNotice] = useState<Notice>(null);
 
-  // NextAuth เด้งกลับมาพร้อม ?error=... เมื่อ login ไม่สำเร็จ (เช่น ยังไม่ตั้ง creds / redirect URI ผิด)
+  // NextAuth เด้งกลับมาพร้อม ?error=... เมื่อ login ไม่สำเร็จ (เช่น redirect URI ผิด)
   useEffect(() => {
     const err = new URLSearchParams(window.location.search).get('error');
     if (err) setNotice({ kind: 'error', text: 'เข้าสู่ระบบไม่สำเร็จ (' + err + ') — ตรวจ creds + redirect URI ของ provider แล้วลองใหม่' });
   }, []);
 
-  async function signIn(method: Provider | 'email') {
+  async function signIn(method: Provider) {
     setNotice(null);
-
-    // อีเมล/รหัสผ่าน — ต้องมี Credentials provider + ที่เก็บผู้ใช้ (ยังไม่ได้ตั้ง)
-    if (method === 'email') {
-      setNotice({ kind: 'warn', text: 'ยังไม่เปิดล็อกอินด้วยอีเมล/รหัสผ่าน — ต้องเพิ่ม Credentials provider + ที่เก็บผู้ใช้ก่อน (ตอนนี้ใช้ Google หรือ LINE ได้)' });
-      return;
-    }
-
-    // Google / LINE — method ตรงกับ provider id ของ NextAuth → เด้งไป provider แล้วกลับ
-    // callbackUrl จาก query (เช่น /slips?claim=...) ถ้ามี, ไม่งั้นไปหน้าพอร์ต (/)
     setPending(method);
+    // callbackUrl จาก query (เช่น /slips?claim=...) ถ้ามี, ไม่งั้นไปหน้าพอร์ต (/)
     const callbackUrl = new URLSearchParams(window.location.search).get('callbackUrl') || '/';
     await naSignIn(method, { callbackUrl });
   }
-
-  function onEmailSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const next: typeof errors = {};
-    if (!emailRe.test(email.trim())) next.email = 'รูปแบบอีเมลไม่ถูกต้อง';
-    if (password.length < 8) next.password = 'รหัสผ่านต้องยาวอย่างน้อย 8 ตัวอักษร';
-    setErrors(next);
-    if (Object.keys(next).length > 0) {
-      document.getElementById(next.email ? 'f-email' : 'f-pass')?.focus();
-      return;
-    }
-    signIn('email');
-  }
-
-  const busy = (k: string) => pending === k;
 
   return (
     <main className="auth">
@@ -77,7 +47,7 @@ export default function LoginForm() {
           <p>เข้าสู่ระบบเพื่อจัดการพอร์ตการลงทุนข้ามโบรก</p>
         </div>
 
-        {/* ปุ่ม SSO 4 เจ้า */}
+        {/* ปุ่ม SSO */}
         <div className="sso-list">
           {PROVIDERS.map(({ id, label, Icon }) => (
             <button
@@ -89,52 +59,12 @@ export default function LoginForm() {
               aria-label={label}
             >
               <span className="ic" aria-hidden="true">
-                {busy(id) ? <Loader2 size={18} className="spin" /> : <Icon />}
+                {pending === id ? <Loader2 size={18} className="spin" /> : <Icon />}
               </span>
               {label}
             </button>
           ))}
         </div>
-
-        <div className="auth-div">หรือเข้าสู่ระบบด้วยอีเมล</div>
-
-        {/* ฟอร์มอีเมล/รหัสผ่าน */}
-        <form className="auth-form" onSubmit={onEmailSubmit} noValidate>
-          <div className={'field' + (errors.email ? ' has-error' : '')}>
-            <label htmlFor="f-email">อีเมล</label>
-            <div style={{ position: 'relative' }}>
-              <Mail size={16} aria-hidden="true" style={iconInInput} />
-              <input
-                id="f-email" type="email" inputMode="email" autoComplete="email"
-                className="input" placeholder="you@example.com" style={{ paddingLeft: 38 }}
-                value={email} onChange={(e) => { setEmail(e.target.value); setErrors((x) => ({ ...x, email: undefined })); }}
-                aria-invalid={!!errors.email} aria-describedby={errors.email ? 'f-email-err' : undefined}
-              />
-            </div>
-            {errors.email && <span className="field-err" id="f-email-err" role="alert">{errors.email}</span>}
-          </div>
-
-          <div className={'field' + (errors.password ? ' has-error' : '')}>
-            <div className="auth-row">
-              <label htmlFor="f-pass">รหัสผ่าน</label>
-              <button type="button" className="auth-link" onClick={() => signIn('email')}>ลืมรหัสผ่าน?</button>
-            </div>
-            <div style={{ position: 'relative' }}>
-              <Lock size={16} aria-hidden="true" style={iconInInput} />
-              <input
-                id="f-pass" type="password" autoComplete="current-password"
-                className="input" placeholder="อย่างน้อย 8 ตัวอักษร" style={{ paddingLeft: 38 }}
-                value={password} onChange={(e) => { setPassword(e.target.value); setErrors((x) => ({ ...x, password: undefined })); }}
-                aria-invalid={!!errors.password} aria-describedby={errors.password ? 'f-pass-err' : undefined}
-              />
-            </div>
-            {errors.password && <span className="field-err" id="f-pass-err" role="alert">{errors.password}</span>}
-          </div>
-
-          <button type="submit" className="btn-primary" disabled={pending !== null}>
-            {busy('email') ? <><Loader2 size={18} className="spin" /> กำลังเข้าสู่ระบบ…</> : 'เข้าสู่ระบบ'}
-          </button>
-        </form>
 
         {notice && (
           <div className={'notice ' + notice.kind} role={notice.kind === 'error' ? 'alert' : 'status'}>
@@ -142,9 +72,6 @@ export default function LoginForm() {
           </div>
         )}
 
-        <p className="auth-foot">
-          ยังไม่มีบัญชี? <Link href="/login" className="inlink">สมัครสมาชิก</Link>
-        </p>
         <p className="auth-legal">
           เมื่อเข้าสู่ระบบ ถือว่ายอมรับ <a href="#">ข้อกำหนดการใช้งาน</a> และ <Link href="/privacy" className="inlink">นโยบายความเป็นส่วนตัว</Link>
         </p>
@@ -152,11 +79,6 @@ export default function LoginForm() {
     </main>
   );
 }
-
-const iconInInput: React.CSSProperties = {
-  position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
-  color: 'var(--muted-2)', pointerEvents: 'none',
-};
 
 /* ── โลโก้แบรนด์ (inline SVG — lucide ไม่มี brand icon) ── */
 function GoogleIcon() {
