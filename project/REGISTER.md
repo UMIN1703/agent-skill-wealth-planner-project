@@ -32,6 +32,7 @@
 | CR-WPN-012 | Change request — เก็บความเสี่ยง + เป้าหมาย allocation ขึ้น Supabase (user_prefs) + เป้าหมายปรับตามความเสี่ยง | 01 | อนุมัติแล้ว | 2026-11-24 |
 | CR-WPN-013 | Change request — หน้านโยบายความเป็นส่วนตัว (/privacy) + Google Limited Use disclosure | 00 | อนุมัติแล้ว | 2026-11-24 |
 | CR-WPN-014 | Change request — ราคา/อัตราแลกเปลี่ยนสด (USD/THB dual-FX + คริปโต CoinGecko + หุ้น ตปท. Finnhub) | 00 | อนุมัติแล้ว | 2026-11-24 |
+| CR-WPN-015 | Change request — ปรับ UX/ดีไซน์ (แก้ฟอร์ม, .icon-btn, topbar) + SSO-only + แบบประเมินหน้าแยก + risk onboarding | 00 | อนุมัติแล้ว | 2026-11-24 |
 | TST-WPN-001 | Test cases + traceability matrix — WealthPlaner | 00 | ร่าง | 2026-08-29 |
 | DSN-WPN-001 | ระบบออกแบบและข้อกำหนดหน้าจอ (Neon Dark) — WealthPlaner | 00 | ร่าง | 2026-08-31 |
 | QAR-WPN-001 | รายงานการประกันคุณภาพ (F001–F006) — WealthPlaner | 00 | ร่าง | 2026-09-19 |
@@ -39,7 +40,9 @@
 | QAR-WPN-002 | รายงานการประกันคุณภาพ — รอบ IA restructure (CR-WPN-009) | 01 | อนุมัติแล้ว | 2026-11-21 |
 | RVW-WPN-002 | รายงานผลการทบทวนโค้ด — รอบกราฟการเติบโต + rebrand (CR-WPN-011) | 00 | อนุมัติแล้ว | 2026-11-24 |
 | QAR-WPN-003 | รายงานการประกันคุณภาพ — รอบกราฟการเติบโต + rebrand (CR-WPN-011) | 00 | อนุมัติแล้ว | 2026-11-24 |
-| REL-WPN-001 | บันทึกการปล่อยของและแผนถอยกลับ — Cloudflare Pages (production) | 04 | อนุมัติแล้ว | 2026-11-24 |
+| RVW-WPN-003 | รายงานผลการทบทวนโค้ด — รอบ CR-010/012/013/014/015 | 00 | อนุมัติแล้ว | 2026-11-24 |
+| QAR-WPN-004 | รายงานการประกันคุณภาพ — รอบ CR-010/012/013/014/015 | 00 | อนุมัติแล้ว | 2026-11-24 |
+| REL-WPN-001 | บันทึกการปล่อยของและแผนถอยกลับ — Cloudflare Pages (production) | 05 | อนุมัติแล้ว | 2026-11-24 |
 
 สถานะที่ใช้ได้ — `ร่าง` · `รอทบทวน` · `อนุมัติแล้ว` · `ยกเลิก`
 
@@ -115,3 +118,7 @@ skill `document-control`
 | 2026-11-24 | CR-WPN-011 | แก้ไข (rev 01) | ปิด backlog กราฟ (ข้อ 8): GrowthChart client — แตะ/ลากดูค่าต่อเดือน (crosshair+tooltip มาสก์ privacy) + ปุ่มสลับปี (series ต่อปี ≤6) · pill %เฉพาะปีปัจจุบัน · tsc สะอาด · deploy 863270a3 · commit 3ed3484 · ไม่มี Class B |
 | 2026-11-24 | CR-WPN-013 | สร้าง+อนุมัติ | เปิดคำขอ+สร้าง (ข้อ 9): หน้า /privacy สาธารณะ อิงการทำงานจริง 9 หัวข้อ + Google API Limited Use disclosure (จำเป็นต่อ OAuth verification) + ลิงก์จาก footer login · ไม่อยู่ใน middleware · smoke 200 · deploy d7456fa4 · commit 9f63e90 · ไม่มี Class B |
 | 2026-11-24 | CR-WPN-014 | สร้าง+อนุมัติ | เปิดคำขอ+สร้าง (ข้อ 10): ราคา/เรตสด — USD/THB (frankfurter.dev, dual-FX: มูลค่าเรตสด/ต้นทุนเรตเดิม) + คริปโต (CoinGecko, curated map) + โครงหุ้น ตปท. (Finnhub, FINNHUB_API_KEY-gated no-op) · prices.ts best-effort · เดโม/ล็อกเอาต์ไม่ยิง API · tsc สะอาด, 59 เทส (เพิ่ม dual-FX) · deploy f59e276d · commit 2b86be9 · ไม่มี Class B |
+| 2026-11-24 | CR-WPN-015 | สร้าง+อนุมัติ | เปิดคำขอ+สร้าง: UX/ดีไซน์ — แก้ฟอร์ม (dropdown chevron, date overflow/ชิดซ้าย, .note flex→block), SSO-only login (ตัด email/สมัคร stub), แบบประเมินเป็นหน้าแยก /profile/risk (+modal unsaved +toast), risk onboarding (CTA/RiskStat/คืนค่าแนะนำ), `.icon-btn` ปุ่มกลม consistency + topbar gap · ไม่มี Class B · commits 70656be→4382872 |
+| 2026-11-24 | RVW-WPN-003 | สร้าง+อนุมัติ | ทบทวนโค้ด CR-010/012/013/014/015 (งานที่ยังไม่เคย gate) · **APPROVE WITH CHANGES** · 0 BLOCKER · 2 MAJOR (rebalance ใช้ mock → 4.1, เดา symbol ราคาจากชื่อ → 4.2) + MINOR (DRY compact, recordSnapshot await, dead CSS) → backlog · tsc สะอาด, 59 เทส |
+| 2026-11-24 | QAR-WPN-004 | สร้าง+อนุมัติ | QA CR-010/012/013/014/015 (functional/visual/a11y, static) · **PASS WITH ADVISORIES** · 0 BLOCKER · 1 MAJOR (rebalance mock) + MINOR (modal ไม่ focus-trap/Esc, chart a11y alt, ยังไม่รัน axe) · visual ผ่าน (.icon-btn/topbar/chevron/date/.note) |
+| 2026-11-24 | REL-WPN-001 | แก้ไข (rev 05) | ปล่อย CR-012/013/014/015 ขึ้น production (ล่าสุด cd9b8bd9) · **GO** (RVW-003 + QAR-004) · migration รอบนี้มีแค่ user_prefs (รัน+ยืนยันแล้ว) · rollback-safe (additive) · MAJOR ค้าง = rebalance mock (4.1) |
