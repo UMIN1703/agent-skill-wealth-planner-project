@@ -8,13 +8,15 @@ import { getVar } from '@/lib/cfEnv.ts';
 import { stageSlip, stagingConfigured } from '@/lib/slipStore.ts';
 import { downloadLineContent, replyLineText, replyLineButtons } from '@/lib/lineApi.ts';
 import { signClaim } from '@/lib/claim.ts';
+import { listHoldings } from '@/lib/supabase.ts';
+import { buildPortfolioSummaryText, isSummaryRequest } from '@/lib/lineSummary.ts';
 
 export const runtime = 'edge';
 
 type LineEvent = {
   type: string;
   replyToken?: string;
-  message?: { type: string; id: string };
+  message?: { type: string; id: string; text?: string };
   source?: { userId?: string };
 };
 
@@ -74,8 +76,27 @@ export async function POST(req: Request): Promise<Response> {
               'รับสลิปแล้ว แต่ระบบจัดเก็บยังไม่พร้อม (staging) โปรดลองใหม่ภายหลัง');
           }
         }
+      } else if (event.type === 'message' && event.message?.type === 'text' && token && event.replyToken) {
+        // ข้อความ: "สรุปพอร์ต" → ดึงพอร์ตจริงของผู้ใช้ (key line:<id>) แล้ว reply สรุป (Batch 5.1)
+        const text = event.message.text ?? '';
+        const userId = event.source?.userId;
+        if (isSummaryRequest(text) && userId) {
+          const assets = await listHoldings(`line:${userId}`);
+          if (!assets || assets.length === 0) {
+            await replyLineButtons(token, event.replyToken,
+              'ยังไม่พบรายการในพอร์ตของคุณ 📭\nเพิ่มสินทรัพย์ในแอปก่อน แล้วพิมพ์ "สรุปพอร์ต" อีกครั้ง', [
+                { label: '➕ เพิ่มสินทรัพย์', uri: `${base}/add` },
+                { label: '📊 เปิดแอป', uri: `${base}/` },
+              ]);
+          } else {
+            await replyLineText(token, event.replyToken, buildPortfolioSummaryText(assets));
+          }
+        } else {
+          await replyLineText(token, event.replyToken,
+            'พิมพ์ "สรุปพอร์ต" เพื่อดูสรุปพอร์ตของคุณ 📊\nหรือส่งรูปสลิปเพื่อบันทึกรายการ 📸');
+        }
       } else if (event.type === 'message' && token && event.replyToken) {
-        await replyLineText(token, event.replyToken, 'ส่งเป็น "รูปสลิป" เท่านั้นนะ เพื่อบันทึกเข้าระบบ 📸'); // AC-E01
+        await replyLineText(token, event.replyToken, 'พิมพ์ "สรุปพอร์ต" เพื่อดูพอร์ต 📊 หรือส่งรูปสลิปเพื่อบันทึกรายการ 📸');
       }
     } catch (e) {
       // ไม่ throw — ตอบ 200 ให้ LINE เสมอ กัน retry รัว
