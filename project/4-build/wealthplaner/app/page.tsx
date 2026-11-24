@@ -1,9 +1,11 @@
-import { summarizePortfolio, taxDeductionSummary, categoryAllocation, CATEGORY_TARGETS, categoryRiskRank } from '@/lib/portfolio.ts';
+import { summarizePortfolio, taxDeductionSummary, categoryAllocation, CATEGORY_TARGETS, categoryRiskRank, buildGrowthSeries } from '@/lib/portfolio.ts';
 import AllocationTabs, { type AllocRow } from '@/components/AllocationTabs.tsx';
 import RiskStat from '@/components/RiskStat.tsx';
 import PortfolioHero from '@/components/PortfolioHero.tsx';
+import GrowthChart from '@/components/GrowthChart.tsx';
 import Amount from '@/components/Amount.tsx';
 import { loadAssets } from '@/lib/portfolioData.ts';
+import { listSnapshots, recordSnapshot } from '@/lib/supabase.ts';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic'; // ข้อมูลเฉพาะผู้ใช้ — เรนเดอร์สดทุกครั้ง
@@ -17,12 +19,21 @@ const compact = (n: number) => {
 
 // หน้า Portfolio (F002) — restyle · ยอดจริงจาก Supabase (CR-WPN-006) · ยังไม่ตั้งค่า → เดโม
 export default async function PortfolioPage() {
-  const { assets, isDemo } = await loadAssets();
+  const { assets, isDemo, userKey } = await loadAssets();
 
   const s = summarizePortfolio(assets);
   const cost = s.totalTHB - s.totalIncomeTHB;
   const incomePct = cost > 0 ? (s.totalIncomeTHB / cost) * 100 : 0;
   const up = s.totalIncomeTHB >= 0;
+
+  // กราฟการเติบโต (CR-WPN-011): บันทึก snapshot ของวันนี้ (ของจริงเท่านั้น) แล้วอ่านประวัติมาวาด
+  const year = new Date().getFullYear();
+  let growth = null;
+  if (!s.isEmpty) {
+    if (!isDemo && userKey) await recordSnapshot(userKey, cost, s.totalTHB); // best-effort (ไม่ throw)
+    const snaps = !isDemo && userKey ? await listSnapshots(userKey) : [];
+    growth = buildGrowthSeries(assets, snaps, year, cost, s.totalTHB);
+  }
 
   const taxRows = taxDeductionSummary(assets);
 
@@ -50,6 +61,8 @@ export default async function PortfolioPage() {
         <div className="pf-stat"><span className="t">Total P&amp;L</span><span className={'p num ' + (up ? 'g' : 'l')}>{up ? '+' : '−'}฿<Amount>{compact(Math.abs(s.totalIncomeTHB))}</Amount></span></div>
         <RiskStat />
       </div>
+
+      {growth && <GrowthChart series={growth} returnPct={incomePct} up={up} />}
 
       {!s.isEmpty && <AllocationTabs rows={allocRows} />}
 

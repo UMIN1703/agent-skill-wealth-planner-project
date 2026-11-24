@@ -129,3 +129,39 @@ export async function insertHolding(
   await sb(TABLE, { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify(row) });
   return true;
 }
+
+// ── portfolio_snapshots (กราฟการเติบโต · CR-WPN-011) ─────────────────────────
+const SNAP_TABLE = 'portfolio_snapshots';
+export type Snapshot = { asOf: string; totalCost: number; totalValue: number }; // asOf = 'YYYY-MM-DD'
+
+/** วันที่วันนี้ตามเวลาไทย (YYYY-MM-DD) — ใช้เป็นคีย์ as_of ของ snapshot */
+export function todayBangkok(): string {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' }); // en-CA → YYYY-MM-DD
+}
+
+/** บันทึก snapshot ของวันนี้ (upsert ทับแถวเดิมของวันเดียวกัน) · best-effort — ไม่ throw */
+export async function recordSnapshot(userKey: string, totalCost: number, totalValue: number): Promise<void> {
+  if (!supabaseConfigured()) return;
+  const row = { user_key: userKey, as_of: todayBangkok(), total_cost: totalCost, total_value: totalValue };
+  try {
+    await sb(`${SNAP_TABLE}?on_conflict=user_key,as_of`, {
+      method: 'POST',
+      headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify(row),
+    });
+  } catch {
+    // ตารางยังไม่ถูกสร้าง / เน็ตล่ม → ข้ามเงียบ (กราฟ fallback เป็นต้นทุนสะสม)
+  }
+}
+
+/** อ่าน snapshot ทั้งหมดของผู้ใช้ (เรียงเก่า→ใหม่) · ไม่ตั้งค่า/ตารางไม่มี → [] */
+export async function listSnapshots(userKey: string): Promise<Snapshot[]> {
+  if (!supabaseConfigured()) return [];
+  try {
+    const q = `${SNAP_TABLE}?user_key=eq.${encodeURIComponent(userKey)}&select=as_of,total_cost,total_value&order=as_of.asc`;
+    const rows = (await (await sb(q)).json()) as { as_of: string; total_cost: number; total_value: number }[];
+    return rows.map((r) => ({ asOf: r.as_of, totalCost: r.total_cost, totalValue: r.total_value }));
+  } catch {
+    return [];
+  }
+}

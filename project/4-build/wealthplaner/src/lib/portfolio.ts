@@ -81,6 +81,54 @@ export function taxDeductionSummary(assets: (HeldAsset & { taxBucket?: string })
   return [...m.entries()].map(([bucket, costTHB]) => ({ bucket, costTHB })).sort((x, y) => y.costTHB - x.costTHB);
 }
 
+// CR-WPN-011 — กราฟการเติบโตของพอร์ตรายเดือนทั้งปี
+export type GrowthPoint = { month: number; cost: number; value: number | null }; // month 0=ม.ค.
+export type GrowthSeries = {
+  year: number;
+  points: GrowthPoint[];      // 12 เดือน
+  currentMonth: number;       // เดือนล่าสุดที่มีข้อมูล (ไม่วาดเกินนี้)
+  currentCost: number;
+  currentValue: number;
+  hasValueHistory: boolean;   // มี snapshot มูลค่าจริงอย่างน้อย 1 จุด
+};
+
+type SnapshotLike = { asOf: string; totalCost: number; totalValue: number };
+
+/** สร้างชุดข้อมูลกราฟ 12 เดือน:
+ *  - cost = ต้นทุนสะสม (รวมต้นทุนของ holding ที่เพิ่ม ณ/ก่อนสิ้นเดือนนั้น) — จริงจาก createdAt
+ *  - value = มูลค่าจริงจาก snapshot ล่าสุดในเดือนนั้น (null ถ้ายังไม่เคยเก็บ) · เดือนปัจจุบันใช้ค่าสด */
+export function buildGrowthSeries(
+  assets: (HeldAsset & { createdAt?: string })[],
+  snapshots: SnapshotLike[],
+  year: number,
+  currentCost: number,
+  currentValue: number,
+  now: Date = new Date(),
+): GrowthSeries {
+  const costTotal = (a: HeldAsset) => toTHB(a.costPrice * a.quantity, a.fxToThb);
+  const isCurrentYear = now.getFullYear() === year;
+  const lastMonth = isCurrentYear ? now.getMonth() : 11; // ไม่วาดเกินเดือนปัจจุบันของปีนี้
+
+  const points: GrowthPoint[] = [];
+  for (let m = 0; m < 12; m++) {
+    const monthEnd = new Date(year, m + 1, 0, 23, 59, 59); // วันสุดท้ายของเดือน m
+    let cost = 0;
+    for (const a of assets) {
+      const created = a.createdAt ? new Date(a.createdAt) : new Date(year - 1, 0, 1); // ไม่มีวันที่ → ถือว่ามีมาก่อน
+      if (created <= monthEnd) cost += costTotal(a);
+    }
+    let value: number | null = null;
+    for (const s of snapshots) {        // เรียงเก่า→ใหม่ → ตัวท้ายที่ผ่านเงื่อนไขคือ latest ของเดือน
+      if (new Date(s.asOf + 'T23:59:59') <= monthEnd) value = s.totalValue;
+    }
+    points.push({ month: m, cost, value: m > lastMonth ? null : value });
+  }
+  // เดือนล่าสุด: เขียนทับด้วยค่าสดของตอนนี้ (ต้นทุน + มูลค่าจริงปัจจุบัน)
+  if (lastMonth >= 0 && lastMonth <= 11) points[lastMonth] = { month: lastMonth, cost: currentCost, value: currentValue };
+
+  return { year, points, currentMonth: lastMonth, currentCost, currentValue, hasValueHistory: snapshots.length >= 1 };
+}
+
 /** F002: รวมพอร์ตข้ามโบรกเป็นตัวเลขเดียว + สัดส่วน allocation ตามประเภทสินทรัพย์ */
 export function summarizePortfolio(assets: HeldAsset[]): PortfolioSummary {
   if (assets.length === 0) {

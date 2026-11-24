@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { summarizePortfolio, holdingSummary, taxDeductionSummary, categoryAllocation, categoryRiskRank, CATEGORY_RISK_ORDER, CATEGORY_TARGETS, type HeldAsset } from './portfolio.ts';
+import { summarizePortfolio, holdingSummary, taxDeductionSummary, categoryAllocation, categoryRiskRank, CATEGORY_RISK_ORDER, CATEGORY_TARGETS, buildGrowthSeries, type HeldAsset } from './portfolio.ts';
 
 const two: HeldAsset[] = [
   { name: 'A', type: 'หุ้นไทย', brokerChannel: 'SCBS', quantity: 10, costPrice: 10, marketPrice: 15, fxToThb: 1 },       // value 150, income 50
@@ -25,6 +25,29 @@ test('TC-F002-tax: taxDeductionSummary รวมต้นทุนตาม tax 
   assert.equal(s.length, 2); // รายการไม่มี bucket ถูกข้าม
   assert.equal(s.find((x) => x.bucket === 'SSF')!.costTHB, 1000);
   assert.equal(s.find((x) => x.bucket === 'RMF')!.costTHB, 1000);
+});
+
+// CR-WPN-011 — กราฟการเติบโต: ต้นทุนสะสมตามวันที่เพิ่ม + มูลค่าจริงจาก snapshot
+test('TC-F002-growth: cost สะสมตาม createdAt, value จาก snapshot, เดือนปัจจุบันใช้ค่าสด', () => {
+  const now = new Date('2026-06-15T00:00:00Z'); // มิ.ย. = เดือน index 5
+  const assets: (HeldAsset & { createdAt?: string })[] = [
+    { name: 'A', type: 'หุ้นไทย', brokerChannel: 'x', quantity: 1, costPrice: 100, marketPrice: null, fxToThb: 1, createdAt: '2026-02-10' }, // ก.พ.
+    { name: 'B', type: 'ทองคำ', brokerChannel: 'x', quantity: 1, costPrice: 400, marketPrice: null, fxToThb: 1, createdAt: '2026-04-20' }, // เม.ย.
+  ];
+  const snaps = [{ asOf: '2026-03-31', totalCost: 100, totalValue: 120 }];
+  const g = buildGrowthSeries(assets, snaps, 2026, 500, 650, now);
+
+  assert.equal(g.points.length, 12);
+  assert.equal(g.currentMonth, 5);                 // มิ.ย.
+  assert.equal(g.points[0].cost, 0);               // ม.ค. ยังไม่มีรายการ
+  assert.equal(g.points[1].cost, 100);             // ก.พ. +A
+  assert.equal(g.points[3].cost, 500);             // เม.ย. +B (รวม 500)
+  assert.equal(g.points[2].value, 120);            // มี.ค. จาก snapshot
+  assert.equal(g.points[1].value, null);           // ก.พ. ยังไม่มี snapshot
+  assert.equal(g.points[5].value, 650);            // มิ.ย. (ปัจจุบัน) = ค่าสด
+  assert.equal(g.points[5].cost, 500);             // เดือนปัจจุบันใช้ต้นทุนสด
+  assert.equal(g.points[6].value, null);           // ก.ค. อนาคต → ไม่วาด
+  assert.equal(g.hasValueHistory, true);
 });
 
 // CR-WPN-008 — allocation ตามหมวด (ใช้ category, fallback type) + % รวม 100
