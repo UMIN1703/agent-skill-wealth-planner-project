@@ -7,7 +7,7 @@ import { computeIncome } from './finance.ts';
 
 const SHEETS = 'https://sheets.googleapis.com/v4/spreadsheets';
 const DRIVE = 'https://www.googleapis.com/drive/v3/files';
-const REPORT_NAME = 'WealthPlaner Report';
+const REPORT_NAME = 'WealthPlanner Report';
 const TAB_SUMMARY = 'สรุป';
 const TAB_LOG = 'รายการ';
 
@@ -46,7 +46,7 @@ export function buildSummaryRows(assets: DisplayAsset[]): (string | number)[][] 
   const pct = totalCost > 0 ? n2((totalIncome / totalCost) * 100) : 0;
 
   const out: (string | number)[][] = [];
-  out.push([`รายงานพอร์ต WealthPlaner — ณ ${new Date().toLocaleString('th-TH')}`]);
+  out.push([`รายงานพอร์ต WealthPlanner — ณ ${new Date().toLocaleString('th-TH')}`]);
   out.push([]);
   out.push(['ภาพรวม', '']);
   out.push(['ต้นทุนรวม', n2(totalCost)]);

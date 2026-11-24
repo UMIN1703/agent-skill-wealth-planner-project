@@ -46,7 +46,7 @@ export default async function SlipsPage({ searchParams }: { searchParams: { demo
         <section className="card empty-slip">
           <span className="chip"><Receipt size={22} /></span>
           <p>ยังไม่มีสลิปรอยืนยัน</p>
-          <p className="sub">ส่งรูปสลิปเข้า LINE OA ของ WealthPlaner แล้วกดลิงก์ที่ตอบกลับมา</p>
+          <p className="sub">ส่งรูปสลิปเข้า LINE OA ของ WealthPlanner แล้วกดลิงก์ที่ตอบกลับมา</p>
           <a className="inlink" href="/slips?demo=1">ดูตัวอย่างฟอร์มยืนยัน →</a>
         </section>
       ) : (

@@ -13,7 +13,7 @@ export default async function AccountSettingsPage() {
   const session = await auth();
   if (!session?.user) redirect('/login?callbackUrl=/profile/account');
 
-  const defaultName = session.user.name ?? 'ผู้ใช้ WealthPlaner';
+  const defaultName = session.user.name ?? 'ผู้ใช้ WealthPlanner';
   const provider = session.provider === 'google' ? 'Google' : session.provider === 'line' ? 'LINE' : '—';
   const contact = session.user.email
     ?? (session.lineUserId ? 'LINE ID: ' + session.lineUserId.slice(0, 10) + '…' : 'ไม่ระบุ');

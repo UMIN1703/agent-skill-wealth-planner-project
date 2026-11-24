@@ -73,7 +73,7 @@ export default function LoginForm() {
           <span className="auth-logo" aria-hidden="true">
             <img src="/brand-w.png" alt="" width={46} height={46} style={{ objectFit: 'contain' }} />
           </span>
-          <h1>WealthPlaner</h1>
+          <h1>WealthPlanner</h1>
           <p>เข้าสู่ระบบเพื่อจัดการพอร์ตการลงทุนข้ามโบรก</p>
         </div>
 

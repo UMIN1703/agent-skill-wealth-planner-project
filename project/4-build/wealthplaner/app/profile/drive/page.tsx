@@ -97,14 +97,14 @@ export default async function DriveSettingsPage({ searchParams }: { searchParams
               <a href={`https://docs.google.com/spreadsheets/d/${ledgerId}/edit`} target="_blank" rel="noopener noreferrer"
                  style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 2px', color: 'inherit', textDecoration: 'none' }}>
                 <FileSpreadsheet size={18} style={{ opacity: 0.85, flexShrink: 0 }} />
-                <span style={{ flex: 1 }}>WealthPlaner Ledger</span>
+                <span style={{ flex: 1 }}>WealthPlanner Ledger</span>
                 <ExternalLink size={16} style={{ opacity: 0.6 }} />
               </a>
             ) : (
               <p className="sub" style={{ fontSize: 13, color: 'var(--muted)', margin: '4px 2px' }}>
                 {ledgerError
                   ? 'เชื่อมต่อ Drive ไม่ได้ชั่วคราว — ลองเข้าสู่ระบบด้วย Google ใหม่'
-                  : 'ยังไม่มีไฟล์ — ระบบจะสร้าง “WealthPlaner Ledger” ให้อัตโนมัติเมื่อบันทึกสลิปครั้งแรก'}
+                  : 'ยังไม่มีไฟล์ — ระบบจะสร้าง “WealthPlanner Ledger” ให้อัตโนมัติเมื่อบันทึกสลิปครั้งแรก'}
               </p>
             )}
           </section>

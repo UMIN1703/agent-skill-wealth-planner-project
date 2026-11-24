@@ -15,7 +15,7 @@ export default async function ProfilePage() {
   const session = await auth();
   if (!session?.user) redirect('/login?callbackUrl=/profile');
 
-  const name = session.user.name ?? 'ผู้ใช้ WealthPlaner';
+  const name = session.user.name ?? 'ผู้ใช้ WealthPlanner';
   const image = session.user.image ?? undefined;
   const contact = session.user.email
     ?? (session.lineUserId ? 'LINE ID: ' + session.lineUserId.slice(0, 10) + '…' : 'ไม่ระบุ');

@@ -1,11 +1,11 @@
-// WealthPlaner — เขียนรายการสลิปลง Google Sheets (F009 · CR-WPN-003 rev: ไม่อัปรูปขึ้น Drive)
+// WealthPlanner — เขียนรายการสลิปลง Google Sheets (F009 · CR-WPN-003 rev: ไม่อัปรูปขึ้น Drive)
 // เดิมอัปไฟล์รูปขึ้น Drive (กินพื้นที่) → เปลี่ยนเป็น: เก็บรูปไว้ที่ R2 (พื้นที่แอป) แล้วใส่ "ลิงก์รูป"
 // (=HYPERLINK) ในแถว Sheet แทน · ใช้ access_token (scope drive.file + spreadsheets)
 import { SLIP_SHEET_HEADERS } from './slip.ts';
 
 const DRIVE_FILES = 'https://www.googleapis.com/drive/v3/files';
 const SHEETS = 'https://sheets.googleapis.com/v4/spreadsheets';
-const LEDGER_NAME = 'WealthPlaner Ledger';
+const LEDGER_NAME = 'WealthPlanner Ledger';
 
 // ── pure helpers (เทสต์ได้) ─────────────────────────────────────────────────
 

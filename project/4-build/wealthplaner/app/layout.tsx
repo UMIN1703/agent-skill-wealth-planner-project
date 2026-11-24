@@ -17,7 +17,7 @@ const plex = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'WealthPlaner',
+  title: 'WealthPlanner',
   description: 'รวมพอร์ตการลงทุนข้ามโบรกไว้ที่เดียว',
 };
 
