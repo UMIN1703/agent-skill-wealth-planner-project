@@ -4,7 +4,7 @@
 |---|---|
 | รหัสโครงการ | WPN |
 | เจ้าของโครงการ | TBD — ต้องการ [ชื่อ] |
-| ปรับปรุงทะเบียนล่าสุด | 2026-11-23 |
+| ปรับปรุงทะเบียนล่าสุด | 2026-11-24 |
 
 ทะเบียนนี้ต้องปรับปรุงในการแก้ไขครั้งเดียวกับที่สร้างหรือแก้เอกสาร
 ทะเบียนที่ตามมาปรับทีหลัง คือทะเบียนที่ผิดในช่วงเวลาระหว่างนั้น
@@ -28,6 +28,7 @@
 | CR-WPN-008 | Change request — ขยายระบบให้เทียบเท่าชีตพอร์ตจริง (เฟส 1–3: ราคาปัจจุบัน/P&L, taxonomy+tax bucket, import Sheet) | 00 | อนุมัติแล้ว | 2026-11-18 |
 | CR-WPN-009 | Change request — ปรับโครงนำทาง (IA): /assets + /activity, ย้าย Rebalance/Import เข้า Profile, หน้าตั้งค่าใช้งานจริง, ย้าย logout, เรียงความเสี่ยง, เป้าหมายตรงชีต | 00 | อนุมัติแล้ว | 2026-11-21 |
 | CR-WPN-010 | Change request — แก้ไข/ลบสินทรัพย์ + หน้าสินทรัพย์ accordion + F009 KV-free + Option B (สลิปไม่พึ่ง Google) + ส่งออกรายงาน Sheet | 00 | อนุมัติแล้ว | 2026-11-23 |
+| CR-WPN-011 | Change request — กราฟการเติบโตของพอร์ต (ไฮบริด) + เปลี่ยนชื่อแบรนด์ WealthPlanner + โลโก้ login ใหม่ + ลดหน้าเตือน Google | 00 | อนุมัติแล้ว | 2026-11-24 |
 | TST-WPN-001 | Test cases + traceability matrix — WealthPlaner | 00 | ร่าง | 2026-08-29 |
 | DSN-WPN-001 | ระบบออกแบบและข้อกำหนดหน้าจอ (Neon Dark) — WealthPlaner | 00 | ร่าง | 2026-08-31 |
 | QAR-WPN-001 | รายงานการประกันคุณภาพ (F001–F006) — WealthPlaner | 00 | ร่าง | 2026-09-19 |
@@ -96,3 +97,6 @@ skill `document-control`
 | 2026-11-23 | CR-WPN-010 | สร้าง+อนุมัติ | เปิดคำขอ: แก้ไข/ลบสินทรัพย์ (+activity ป้าย "แก้ไข"), หน้าสินทรัพย์ accordion/กล่องแยก/% align, F009 staging ฟรี (KV แทน R2), Option B สลิป→พอร์ตไม่พึ่ง Google, ส่งออกรายงาน Google Sheet (สรุป+log รายเดือน) · Class B = migration updated_at |
 | 2026-11-23 | — (build) | สร้าง (code) | ตาม CR-WPN-010: updateHolding/deleteHolding + PATCH/DELETE /api/holdings + AssetList edit/delete, slipStore KV-only, /api/slips/confirm ไม่พึ่ง Google, sheetExport + /api/export/sheet + ExportSheetButton · tsc สะอาด, 56 เทส · commits 5ad42c6/09af518/3ad56e4/0e63261 push+deploy |
 | 2026-11-23 | REL-WPN-001 | แก้ไข (rev 03) | deploy CR-WPN-010 ขึ้น production (0e63261) · ยังค้าง: รัน migration updated_at |
+| 2026-11-24 | CR-WPN-011 | สร้าง+อนุมัติ | เปิดคำขอ: กราฟการเติบโตของพอร์ต (ไฮบริด ต้นทุนสะสม+snapshot มูลค่าจริง), เปลี่ยนชื่อแบรนด์ WealthPlanner (ตรงกับ Google consent), โลโก้ login ใหม่ (W), ลดหน้าเตือน Google (prompt consent ครั้งแรกครั้งเดียว) · Class B = migration portfolio_snapshots |
+| 2026-11-24 | — (build) | สร้าง (code) | ตาม CR-WPN-011: GrowthChart (inline SVG) + buildGrowthSeries (pure, +test) + portfolio_snapshots (recordSnapshot/listSnapshots, upsert รายวัน) · rename WealthPlanner ทุก user-facing + ชื่อชีต · public/brand-w.png หน้า login · เอา prompt:'consent' ออกจาก auth.ts · tsc สะอาด, 10/10+2/2 เทส · commits b38df7b/2a86891/9451142 push+deploy |
+| 2026-11-24 | — (migration) | รันแล้ว (prod) | รัน migration ทั้งสองใน Supabase: holdings.updated_at + portfolio_snapshots · ยืนยัน HTTP 200 ผ่าน PostgREST · ปิด Class B ของ CR-WPN-010 (updated_at) + CR-WPN-011 (snapshots) |
