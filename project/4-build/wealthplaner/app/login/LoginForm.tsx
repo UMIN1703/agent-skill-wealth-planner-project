@@ -146,7 +146,7 @@ export default function LoginForm() {
           ยังไม่มีบัญชี? <Link href="/login" className="inlink">สมัครสมาชิก</Link>
         </p>
         <p className="auth-legal">
-          เมื่อเข้าสู่ระบบ ถือว่ายอมรับ <a href="#">ข้อกำหนดการใช้งาน</a> และ <a href="#">นโยบายความเป็นส่วนตัว</a>
+          เมื่อเข้าสู่ระบบ ถือว่ายอมรับ <a href="#">ข้อกำหนดการใช้งาน</a> และ <Link href="/privacy" className="inlink">นโยบายความเป็นส่วนตัว</Link>
         </p>
       </div>
     </main>
