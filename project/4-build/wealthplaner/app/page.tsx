@@ -83,7 +83,7 @@ export default async function PortfolioPage() {
       </div>
 
       {!isDemo && userKey && !prefs?.risk && (
-        <Link href="/profile?assess=1" className="card" style={{
+        <Link href="/profile/risk" className="card" style={{
           display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', color: 'inherit',
           borderColor: 'var(--brand)', background: 'var(--brand-tint)',
         }}>

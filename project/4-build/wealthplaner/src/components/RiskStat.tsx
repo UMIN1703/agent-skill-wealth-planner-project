@@ -17,12 +17,12 @@ export default function RiskStat({ initial }: { initial?: { level: number; short
     <div className="pf-stat">
       <span className="t">ความเสี่ยงที่ประเมิน</span>
       {r ? (
-        <Link href="/profile?assess=1" className="p num" style={{ textDecoration: 'none', color: 'var(--text)' }}>
+        <Link href="/profile/risk" className="p num" style={{ textDecoration: 'none', color: 'var(--text)' }}>
           {r.level}<span style={{ fontSize: 13, color: 'var(--muted)', fontWeight: 400 }}>/5</span>
         </Link>
       ) : (
         // ยังไม่ประเมิน → ชวนทำ (ไม่โชว์เลขปลอม)
-        <Link href="/profile?assess=1" className="p" style={{ textDecoration: 'none', color: 'var(--accent-strong)', fontSize: 15, fontWeight: 700 }}>
+        <Link href="/profile/risk" className="p" style={{ textDecoration: 'none', color: 'var(--accent-strong)', fontSize: 15, fontWeight: 700 }}>
           ประเมินเลย →
         </Link>
       )}

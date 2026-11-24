@@ -101,7 +101,7 @@ export default function RebalancePage() {
       {!anySet && (
         <div className="notice warn" role="note">
           ยังไม่ได้ตั้งเป้าหมาย allocation — กรอกเป้าด้านล่าง หรือ{' '}
-          <Link href="/profile" className="inlink">ทำแบบประเมินความเสี่ยง (F007)</Link> เพื่อรับสัดส่วนตัวอย่าง
+          <Link href="/profile/risk" className="inlink">ทำแบบประเมินความเสี่ยง (F007)</Link> เพื่อรับสัดส่วนตัวอย่าง
         </div>
       )}
 
@@ -121,7 +121,7 @@ export default function RebalancePage() {
           </div>
         ) : (
           <p className="note" style={{ margin: '0 0 10px', fontSize: 12 }}>
-            อยากได้สัดส่วนแนะนำอัตโนมัติ? <Link href="/profile" className="inlink">ทำแบบประเมินความเสี่ยง</Link> ก่อน
+            อยากได้สัดส่วนแนะนำอัตโนมัติ? <Link href="/profile/risk" className="inlink">ทำแบบประเมินความเสี่ยง</Link> ก่อน
           </p>
         )}
         {types.map((t) => (

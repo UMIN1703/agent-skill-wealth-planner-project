@@ -2,18 +2,16 @@
 // ฟีเจอร์จริง (แก้โปรไฟล์/แจ้งเตือน/ความเป็นส่วนตัว) เป็นงานถัดไป — ตอนนี้เป็นภาพตัวอย่าง
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { User, Bell, Settings, Shield, Link2, Scale, FileUp, ChevronRight } from 'lucide-react';
+import { User, Bell, Settings, Shield, ShieldCheck, Link2, Scale, FileUp, ChevronRight } from 'lucide-react';
 import { auth } from '@/auth.ts';
 import { getPrefs, resolveUserKey } from '@/lib/supabase.ts';
 import LogoutButton from '@/components/LogoutButton.tsx';
-import RiskAssessment from '@/components/RiskAssessment.tsx';
 import DisplayName from '@/components/DisplayName.tsx';
-import type { RiskResult } from '@/lib/risk.ts';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
-export default async function ProfilePage({ searchParams }: { searchParams: { assess?: string } }) {
+export default async function ProfilePage() {
   const session = await auth();
   if (!session?.user) redirect('/login?callbackUrl=/profile');
 
@@ -56,7 +54,21 @@ export default async function ProfilePage({ searchParams }: { searchParams: { as
         </div>
       </section>
 
-      <RiskAssessment initial={(prefs?.risk ?? null) as RiskResult | null} defaultOpen={!!searchParams?.assess} />
+      <Link href="/profile/risk" className="card" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', color: 'inherit' }}>
+        <span style={{
+          width: 40, height: 40, borderRadius: 12, flexShrink: 0, display: 'inline-flex',
+          alignItems: 'center', justifyContent: 'center', background: 'var(--brand-tint)', border: '1px solid var(--brand)',
+        }}>
+          <ShieldCheck size={20} />
+        </span>
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ display: 'block', fontWeight: 700 }}>แบบประเมินความเสี่ยง</span>
+          <span className="sub" style={{ fontSize: 12, color: 'var(--muted)' }}>
+            {prefs?.risk ? `ระดับ ${prefs.risk.level}/5 · ${prefs.risk.label}` : 'ยังไม่ได้ประเมิน'}
+          </span>
+        </span>
+        <ChevronRight size={18} style={{ opacity: 0.5, flexShrink: 0 }} />
+      </Link>
 
       <section className="card" aria-label="ตั้งค่า">
         {ROWS.map(({ Icon, label, status, href }, i) => {
