@@ -34,6 +34,8 @@
 | QAR-WPN-001 | รายงานการประกันคุณภาพ (F001–F006) — WealthPlaner | 00 | ร่าง | 2026-09-19 |
 | RVW-WPN-001 | รายงานผลการทบทวนโค้ด — รอบ IA restructure (CR-WPN-009) | 00 | อนุมัติแล้ว | 2026-11-21 |
 | QAR-WPN-002 | รายงานการประกันคุณภาพ — รอบ IA restructure (CR-WPN-009) | 01 | อนุมัติแล้ว | 2026-11-21 |
+| RVW-WPN-002 | รายงานผลการทบทวนโค้ด — รอบกราฟการเติบโต + rebrand (CR-WPN-011) | 00 | อนุมัติแล้ว | 2026-11-24 |
+| QAR-WPN-003 | รายงานการประกันคุณภาพ — รอบกราฟการเติบโต + rebrand (CR-WPN-011) | 00 | อนุมัติแล้ว | 2026-11-24 |
 | REL-WPN-001 | บันทึกการปล่อยของและแผนถอยกลับ — Cloudflare Pages (production) | 03 | อนุมัติแล้ว | 2026-11-23 |
 
 สถานะที่ใช้ได้ — `ร่าง` · `รอทบทวน` · `อนุมัติแล้ว` · `ยกเลิก`
@@ -100,3 +102,5 @@ skill `document-control`
 | 2026-11-24 | CR-WPN-011 | สร้าง+อนุมัติ | เปิดคำขอ: กราฟการเติบโตของพอร์ต (ไฮบริด ต้นทุนสะสม+snapshot มูลค่าจริง), เปลี่ยนชื่อแบรนด์ WealthPlanner (ตรงกับ Google consent), โลโก้ login ใหม่ (W), ลดหน้าเตือน Google (prompt consent ครั้งแรกครั้งเดียว) · Class B = migration portfolio_snapshots |
 | 2026-11-24 | — (build) | สร้าง (code) | ตาม CR-WPN-011: GrowthChart (inline SVG) + buildGrowthSeries (pure, +test) + portfolio_snapshots (recordSnapshot/listSnapshots, upsert รายวัน) · rename WealthPlanner ทุก user-facing + ชื่อชีต · public/brand-w.png หน้า login · เอา prompt:'consent' ออกจาก auth.ts · tsc สะอาด, 10/10+2/2 เทส · commits b38df7b/2a86891/9451142 push+deploy |
 | 2026-11-24 | — (migration) | รันแล้ว (prod) | รัน migration ทั้งสองใน Supabase: holdings.updated_at + portfolio_snapshots · ยืนยัน HTTP 200 ผ่าน PostgREST · ปิด Class B ของ CR-WPN-010 (updated_at) + CR-WPN-011 (snapshots) |
+| 2026-11-24 | RVW-WPN-002 | สร้าง+อนุมัติ | ทบทวนโค้ด CR-WPN-011 (buildGrowthSeries/GrowthChart/snapshot layer, rename, auth prompt) · **APPROVE** · 0 BLOCKER/MAJOR · 5 MINOR (DRY compact(), TZ nuance, snapshot-sort invariant, recordSnapshot await, auth refresh trade-off) → backlog |
+| 2026-11-24 | QAR-WPN-003 | สร้าง+อนุมัติ | QA CR-WPN-011 (functional/visual/a11y, static) · **PASS WITH ADVISORIES** · 0 BLOCKER/MAJOR · token ใช้ var ครบ (เลี่ยง --line เขียว LINE) · advisories: ตาราง a11y ที่เคารพ privacy, duplicate-sheet หลัง rename, ยังไม่รัน axe/Playwright · migration ยืนยัน 200 |
