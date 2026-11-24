@@ -40,6 +40,10 @@ export default function RebalancePage() {
   const [riskLevel, setRiskLevel] = useState<number | null>(null);
   const setT = (type: string, v: string) => { setTarget((m) => ({ ...m, [type]: v })); setSaveState('idle'); };
 
+  // ค่าปัจจุบันต่างจากสัดส่วนที่ระบบแนะนำ (ตามความเสี่ยง) หรือไม่ → ใช้ตัดสินว่าจะโชว์ปุ่ม "คืนค่า"
+  const differsFromPreset = riskLevel != null
+    && targetsForRisk(riskLevel).some((t) => Number(target[t.category] || 0) !== t.percent);
+
   // โหลด prefs (sync ข้ามเครื่อง · CR-WPN-012) → เป้าหมายที่บันทึก > โมเดลตามความเสี่ยง > โมเดลกลาง
   useEffect(() => {
     let alive = true;
@@ -105,10 +109,15 @@ export default function RebalancePage() {
         <h2>เป้าหมายต่อคลาส (รวมต้อง = 100%)</h2>
         {riskLevel != null ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 10 }}>
-            <button type="button" className="btn-ghost" style={{ padding: '7px 12px' }} onClick={applyRiskPreset}>
-              ใช้สัดส่วนแนะนำ · ความเสี่ยงระดับ {riskLevel}/5
-            </button>
-            <span className="note" style={{ margin: 0, fontSize: 11.5 }}>แนวทางเบื้องต้น ไม่ใช่คำแนะนำตามเกณฑ์ กลต. เต็มรูป</span>
+            {differsFromPreset && (
+              <button type="button" className="btn-ghost" style={{ padding: '7px 12px' }} onClick={applyRiskPreset}>
+                ↺ คืนค่าที่ระบบแนะนำ · ระดับ {riskLevel}/5
+              </button>
+            )}
+            <span className="note" style={{ margin: 0, fontSize: 11.5, color: 'var(--muted-2)' }}>
+              {differsFromPreset ? 'คุณปรับค่าเอง — กดเพื่อคืนค่าที่แนะนำตามความเสี่ยง · ' : 'สัดส่วนนี้แนะนำตามความเสี่ยงของคุณ (แก้ได้) · '}
+              แนวทางเบื้องต้น ไม่ใช่คำแนะนำตามเกณฑ์ กลต.
+            </span>
           </div>
         ) : (
           <p className="note" style={{ margin: '0 0 10px', fontSize: 12 }}>

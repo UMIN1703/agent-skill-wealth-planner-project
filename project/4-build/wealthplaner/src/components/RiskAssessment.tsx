@@ -7,10 +7,10 @@ import { ShieldCheck, RefreshCw, ChevronRight } from 'lucide-react';
 import { RISK_QUESTIONS, scoreRisk, isComplete, type RiskResult } from '@/lib/risk.ts';
 import { RISK_KEY } from '@/components/RiskStat.tsx';
 
-export default function RiskAssessment({ initial }: { initial?: RiskResult | null }) {
+export default function RiskAssessment({ initial, defaultOpen }: { initial?: RiskResult | null; defaultOpen?: boolean }) {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [saved, setSaved] = useState<RiskResult | null>(initial ?? null);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen ?? false); // มาจากลิงก์ ?assess=1 → กางทันที
 
   useEffect(() => {
     if (initial) return; // มีผลจาก server แล้ว (sync ข้ามเครื่อง)

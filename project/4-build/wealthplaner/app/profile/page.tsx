@@ -13,7 +13,7 @@ import type { RiskResult } from '@/lib/risk.ts';
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
-export default async function ProfilePage() {
+export default async function ProfilePage({ searchParams }: { searchParams: { assess?: string } }) {
   const session = await auth();
   if (!session?.user) redirect('/login?callbackUrl=/profile');
 
@@ -56,7 +56,7 @@ export default async function ProfilePage() {
         </div>
       </section>
 
-      <RiskAssessment initial={(prefs?.risk ?? null) as RiskResult | null} />
+      <RiskAssessment initial={(prefs?.risk ?? null) as RiskResult | null} defaultOpen={!!searchParams?.assess} />
 
       <section className="card" aria-label="ตั้งค่า">
         {ROWS.map(({ Icon, label, status, href }, i) => {

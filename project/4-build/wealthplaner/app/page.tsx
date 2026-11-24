@@ -1,3 +1,5 @@
+import Link from 'next/link';
+import { ShieldCheck, ChevronRight } from 'lucide-react';
 import { summarizePortfolio, taxDeductionSummary, categoryAllocation, targetsForRisk, categoryRiskRank, buildGrowthSeries, type GrowthSeries } from '@/lib/portfolio.ts';
 import AllocationTabs, { type AllocRow } from '@/components/AllocationTabs.tsx';
 import RiskStat from '@/components/RiskStat.tsx';
@@ -79,6 +81,25 @@ export default async function PortfolioPage() {
         <div className="pf-stat"><span className="t">Total P&amp;L</span><span className={'p num ' + (up ? 'g' : 'l')}>{up ? '+' : '−'}฿<Amount>{compact(Math.abs(s.totalIncomeTHB))}</Amount></span></div>
         <RiskStat initial={prefs?.risk ? { level: prefs.risk.level, short: prefs.risk.short } : null} />
       </div>
+
+      {!isDemo && userKey && !prefs?.risk && (
+        <Link href="/profile?assess=1" className="card" style={{
+          display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', color: 'inherit',
+          borderColor: 'var(--brand)', background: 'var(--brand-tint)',
+        }}>
+          <span style={{
+            width: 40, height: 40, borderRadius: 12, flexShrink: 0, display: 'inline-flex',
+            alignItems: 'center', justifyContent: 'center', background: 'var(--brand)', color: '#fff',
+          }}>
+            <ShieldCheck size={20} />
+          </span>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ display: 'block', fontWeight: 700 }}>ประเมินความเสี่ยงของคุณ</span>
+            <span style={{ fontSize: 12.5, color: 'var(--muted)' }}>ใช้เวลา 2 นาที — เพื่อรับสัดส่วนลงทุนที่เหมาะกับคุณ</span>
+          </span>
+          <ChevronRight size={18} style={{ opacity: 0.6, flexShrink: 0 }} />
+        </Link>
+      )}
 
       {usdThb && (
         <p className="note" style={{ textAlign: 'center', margin: '0 0 2px' }}>
