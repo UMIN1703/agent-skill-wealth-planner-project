@@ -31,8 +31,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       authorization: {
         params: {
           scope: GOOGLE_SCOPES,
-          access_type: 'offline', // ขอ refresh token (ครั้งแรกที่ consent)
-          prompt: 'consent',
+          access_type: 'offline', // ขอ refresh token (ได้ตอน consent ครั้งแรก)
+          // ไม่บังคับ prompt:'consent' → Google ขอ consent แค่ครั้งแรกครั้งเดียว
+          // ครั้งต่อไปข้ามให้ (ไม่โชว์หน้าเตือน unverified ซ้ำทุก login) · token หมดอายุ → re-login ได้ fresh token
         },
       },
     }),
