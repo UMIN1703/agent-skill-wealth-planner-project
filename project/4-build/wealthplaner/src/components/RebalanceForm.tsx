@@ -65,6 +65,21 @@ export default function RebalanceForm({ alloc, totalTHB, isDemo }: { alloc: Allo
     setSaveState('idle');
   }
 
+  // ปรับสัดส่วนที่กรอกให้รวมเป็น 100% อัตโนมัติ (สเกลตามสัดส่วนเดิม + เกลี่ยเศษให้ลงตัว)
+  function normalizeTo100() {
+    const entries = types.map((t) => [t, Number(target[t] || 0)] as [string, number]);
+    const total = entries.reduce((s, [, v]) => s + v, 0);
+    if (total <= 0) return;
+    const scaled = entries.map(([t, v]) => [t, Math.round((v * 100) / total)] as [string, number]);
+    const drift = 100 - scaled.reduce((s, [, v]) => s + v, 0);
+    if (drift !== 0) { // เกลี่ยเศษไปที่ช่องที่มีค่ามากสุด ให้รวม = 100 เป๊ะ
+      const bi = scaled.reduce((mi, [, v], i, arr) => (v > arr[mi][1] ? i : mi), 0);
+      scaled[bi] = [scaled[bi][0], scaled[bi][1] + drift];
+    }
+    setTarget((m) => { const o = { ...m }; for (const [t, v] of scaled) o[t] = String(v); return o; });
+    setSaveState('idle');
+  }
+
   async function saveTargets() {
     if (sum !== 100) return;
     setSaveState('saving');
@@ -137,8 +152,15 @@ export default function RebalanceForm({ alloc, totalTHB, isDemo }: { alloc: Allo
             </span>
           </div>
         ))}
-        <div className={'tsum num' + (anySet && sum !== 100 ? ' bad' : '')} aria-live="polite">
-          รวมเป้าหมาย: {pct(sum)}{anySet && sum !== 100 ? ` — ต้องเป็น 100% (${sum > 100 ? 'เกิน' : 'ขาด'} ${pct(Math.abs(100 - sum))})` : ''}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <div className={'tsum num' + (anySet && sum !== 100 ? ' bad' : '')} aria-live="polite" style={{ flex: 1 }}>
+            รวมเป้าหมาย: {pct(sum)}{anySet && sum !== 100 ? ` — ต้องเป็น 100% (${sum > 100 ? 'เกิน' : 'ขาด'} ${pct(Math.abs(100 - sum))})` : ''}
+          </div>
+          {anySet && sum !== 100 && Math.round(sum) !== 0 && (
+            <button type="button" className="btn-ghost" style={{ padding: '6px 12px', fontSize: 13 }} onClick={normalizeTo100}>
+              ปรับให้ครบ 100%
+            </button>
+          )}
         </div>
         <button
           type="button" className="btn-primary" style={{ marginTop: 12, width: '100%', justifyContent: 'center' }}

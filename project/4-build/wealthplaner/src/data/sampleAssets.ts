@@ -1,7 +1,7 @@
 import type { HeldAsset } from '@/lib/portfolio.ts';
 
 export type TxAction = 'buy' | 'sell' | 'switch';
-export type DisplayAsset = HeldAsset & { id?: string; source: string; updatedMin: number; note?: string; category?: string; taxBucket?: string; symbol?: string; createdAt?: string; updatedAt?: string; action?: TxAction };
+export type DisplayAsset = HeldAsset & { id?: string; source: string; updatedMin: number; note?: string; category?: string; taxBucket?: string; symbol?: string; priceLive?: boolean; createdAt?: string; updatedAt?: string; action?: TxAction };
 
 // ข้อมูลเดโม (mock) — พอร์ตตัวอย่างครบ 9 หมวดตรงชีต + ราคาปัจจุบัน → แสดง P&L/allocation/tax เต็มหน้า
 const USD = 33.96;

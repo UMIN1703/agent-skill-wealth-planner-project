@@ -41,11 +41,12 @@ async function applyLivePrices(assets: DisplayAsset[]): Promise<{ assets: Displa
       if (p) {
         if (isUsd(a)) { copy.marketPrice = p.usd; if (usdThb) copy.valueFx = usdThb; }
         else { copy.marketPrice = p.thb; copy.valueFx = 1; } // สกุลบาท → ราคาเป็นบาทตรง
+        copy.priceLive = true;
       }
     } else if (isForeignStock(a)) {
       const sym = stockSymOf(a);
       const q = sym ? stockQuotes[sym] : undefined;
-      if (q != null) { copy.marketPrice = q; if (usdThb) copy.valueFx = usdThb; } // Finnhub = USD
+      if (q != null) { copy.marketPrice = q; if (usdThb) copy.valueFx = usdThb; copy.priceLive = true; } // Finnhub = USD
     }
     return copy;
   });

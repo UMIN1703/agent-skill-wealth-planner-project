@@ -12,7 +12,7 @@ import { categoryRiskRank } from '@/lib/portfolio.ts';
 export type AssetRowData = {
   id?: string; name: string; broker: string; group: string;
   quantity: number; costPrice: number; currentPrice: number | null; note?: string; symbol?: string;
-  valueTHB: number; pct: number | null; stale: boolean;
+  valueTHB: number; pct: number | null; stale: boolean; priceLive?: boolean;
 };
 
 const fmt = (n: number) => new Intl.NumberFormat('th-TH', { maximumFractionDigits: 0 }).format(Math.round(n));
@@ -151,7 +151,10 @@ export default function AssetList({ rows, totalTHB }: { rows: AssetRowData[]; to
               }}>
                 <span className="nm" style={{ minWidth: 0 }}>
                   <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</span>
-                  <span className="broker">{r.broker}</span>
+                  <span className="broker">
+                    {r.broker}
+                    {r.priceLive && <span title="ราคาสด (อัปเดตอัตโนมัติ)" style={{ marginLeft: 6, color: 'var(--gain)', fontSize: 11, fontWeight: 700 }}>● สด</span>}
+                  </span>
                 </span>
                 <span style={{ textAlign: 'right' }}>
                   <div className="price num">฿<Amount>{fmt(r.valueTHB)}</Amount></div>
