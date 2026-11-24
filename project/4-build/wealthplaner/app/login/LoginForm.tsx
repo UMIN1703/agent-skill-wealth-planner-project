@@ -73,7 +73,7 @@ export default function LoginForm() {
         )}
 
         <p className="auth-legal">
-          เมื่อเข้าสู่ระบบ ถือว่ายอมรับ <a href="#">ข้อกำหนดการใช้งาน</a> และ <Link href="/privacy" className="inlink">นโยบายความเป็นส่วนตัว</Link>
+          เมื่อเข้าสู่ระบบ ถือว่ายอมรับ <Link href="/terms" className="inlink">ข้อกำหนดการใช้งาน</Link> และ <Link href="/privacy" className="inlink">นโยบายความเป็นส่วนตัว</Link>
         </p>
       </div>
     </main>
