@@ -8,7 +8,8 @@ export type HeldAsset = Asset & {
   name: string;
   type: string;          // AssetType label (หุ้นไทย / หุ้น ตปท. / ทองคำ / เงินสด …)
   brokerChannel: string; // บริษัทโบรก
-  fxToThb: number;       // 1 สำหรับสินทรัพย์สกุล THB
+  fxToThb: number;       // เรตต้นทุน (ตอนซื้อ) · 1 สำหรับสินทรัพย์สกุล THB
+  valueFx?: number;      // เรตแปลงมูลค่า "ปัจจุบัน" (FX สด · CR-WPN-014) — ไม่มี = ใช้ fxToThb
 };
 
 export type Allocation = { type: string; valueTHB: number; percent: number };
@@ -20,10 +21,11 @@ export type PortfolioSummary = {
   isEmpty: boolean;
 };
 
-/** มูลค่าตลาดเป็น THB — ถ้าไม่มีราคาตลาดใช้ราคาต้นทุน (UI ต้อง flag ว่า fallback) */
+/** มูลค่าตลาดเป็น THB — ถ้าไม่มีราคาตลาดใช้ราคาต้นทุน (UI ต้อง flag ว่า fallback)
+ *  ใช้ valueFx (เรตสด) สำหรับ leg มูลค่า ถ้ามี · ไม่งั้น fxToThb */
 export function marketValueTHB(a: HeldAsset): number {
   const price = a.marketPrice ?? a.costPrice;
-  return toTHB(price * a.quantity, a.fxToThb);
+  return toTHB(price * a.quantity, a.valueFx ?? a.fxToThb);
 }
 
 /** สรุปรายการถือครองเป็นข้อความ (การ์ด LINE — CR-WPN-007): ชื่อ · จำนวนหน่วย · โบรก · มูลค่า */
@@ -174,9 +176,11 @@ export function summarizePortfolio(assets: HeldAsset[]): PortfolioSummary {
 
   const total = assets.reduce((s, a) => s + marketValueTHB(a), 0);
 
+  // dual-FX: มูลค่าใช้ valueFx (เรตสด) · ต้นทุนใช้ fxToThb (เรตตอนซื้อ) → กำไรค่าเงินไม่ถูกกลบ
   const income = assets.reduce((s, a) => {
-    const inc = computeIncome(a);           // null เมื่อไม่มีราคาตลาด → ไม่นับ (ไม่ใช่ 0 หลอก)
-    return inc == null ? s : s + toTHB(inc, a.fxToThb);
+    if (a.marketPrice == null) return s;    // ไม่มีราคาตลาด → ไม่นับ (ไม่ใช่ 0 หลอก)
+    const costTHB = a.costPrice * a.quantity * a.fxToThb;
+    return s + (marketValueTHB(a) - costTHB);
   }, 0);
 
   const byType = new Map<string, number>();

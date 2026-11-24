@@ -50,6 +50,17 @@ test('TC-F002-growth: cost สะสมตาม createdAt, value จาก snap
   assert.equal(g.hasValueHistory, true);
 });
 
+// CR-WPN-014 — dual-FX: มูลค่าใช้ valueFx (เรตสด) · ต้นทุนใช้ fxToThb (เรตตอนซื้อ) → กำไรค่าเงินไม่ถูกกลบ
+test('TC-F004-livefx: valueFx แยก leg มูลค่า/ต้นทุน → รวมกำไรค่าเงิน', () => {
+  const usd: HeldAsset = { name: 'VOO', type: 'หุ้น ตปท.', brokerChannel: 'IB', quantity: 1, costPrice: 100, marketPrice: 120, currency: 'USD', fxToThb: 35, valueFx: 36 };
+  const s = summarizePortfolio([usd]);
+  assert.equal(s.totalTHB, 120 * 36);                 // มูลค่าใช้เรตสด 36
+  assert.equal(s.totalIncomeTHB, 120 * 36 - 100 * 35); // = 820 (กำไรสินทรัพย์ + กำไรค่าเงิน)
+  // ไม่มี valueFx → ใช้ fxToThb เดิม (ไม่กระทบของเก่า)
+  const noLive: HeldAsset = { ...usd, valueFx: undefined };
+  assert.equal(summarizePortfolio([noLive]).totalIncomeTHB, (120 - 100) * 35);
+});
+
 // CR-WPN-012 ข้อ 7 — โมเดลเป้าหมายตามความเสี่ยง: ทุกชุดรวม 100% + fallback
 test('TC-F006-risk-targets: RISK_TARGETS ทุกระดับรวม = 100% และ targetsForRisk เลือกถูก', () => {
   for (const level of [1, 2, 3, 4, 5] as const) {

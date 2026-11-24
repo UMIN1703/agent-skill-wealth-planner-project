@@ -19,7 +19,7 @@ const compact = (n: number) => {
 
 // หน้า Portfolio (F002) — restyle · ยอดจริงจาก Supabase (CR-WPN-006) · ยังไม่ตั้งค่า → เดโม
 export default async function PortfolioPage() {
-  const { assets, isDemo, userKey } = await loadAssets();
+  const { assets, isDemo, userKey, usdThb } = await loadAssets();
 
   const s = summarizePortfolio(assets);
   const cost = s.totalTHB - s.totalIncomeTHB;
@@ -79,6 +79,12 @@ export default async function PortfolioPage() {
         <div className="pf-stat"><span className="t">Total P&amp;L</span><span className={'p num ' + (up ? 'g' : 'l')}>{up ? '+' : '−'}฿<Amount>{compact(Math.abs(s.totalIncomeTHB))}</Amount></span></div>
         <RiskStat initial={prefs?.risk ? { level: prefs.risk.level, short: prefs.risk.short } : null} />
       </div>
+
+      {usdThb && (
+        <p className="note" style={{ textAlign: 'center', margin: '0 0 2px' }}>
+          <span style={{ color: 'var(--accent-strong)' }}>●</span> ราคา/เรตอัปเดตอัตโนมัติ · USD/THB ≈ {usdThb.toFixed(2)}
+        </p>
+      )}
 
       {growthYears && <GrowthChart seriesByYear={growthYears} nowYear={nowYear} returnPct={incomePct} up={up} />}
 
