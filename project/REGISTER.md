@@ -28,7 +28,7 @@
 | CR-WPN-008 | Change request — ขยายระบบให้เทียบเท่าชีตพอร์ตจริง (เฟส 1–3: ราคาปัจจุบัน/P&L, taxonomy+tax bucket, import Sheet) | 00 | อนุมัติแล้ว | 2026-11-18 |
 | CR-WPN-009 | Change request — ปรับโครงนำทาง (IA): /assets + /activity, ย้าย Rebalance/Import เข้า Profile, หน้าตั้งค่าใช้งานจริง, ย้าย logout, เรียงความเสี่ยง, เป้าหมายตรงชีต | 00 | อนุมัติแล้ว | 2026-11-21 |
 | CR-WPN-010 | Change request — แก้ไข/ลบสินทรัพย์ + หน้าสินทรัพย์ accordion + F009 KV-free + Option B (สลิปไม่พึ่ง Google) + ส่งออกรายงาน Sheet | 00 | อนุมัติแล้ว | 2026-11-23 |
-| CR-WPN-011 | Change request — กราฟการเติบโตของพอร์ต (ไฮบริด) + เปลี่ยนชื่อแบรนด์ WealthPlanner + โลโก้ login ใหม่ + ลดหน้าเตือน Google | 00 | อนุมัติแล้ว | 2026-11-24 |
+| CR-WPN-011 | Change request — กราฟการเติบโตของพอร์ต (ไฮบริด) + เปลี่ยนชื่อแบรนด์ WealthPlanner + โลโก้ login ใหม่ + ลดหน้าเตือน Google | 01 | อนุมัติแล้ว | 2026-11-24 |
 | CR-WPN-012 | Change request — เก็บความเสี่ยง + เป้าหมาย allocation ขึ้น Supabase (user_prefs) + เป้าหมายปรับตามความเสี่ยง | 01 | อนุมัติแล้ว | 2026-11-24 |
 | TST-WPN-001 | Test cases + traceability matrix — WealthPlaner | 00 | ร่าง | 2026-08-29 |
 | DSN-WPN-001 | ระบบออกแบบและข้อกำหนดหน้าจอ (Neon Dark) — WealthPlaner | 00 | ร่าง | 2026-08-31 |
@@ -110,3 +110,4 @@ skill `document-control`
 | 2026-11-24 | — (build) | สร้าง (code) | ตาม CR-WPN-012: ตาราง user_prefs + /api/prefs (GET/PATCH) + getPrefs/savePrefs · RiskAssessment/RiskStat seed+เขียน server · home target tab อ่าน prefs.targets · /rebalance โหลด+ปุ่มบันทึกเป้าหมาย · best-effort fallback · tsc สะอาด, 57 เทส · deploy 2bb6f989 · commit 6c786d0 |
 | 2026-11-24 | — (migration) | รันแล้ว (prod) | รัน migration `user_prefs` ใน Supabase · ยืนยัน read HTTP 200 + upsert 201 (ลบ row ทดสอบแล้ว) · ปิด Class B ของ CR-WPN-012 |
 | 2026-11-24 | CR-WPN-012 | แก้ไข (rev 01) | เพิ่ม CR-31: target allocation ปรับตามระดับความเสี่ยง (RISK_TARGETS 5 ชุด รวม 100% + targetsForRisk) · ลำดับ ค่าที่ตั้งเอง>โมเดลความเสี่ยง>โมเดลกลาง · ปุ่ม "ใช้สัดส่วนแนะนำ" + disclaimer ที่ /rebalance · tsc สะอาด, 58 เทส · deploy 04e352af · commit 60e467c · ไม่มี Class B เพิ่ม |
+| 2026-11-24 | CR-WPN-011 | แก้ไข (rev 01) | ปิด backlog กราฟ (ข้อ 8): GrowthChart client — แตะ/ลากดูค่าต่อเดือน (crosshair+tooltip มาสก์ privacy) + ปุ่มสลับปี (series ต่อปี ≤6) · pill %เฉพาะปีปัจจุบัน · tsc สะอาด · deploy 863270a3 · commit 3ed3484 · ไม่มี Class B |

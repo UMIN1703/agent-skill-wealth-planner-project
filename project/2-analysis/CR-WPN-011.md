@@ -3,7 +3,7 @@
 | รายการ | รายละเอียด |
 |---|---|
 | รหัสเอกสาร | CR-WPN-011 |
-| ฉบับแก้ไขครั้งที่ | 00 |
+| ฉบับแก้ไขครั้งที่ | 01 |
 | วันที่มีผลบังคับใช้ | 2026-11-24 |
 | สถานะ | อนุมัติแล้ว |
 | เอกสารอ้างอิง | REQ-WPN-001 F002/F008 · CR-WPN-010 · REL-WPN-001 · DSN-WPN-001 |
@@ -64,7 +64,7 @@ flow ผูก Google เข้าบัญชี LINE (`googleLink.ts`) **ค�
 | Privacy | กราฟไม่ติดป้ายตัวเลขบนแกน → โหมดซ่อนยอดยังมีผล (เห็นแค่รูปทรง) |
 
 ## 5. ไม่รวมในรอบนี้ (backlog)
-- กราฟ: แตะดูค่าต่อเดือน (tooltip) + ปุ่มสลับปี · เก็บ snapshot ถี่กว่ารายวัน/ผ่าน cron · backfill มูลค่าย้อนหลัง (ทำไม่ได้ — ไม่มีราคาย้อนหลัง)
+- ~~กราฟ: แตะดูค่าต่อเดือน (tooltip) + ปุ่มสลับปี~~ **ทำแล้ว rev 01** · เก็บ snapshot ถี่กว่ารายวัน/ผ่าน cron · backfill มูลค่าย้อนหลัง (ทำไม่ได้ — ไม่มีราคาย้อนหลัง)
 - Google verification เต็มรูปแบบ (custom domain + privacy policy) เพื่อลบหน้าเตือนถาวร
 - กวาดเปลี่ยนชื่อ "WealthPlaner" ในเอกสารควบคุม/คอมเมนต์โค้ดให้เป็น "WealthPlanner" ทั้งหมด
 
@@ -73,3 +73,4 @@ flow ผูก Google เข้าบัญชี LINE (`googleLink.ts`) **ค�
 | Rev | Date | Clauses | Substance and reason | Author | Approver |
 |---|---|---|---|---|---|
 | 00 | 2026-11-24 | All | เปิดคำขอ: กราฟการเติบโตของพอร์ต (ไฮบริด ต้นทุนสะสม+snapshot มูลค่าจริง), เปลี่ยนชื่อแบรนด์ WealthPlanner, โลโก้ login ใหม่, ลดหน้าเตือน Google (prompt consent ครั้งแรกครั้งเดียว) · Class B = migration portfolio_snapshots | system-analyst | เจ้าของโครงการ (solo) |
+| 01 | 2026-11-24 | §5 (CR-25) | ปิด backlog ของกราฟ: GrowthChart เป็น client — แตะ/ลากดูค่าต่อเดือน (crosshair + tooltip มาสก์ privacy ด้วย Amount) + ปุ่มสลับปี (series ต่อปี ≤6 ปี) · หัวการ์ดโชว์มูลค่าปลายปีที่เลือก, pill %เฉพาะปีปัจจุบัน · ไม่มี Class B · deploy 863270a3 · commit 3ed3484 | system-analyst | เจ้าของโครงการ (solo) |
