@@ -29,9 +29,8 @@ export default function ExportSheetButton() {
 
   return (
     <>
-      <button type="button" className="btn-ghost" onClick={run} disabled={busy}
-        aria-label="ส่งออกเป็น Google Sheet" title="ส่งออกเป็น Google Sheet"
-        style={{ padding: 8, borderRadius: 999, width: 'auto' }}>
+      <button type="button" className="icon-btn" onClick={run} disabled={busy}
+        aria-label="ส่งออกเป็น Google Sheet" title="ส่งออกเป็น Google Sheet">
         {busy ? <Loader2 size={18} className="spin" /> : <FileSpreadsheet size={18} />}
       </button>
 

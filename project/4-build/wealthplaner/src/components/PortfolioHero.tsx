@@ -40,11 +40,7 @@ export default function PortfolioHero({
   return (
     <section className="pf-hero" style={{ position: 'relative' }}>
       <button type="button" aria-label={hidden ? 'แสดงจำนวนเงิน' : 'ซ่อนจำนวนเงิน'} aria-pressed={hidden} onClick={toggleHidden}
-        style={{
-          position: 'absolute', top: 0, right: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          width: 34, height: 34, borderRadius: 999, cursor: 'pointer',
-          background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--muted)',
-        }}>
+        className="icon-btn sm" style={{ position: 'absolute', top: 0, right: 0, color: 'var(--muted)' }}>
         {hidden ? <EyeOff size={16} /> : <Eye size={16} />}
       </button>
 

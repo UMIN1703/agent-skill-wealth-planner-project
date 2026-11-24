@@ -80,6 +80,18 @@ input[type="date"].input::-webkit-calendar-picker-indicator { opacity: 0; cursor
 .topbar h1 { font-size: 16px; font-weight: 700; margin: 0; line-height: 1.3; }
 .refresh { width: 36px; height: 36px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--border); color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
+/* ปุ่มไอคอนทรงกลม — ใช้ทุกปุ่ม icon ให้ consistency (วงกลมเป๊ะ + outline โฟกัสกลมตาม) */
+.icon-btn {
+  width: 38px; height: 38px; flex-shrink: 0; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%; background: var(--surface-2); border: 1px solid var(--border);
+  color: var(--text); cursor: pointer; transition: background var(--motion), border-color var(--motion);
+}
+.icon-btn.sm { width: 30px; height: 30px; }
+.icon-btn:hover:not(:disabled) { background: var(--surface); border-color: var(--brand); }
+.icon-btn:disabled { opacity: 0.4; cursor: default; }
+.icon-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
 .balance { background: var(--brand); border-radius: var(--radius-card); padding: 20px; }
 .balance .bhead { display: flex; align-items: center; gap: 10px; }
 .balance .chip { width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,.15); display: flex; align-items: center; justify-content: center; color: #fff; }

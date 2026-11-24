@@ -53,7 +53,7 @@ export default function RiskForm({ initial }: { initial?: RiskResult | null }) {
   return (
     <main className="app">
       <div className="topbar">
-        <button type="button" onClick={goBack} aria-label="กลับ" className="btn-ghost" style={{ padding: 8, borderRadius: 999 }}>
+        <button type="button" onClick={goBack} aria-label="กลับ" className="icon-btn">
           <ArrowLeft size={18} />
         </button>
         <h1 style={{ flex: 1 }}>แบบประเมินความเสี่ยง</h1>

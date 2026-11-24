@@ -18,7 +18,7 @@ export default async function NotificationsPage() {
   return (
     <main className="app">
       <div className="topbar">
-        <Link href="/profile" aria-label="กลับ" className="btn-ghost" style={{ padding: 8, borderRadius: 999 }}>
+        <Link href="/profile" aria-label="กลับ" className="icon-btn">
           <ArrowLeft size={18} />
         </Link>
         <h1 style={{ flex: 1 }}>การแจ้งเตือน</h1>

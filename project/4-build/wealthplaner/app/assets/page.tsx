@@ -27,7 +27,7 @@ export default async function AssetsPage() {
         <h1>สินทรัพย์</h1>
         <span className="topbar-actions">
           <ExportSheetButton />
-          <Link href="/import" className="btn-ghost" aria-label="นำเข้าจากชีต" style={{ padding: 8, borderRadius: 999 }}><FileUp size={18} /></Link>
+          <Link href="/import" className="icon-btn" aria-label="นำเข้าจากชีต"><FileUp size={18} /></Link>
         </span>
       </div>
 

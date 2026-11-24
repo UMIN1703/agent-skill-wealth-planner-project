@@ -26,7 +26,7 @@ export default function PrivacyPage() {
   return (
     <main className="app" style={{ maxWidth: 680, margin: '0 auto' }}>
       <div className="topbar">
-        <Link href="/login" aria-label="กลับ" className="btn-ghost" style={{ padding: 8, borderRadius: 999 }}>
+        <Link href="/login" aria-label="กลับ" className="icon-btn">
           <ArrowLeft size={18} />
         </Link>
         <h1 style={{ flex: 1 }}>นโยบายความเป็นส่วนตัว</h1>

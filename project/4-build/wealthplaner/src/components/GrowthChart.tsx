@@ -77,12 +77,12 @@ export default function GrowthChart(
           {seriesByYear.length > 1 && (
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}>
               <button type="button" aria-label="ปีก่อนหน้า" onClick={() => { setYearIdx((i) => Math.max(0, i - 1)); setActive(null); }}
-                disabled={yearIdx === 0} className="btn-ghost" style={{ padding: 4, borderRadius: 999, opacity: yearIdx === 0 ? 0.35 : 1 }}>
+                disabled={yearIdx === 0} className="icon-btn sm">
                 <ChevronLeft size={16} />
               </button>
               <span className="num" style={{ fontSize: 13, minWidth: 38, textAlign: 'center' }}>{year + 543}</span>
               <button type="button" aria-label="ปีถัดไป" onClick={() => { setYearIdx((i) => Math.min(seriesByYear.length - 1, i + 1)); setActive(null); }}
-                disabled={yearIdx === seriesByYear.length - 1} className="btn-ghost" style={{ padding: 4, borderRadius: 999, opacity: yearIdx === seriesByYear.length - 1 ? 0.35 : 1 }}>
+                disabled={yearIdx === seriesByYear.length - 1} className="icon-btn sm">
                 <ChevronRight size={16} />
               </button>
             </div>

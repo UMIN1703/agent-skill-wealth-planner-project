@@ -157,12 +157,8 @@ export default function AssetList({ rows, totalTHB }: { rows: AssetRowData[]; to
                 </span>
                 {r.id ? (
                   <button type="button" aria-label={'แก้ไข ' + r.name} onClick={() => setEditing(editing === r.id ? null : (r.id ?? null))}
-                    style={{
-                      width: 32, height: 32, borderRadius: 9, cursor: 'pointer',
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      background: editing === r.id ? 'var(--brand)' : 'var(--surface-2)',
-                      border: '1px solid var(--border)', color: editing === r.id ? '#fff' : 'var(--muted)',
-                    }}>
+                    className="icon-btn sm"
+                    style={editing === r.id ? { background: 'var(--brand)', borderColor: 'var(--brand)', color: '#fff' } : { color: 'var(--muted)' }}>
                     <Pencil size={15} />
                   </button>
                 ) : <span />}
