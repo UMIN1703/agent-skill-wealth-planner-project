@@ -5,7 +5,7 @@ import PortfolioHero from '@/components/PortfolioHero.tsx';
 import GrowthChart from '@/components/GrowthChart.tsx';
 import Amount from '@/components/Amount.tsx';
 import { loadAssets } from '@/lib/portfolioData.ts';
-import { listSnapshots, recordSnapshot } from '@/lib/supabase.ts';
+import { listSnapshots, recordSnapshot, getPrefs } from '@/lib/supabase.ts';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic'; // ข้อมูลเฉพาะผู้ใช้ — เรนเดอร์สดทุกครั้ง
@@ -37,10 +37,18 @@ export default async function PortfolioPage() {
 
   const taxRows = taxDeductionSummary(assets);
 
+  // prefs (ความเสี่ยง + เป้าหมาย) ของผู้ใช้ — sync ข้ามเครื่อง (CR-WPN-012)
+  const prefs = userKey ? await getPrefs(userKey) : null;
+
   // สัดส่วนตามหมวด (ปัจจุบัน) + เป้าหมาย → รวมเป็นแถวให้ AllocationTabs
+  // เป้าหมาย: ใช้ค่าที่ผู้ใช้บันทึกไว้ (prefs.targets) ถ้ามี, ไม่งั้นโมเดลกลาง CATEGORY_TARGETS
   const catAlloc = categoryAllocation(assets);
-  const tgt = new Map(CATEGORY_TARGETS.map((t) => [t.category, t.percent]));
-  const names = [...new Set([...catAlloc.map((a) => a.type), ...CATEGORY_TARGETS.map((t) => t.category)])];
+  const savedTargets = prefs?.targets ?? null;
+  const tgt = new Map(
+    savedTargets ? Object.entries(savedTargets) : CATEGORY_TARGETS.map((t) => [t.category, t.percent] as [string, number]),
+  );
+  const targetNames = savedTargets ? Object.keys(savedTargets) : CATEGORY_TARGETS.map((t) => t.category);
+  const names = [...new Set([...catAlloc.map((a) => a.type), ...targetNames])];
   const allocRows: AllocRow[] = names
     .map((name) => {
       const a = catAlloc.find((x) => x.type === name);
@@ -59,7 +67,7 @@ export default async function PortfolioPage() {
       <div className="pf-stats">
         <div className="pf-stat"><span className="t">ต้นทุนรวม</span><span className="p num">฿<Amount>{compact(cost)}</Amount></span></div>
         <div className="pf-stat"><span className="t">Total P&amp;L</span><span className={'p num ' + (up ? 'g' : 'l')}>{up ? '+' : '−'}฿<Amount>{compact(Math.abs(s.totalIncomeTHB))}</Amount></span></div>
-        <RiskStat />
+        <RiskStat initial={prefs?.risk ? { level: prefs.risk.level, short: prefs.risk.short } : null} />
       </div>
 
       {growth && <GrowthChart series={growth} returnPct={incomePct} up={up} />}

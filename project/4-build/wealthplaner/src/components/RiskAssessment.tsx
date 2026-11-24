@@ -7,19 +7,25 @@ import { ShieldCheck, RefreshCw, ChevronRight } from 'lucide-react';
 import { RISK_QUESTIONS, scoreRisk, isComplete, type RiskResult } from '@/lib/risk.ts';
 import { RISK_KEY } from '@/components/RiskStat.tsx';
 
-export default function RiskAssessment() {
+export default function RiskAssessment({ initial }: { initial?: RiskResult | null }) {
   const [answers, setAnswers] = useState<Record<string, number>>({});
-  const [saved, setSaved] = useState<RiskResult | null>(null);
+  const [saved, setSaved] = useState<RiskResult | null>(initial ?? null);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    if (initial) return; // มีผลจาก server แล้ว (sync ข้ามเครื่อง)
     try { const s = localStorage.getItem(RISK_KEY); if (s) setSaved(JSON.parse(s)); } catch { /* ignore */ }
-  }, []);
+  }, [initial]);
 
   function submit() {
     if (!isComplete(answers)) return;
     const r = scoreRisk(answers);
     try { localStorage.setItem(RISK_KEY, JSON.stringify(r)); } catch { /* ignore */ }
+    // เก็บขึ้น server ด้วย → sync ข้ามเครื่อง (best-effort, ไม่บล็อก UI)
+    fetch('/api/prefs', {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ risk: r }),
+    }).catch(() => { /* ยัง login ไม่ครบ/ออฟไลน์ → เก็บ localStorage ไว้ก่อน */ });
     setSaved(r);
     setOpen(false); // ยุบกลับเป็นแถวเดียว โชว์ผลที่หัวแถว
   }

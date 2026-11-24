@@ -5,9 +5,9 @@
 // สถานะ: ยังไม่ตั้งเป้า (ชวนตั้ง/ทำ F007) · เป้ารวม≠100 → เตือน ไม่คำนวณ · ตั้งครบ → gap ต่อคลาส
 // mock data (Supabase รอ creds) · ราคาตลาดจริง F003/F004 รอ O1
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { ArrowUp, ArrowDown, Minus, Check, Loader2 } from 'lucide-react';
 import { summarizePortfolio, categoryAllocation, CATEGORY_TARGETS } from '@/lib/portfolio.ts';
 import { computeRebalanceGap, type Target } from '@/lib/rebalance.ts';
 import { sampleAssets } from '@/data/sampleAssets.ts';
@@ -36,7 +36,39 @@ export default function RebalancePage() {
   const sum = targets.reduce((s, t) => s + t.targetPercent, 0);
   const result = computeRebalanceGap(alloc, targets);
 
-  const setT = (type: string, v: string) => setTarget((m) => ({ ...m, [type]: v }));
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const setT = (type: string, v: string) => { setTarget((m) => ({ ...m, [type]: v })); setSaveState('idle'); };
+
+  // โหลดเป้าหมายที่ผู้ใช้เคยบันทึก (sync ข้ามเครื่อง · CR-WPN-012) → ทับค่าเริ่มต้นจากโมเดลกลาง
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/prefs')
+      .then((r) => (r.ok ? r.json() : null) as Promise<{ prefs?: { targets?: Record<string, number> } } | null>)
+      .then((d) => {
+        const saved = d?.prefs?.targets;
+        if (!alive || !saved) return;
+        setTarget((m) => {
+          const next = { ...m };
+          for (const [k, v] of Object.entries(saved)) next[k] = String(v);
+          return next;
+        });
+      })
+      .catch(() => { /* ยัง login ไม่ครบ/ออฟไลน์ → ใช้ค่าเริ่มต้น */ });
+    return () => { alive = false; };
+  }, []);
+
+  async function saveTargets() {
+    if (sum !== 100) return;
+    setSaveState('saving');
+    const map = Object.fromEntries(types.map((t) => [t, Number(target[t] || 0)]));
+    try {
+      const res = await fetch('/api/prefs', {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targets: map }),
+      });
+      setSaveState(res.ok ? 'saved' : 'error');
+    } catch { setSaveState('error'); }
+  }
 
   return (
     <main className="app">
@@ -78,6 +110,16 @@ export default function RebalancePage() {
         <div className={'tsum num' + (anySet && sum !== 100 ? ' bad' : '')} aria-live="polite">
           รวมเป้าหมาย: {pct(sum)}{anySet && sum !== 100 ? ` — ต้องเป็น 100% (${sum > 100 ? 'เกิน' : 'ขาด'} ${pct(Math.abs(100 - sum))})` : ''}
         </div>
+        <button
+          type="button" className="btn-primary" style={{ marginTop: 12, width: '100%', justifyContent: 'center' }}
+          disabled={sum !== 100 || saveState === 'saving'} onClick={saveTargets}
+        >
+          {saveState === 'saving' ? <><Loader2 size={18} className="spin" /> กำลังบันทึก…</>
+            : saveState === 'saved' ? <><Check size={18} /> บันทึกเป้าหมายแล้ว</>
+            : 'บันทึกเป้าหมาย'}
+        </button>
+        {saveState === 'saved' && <p className="note" style={{ textAlign: 'center', margin: '6px 0 0' }}>เป้าหมายถูกเก็บถาวร (ซิงค์ทุกเครื่อง) — แท็บ “เป้าหมาย” หน้าพอร์ตจะใช้ค่านี้</p>}
+        {saveState === 'error' && <p className="note" style={{ textAlign: 'center', margin: '6px 0 0', color: 'var(--loss)' }}>บันทึกไม่สำเร็จ — ต้องเข้าสู่ระบบ แล้วลองใหม่</p>}
       </section>
 
       {/* error state (F006 AC-E01): เป้ารวม ≠ 100% → ไม่คำนวณ gap */}

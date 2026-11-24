@@ -165,3 +165,40 @@ export async function listSnapshots(userKey: string): Promise<Snapshot[]> {
     return [];
   }
 }
+
+// ── user_prefs (ความเสี่ยง + เป้าหมาย allocation · CR-WPN-012) ────────────────
+const PREFS_TABLE = 'user_prefs';
+export type UserPrefs = {
+  risk?: { score: number; level: number; label: string; short: string } | null;
+  targets?: Record<string, number> | null; // {หมวด: เปอร์เซ็นต์}
+};
+
+/** อ่าน prefs ของผู้ใช้ · ไม่ตั้งค่า/ตารางไม่มี/ยังไม่เคยบันทึก → null */
+export async function getPrefs(userKey: string): Promise<UserPrefs | null> {
+  if (!supabaseConfigured()) return null;
+  try {
+    const q = `${PREFS_TABLE}?user_key=eq.${encodeURIComponent(userKey)}&select=risk,targets&limit=1`;
+    const rows = (await (await sb(q)).json()) as { risk: UserPrefs['risk']; targets: UserPrefs['targets'] }[];
+    return rows[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** บันทึก prefs (upsert · ส่งเฉพาะคีย์ที่ให้มา → ไม่ทับคีย์อื่น) · best-effort คืน true/false */
+export async function savePrefs(userKey: string, patch: UserPrefs): Promise<boolean> {
+  if (!supabaseConfigured()) return false;
+  const row: Record<string, unknown> = { user_key: userKey, updated_at: new Date().toISOString() };
+  if (patch.risk !== undefined) row.risk = patch.risk;
+  if (patch.targets !== undefined) row.targets = patch.targets;
+  try {
+    await sb(`${PREFS_TABLE}?on_conflict=user_key`, {
+      method: 'POST',
+      headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify(row),
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}

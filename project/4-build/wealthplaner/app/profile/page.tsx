@@ -4,9 +4,11 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { User, Bell, Settings, Shield, Link2, Scale, FileUp, ChevronRight } from 'lucide-react';
 import { auth } from '@/auth.ts';
+import { getPrefs, resolveUserKey } from '@/lib/supabase.ts';
 import LogoutButton from '@/components/LogoutButton.tsx';
 import RiskAssessment from '@/components/RiskAssessment.tsx';
 import DisplayName from '@/components/DisplayName.tsx';
+import type { RiskResult } from '@/lib/risk.ts';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -19,6 +21,9 @@ export default async function ProfilePage() {
   const image = session.user.image ?? undefined;
   const contact = session.user.email
     ?? (session.lineUserId ? 'LINE ID: ' + session.lineUserId.slice(0, 10) + '…' : 'ไม่ระบุ');
+
+  const userKey = await resolveUserKey(session);
+  const prefs = userKey ? await getPrefs(userKey) : null; // ผลประเมินความเสี่ยงที่เก็บไว้ (sync ข้ามเครื่อง)
 
   const driveConnected = session.provider === 'google' && !!session.accessToken;
   const ROWS = [
@@ -51,7 +56,7 @@ export default async function ProfilePage() {
         </div>
       </section>
 
-      <RiskAssessment />
+      <RiskAssessment initial={(prefs?.risk ?? null) as RiskResult | null} />
 
       <section className="card" aria-label="ตั้งค่า">
         {ROWS.map(({ Icon, label, status, href }, i) => {

@@ -8,11 +8,12 @@ export const RISK_KEY = 'wp_risk';
 
 const DEMO_RISK = { level: 4, short: 'สูง' }; // ตัวอย่างไว้โชว์ก่อนทำแบบประเมินจริง
 
-export default function RiskStat() {
-  const [r, setR] = useState<{ level: number; short: string } | null>(null);
+export default function RiskStat({ initial }: { initial?: { level: number; short: string } | null }) {
+  const [r, setR] = useState<{ level: number; short: string } | null>(initial ?? null);
   useEffect(() => {
+    if (initial) return; // มีค่าจาก server (sync ข้ามเครื่อง) แล้ว — ไม่ต้องอ่าน localStorage
     try { const s = localStorage.getItem(RISK_KEY); if (s) setR(JSON.parse(s)); } catch { /* ignore */ }
-  }, []);
+  }, [initial]);
 
   const d = r ?? DEMO_RISK;
   return (
