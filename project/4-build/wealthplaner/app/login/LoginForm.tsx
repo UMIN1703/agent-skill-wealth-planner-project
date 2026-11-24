@@ -71,9 +71,7 @@ export default function LoginForm() {
       <div className="auth-card">
         <div className="auth-brand">
           <span className="auth-logo" aria-hidden="true">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 17l5-5 4 3 7-8" /><path d="M16 4h4v4" />
-            </svg>
+            <img src="/brand-w.png" alt="" width={46} height={46} style={{ objectFit: 'contain' }} />
           </span>
           <h1>WealthPlaner</h1>
           <p>เข้าสู่ระบบเพื่อจัดการพอร์ตการลงทุนข้ามโบรก</p>
