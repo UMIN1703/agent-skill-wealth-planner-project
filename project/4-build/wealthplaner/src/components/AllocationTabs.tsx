@@ -76,7 +76,7 @@ export default function AllocationTabs({ rows }: { rows: AllocRow[] }) {
               </div>
             );
           })}
-          <p className="note-muted" style={{ marginTop: 4 }}>เป้าหมายอิงโมเดลกลาง — แก้ค่าเป้าได้ที่หน้า “ปรับสมดุล”</p>
+          <p className="note-muted" style={{ marginTop: 4 }}>เป้าหมายอิงระดับความเสี่ยงของคุณ (หรือค่าที่ตั้งเอง) — แก้ได้ที่หน้า “ปรับสมดุล”</p>
         </div>
       )}
 

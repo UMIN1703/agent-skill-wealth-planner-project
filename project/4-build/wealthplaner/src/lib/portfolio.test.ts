@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { summarizePortfolio, holdingSummary, taxDeductionSummary, categoryAllocation, categoryRiskRank, CATEGORY_RISK_ORDER, CATEGORY_TARGETS, buildGrowthSeries, type HeldAsset } from './portfolio.ts';
+import { summarizePortfolio, holdingSummary, taxDeductionSummary, categoryAllocation, categoryRiskRank, CATEGORY_RISK_ORDER, CATEGORY_TARGETS, buildGrowthSeries, RISK_TARGETS, targetsForRisk, type HeldAsset } from './portfolio.ts';
 
 const two: HeldAsset[] = [
   { name: 'A', type: 'หุ้นไทย', brokerChannel: 'SCBS', quantity: 10, costPrice: 10, marketPrice: 15, fxToThb: 1 },       // value 150, income 50
@@ -48,6 +48,21 @@ test('TC-F002-growth: cost สะสมตาม createdAt, value จาก snap
   assert.equal(g.points[5].cost, 500);             // เดือนปัจจุบันใช้ต้นทุนสด
   assert.equal(g.points[6].value, null);           // ก.ค. อนาคต → ไม่วาด
   assert.equal(g.hasValueHistory, true);
+});
+
+// CR-WPN-012 ข้อ 7 — โมเดลเป้าหมายตามความเสี่ยง: ทุกชุดรวม 100% + fallback
+test('TC-F006-risk-targets: RISK_TARGETS ทุกระดับรวม = 100% และ targetsForRisk เลือกถูก', () => {
+  for (const level of [1, 2, 3, 4, 5] as const) {
+    const sum = RISK_TARGETS[level].reduce((s, t) => s + t.percent, 0);
+    assert.equal(sum, 100, `ระดับ ${level} ต้องรวม 100 (ได้ ${sum})`);
+  }
+  // ระดับ 3 = โมเดลกลาง · เสี่ยงสูงกว่า → หุ้นต่างประเทศมากขึ้น, เงินสำรองน้อยลง
+  const g = (ts: { category: string; percent: number }[], c: string) => ts.find((t) => t.category === c)?.percent ?? 0;
+  assert.ok(g(RISK_TARGETS[5], 'หุ้นต่างประเทศ') > g(RISK_TARGETS[1], 'หุ้นต่างประเทศ'));
+  assert.ok(g(RISK_TARGETS[1], 'เงินสำรองฉุกเฉิน') > g(RISK_TARGETS[5], 'เงินสำรองฉุกเฉิน'));
+  assert.equal(targetsForRisk(3), RISK_TARGETS[3]);
+  assert.equal(targetsForRisk(null), CATEGORY_TARGETS); // ไม่มีระดับ → โมเดลกลาง
+  assert.equal(targetsForRisk(9), CATEGORY_TARGETS);    // นอกช่วง → โมเดลกลาง
 });
 
 // CR-WPN-008 — allocation ตามหมวด (ใช้ category, fallback type) + % รวม 100

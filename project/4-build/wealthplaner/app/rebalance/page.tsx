@@ -8,7 +8,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowUp, ArrowDown, Minus, Check, Loader2 } from 'lucide-react';
-import { summarizePortfolio, categoryAllocation, CATEGORY_TARGETS } from '@/lib/portfolio.ts';
+import { summarizePortfolio, categoryAllocation, CATEGORY_TARGETS, targetsForRisk } from '@/lib/portfolio.ts';
 import { computeRebalanceGap, type Target } from '@/lib/rebalance.ts';
 import { sampleAssets } from '@/data/sampleAssets.ts';
 import { AllocationDonut } from '@/components/AllocationDonut.tsx';
@@ -37,25 +37,37 @@ export default function RebalancePage() {
   const result = computeRebalanceGap(alloc, targets);
 
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [riskLevel, setRiskLevel] = useState<number | null>(null);
   const setT = (type: string, v: string) => { setTarget((m) => ({ ...m, [type]: v })); setSaveState('idle'); };
 
-  // โหลดเป้าหมายที่ผู้ใช้เคยบันทึก (sync ข้ามเครื่อง · CR-WPN-012) → ทับค่าเริ่มต้นจากโมเดลกลาง
+  // โหลด prefs (sync ข้ามเครื่อง · CR-WPN-012) → เป้าหมายที่บันทึก > โมเดลตามความเสี่ยง > โมเดลกลาง
   useEffect(() => {
     let alive = true;
     fetch('/api/prefs')
-      .then((r) => (r.ok ? r.json() : null) as Promise<{ prefs?: { targets?: Record<string, number> } } | null>)
+      .then((r) => (r.ok ? r.json() : null) as Promise<{ prefs?: { targets?: Record<string, number>; risk?: { level?: number } } } | null>)
       .then((d) => {
-        const saved = d?.prefs?.targets;
-        if (!alive || !saved) return;
+        if (!alive || !d?.prefs) return;
+        const lvl = d.prefs.risk?.level ?? null;
+        setRiskLevel(lvl);
+        const saved = d.prefs.targets;
+        const next = saved ?? Object.fromEntries(targetsForRisk(lvl).map((t) => [t.category, t.percent]));
         setTarget((m) => {
-          const next = { ...m };
-          for (const [k, v] of Object.entries(saved)) next[k] = String(v);
-          return next;
+          const o = { ...m };
+          for (const [k, v] of Object.entries(next)) o[k] = String(v);
+          return o;
         });
       })
       .catch(() => { /* ยัง login ไม่ครบ/ออฟไลน์ → ใช้ค่าเริ่มต้น */ });
     return () => { alive = false; };
   }, []);
+
+  // รีเซ็ตฟอร์มเป็นสัดส่วนแนะนำตามระดับความเสี่ยงที่ประเมินไว้
+  function applyRiskPreset() {
+    if (riskLevel == null) return;
+    const preset = Object.fromEntries(targetsForRisk(riskLevel).map((t) => [t.category, String(t.percent)]));
+    setTarget((m) => ({ ...m, ...preset }));
+    setSaveState('idle');
+  }
 
   async function saveTargets() {
     if (sum !== 100) return;
@@ -91,6 +103,18 @@ export default function RebalancePage() {
 
       <section className="card">
         <h2>เป้าหมายต่อคลาส (รวมต้อง = 100%)</h2>
+        {riskLevel != null ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 10 }}>
+            <button type="button" className="btn-ghost" style={{ padding: '7px 12px' }} onClick={applyRiskPreset}>
+              ใช้สัดส่วนแนะนำ · ความเสี่ยงระดับ {riskLevel}/5
+            </button>
+            <span className="note" style={{ margin: 0, fontSize: 11.5 }}>แนวทางเบื้องต้น ไม่ใช่คำแนะนำตามเกณฑ์ กลต. เต็มรูป</span>
+          </div>
+        ) : (
+          <p className="note" style={{ margin: '0 0 10px', fontSize: 12 }}>
+            อยากได้สัดส่วนแนะนำอัตโนมัติ? <Link href="/profile" className="inlink">ทำแบบประเมินความเสี่ยง</Link> ก่อน
+          </p>
+        )}
         {types.map((t) => (
           <div className="trow" key={t}>
             <label htmlFor={'tg-' + t} className="tname">{t}</label>

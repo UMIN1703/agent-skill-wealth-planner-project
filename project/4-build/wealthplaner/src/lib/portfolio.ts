@@ -69,6 +69,43 @@ export const CATEGORY_TARGETS: { category: string; percent: number }[] = [
   { category: 'คริปโต', percent: 2 },
 ];
 
+// CR-WPN-012 เฟส 2 (ข้อ 7) — โมเดลเป้าหมาย allocation ตามระดับความเสี่ยง 1–5
+// แต่ละชุดรวม = 100% · เรียงตามความเสี่ยงหมวด (เงินสด→คริปโต) · ระดับ 3 = โมเดลกลาง (CATEGORY_TARGETS)
+// หมายเหตุ: เป็น "แนวทางเบื้องต้น" เชิงการศึกษา ไม่ใช่คำแนะนำการลงทุนตามเกณฑ์ กลต. เต็มรูป
+export const RISK_TARGETS: Record<1 | 2 | 3 | 4 | 5, { category: string; percent: number }[]> = {
+  1: [ // เสี่ยงต่ำ — เน้นเงินสด/สำรอง/เกษียณ ไม่มีคริปโต
+    { category: 'เงินสด', percent: 10 }, { category: 'เงินสำรองฉุกเฉิน', percent: 30 },
+    { category: 'เกษียณ', percent: 25 }, { category: 'ทองคำ', percent: 10 },
+    { category: 'หุ้นไทย', percent: 10 }, { category: 'หุ้นต่างประเทศ', percent: 15 }, { category: 'คริปโต', percent: 0 },
+  ],
+  2: [ // ปานกลางค่อนข้างต่ำ
+    { category: 'เงินสด', percent: 5 }, { category: 'เงินสำรองฉุกเฉิน', percent: 20 },
+    { category: 'เกษียณ', percent: 20 }, { category: 'ทองคำ', percent: 12 },
+    { category: 'หุ้นไทย', percent: 15 }, { category: 'หุ้นต่างประเทศ', percent: 27 }, { category: 'คริปโต', percent: 1 },
+  ],
+  3: [ // ปานกลางค่อนข้างสูง — = โมเดลกลาง (ตรงกับชีต Targets)
+    { category: 'เงินสด', percent: 0 }, { category: 'เงินสำรองฉุกเฉิน', percent: 12 },
+    { category: 'เกษียณ', percent: 13 }, { category: 'ทองคำ', percent: 10 },
+    { category: 'หุ้นไทย', percent: 18 }, { category: 'หุ้นต่างประเทศ', percent: 45 }, { category: 'คริปโต', percent: 2 },
+  ],
+  4: [ // เสี่ยงสูง
+    { category: 'เงินสด', percent: 0 }, { category: 'เงินสำรองฉุกเฉิน', percent: 8 },
+    { category: 'เกษียณ', percent: 10 }, { category: 'ทองคำ', percent: 8 },
+    { category: 'หุ้นไทย', percent: 20 }, { category: 'หุ้นต่างประเทศ', percent: 50 }, { category: 'คริปโต', percent: 4 },
+  ],
+  5: [ // เสี่ยงสูงมาก — เน้นหุ้นต่างประเทศ + คริปโตสูงสุด
+    { category: 'เงินสด', percent: 0 }, { category: 'เงินสำรองฉุกเฉิน', percent: 5 },
+    { category: 'เกษียณ', percent: 5 }, { category: 'ทองคำ', percent: 5 },
+    { category: 'หุ้นไทย', percent: 20 }, { category: 'หุ้นต่างประเทศ', percent: 57 }, { category: 'คริปโต', percent: 8 },
+  ],
+};
+
+/** เป้าหมายตามระดับความเสี่ยง (1–5) · ไม่มีระดับ/นอกช่วง → โมเดลกลาง CATEGORY_TARGETS */
+export function targetsForRisk(level?: number | null): { category: string; percent: number }[] {
+  if (level != null && level >= 1 && level <= 5) return RISK_TARGETS[level as 1 | 2 | 3 | 4 | 5];
+  return CATEGORY_TARGETS;
+}
+
 export type TaxSummaryRow = { bucket: string; costTHB: number };
 
 /** CR-WPN-008 เฟส 2 — สรุปเงินลงทุนที่ได้สิทธิลดหย่อนภาษี (รวมต้นทุนตาม tax bucket) */

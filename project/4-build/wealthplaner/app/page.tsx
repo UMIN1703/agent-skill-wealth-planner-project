@@ -1,4 +1,4 @@
-import { summarizePortfolio, taxDeductionSummary, categoryAllocation, CATEGORY_TARGETS, categoryRiskRank, buildGrowthSeries } from '@/lib/portfolio.ts';
+import { summarizePortfolio, taxDeductionSummary, categoryAllocation, targetsForRisk, categoryRiskRank, buildGrowthSeries } from '@/lib/portfolio.ts';
 import AllocationTabs, { type AllocRow } from '@/components/AllocationTabs.tsx';
 import RiskStat from '@/components/RiskStat.tsx';
 import PortfolioHero from '@/components/PortfolioHero.tsx';
@@ -41,13 +41,14 @@ export default async function PortfolioPage() {
   const prefs = userKey ? await getPrefs(userKey) : null;
 
   // สัดส่วนตามหมวด (ปัจจุบัน) + เป้าหมาย → รวมเป็นแถวให้ AllocationTabs
-  // เป้าหมาย: ใช้ค่าที่ผู้ใช้บันทึกไว้ (prefs.targets) ถ้ามี, ไม่งั้นโมเดลกลาง CATEGORY_TARGETS
+  // เป้าหมาย: ค่าที่ผู้ใช้ตั้งเอง (prefs.targets) > โมเดลตามระดับความเสี่ยง > โมเดลกลาง
   const catAlloc = categoryAllocation(assets);
   const savedTargets = prefs?.targets ?? null;
+  const baseTargets = targetsForRisk(prefs?.risk?.level); // ตามความเสี่ยง (fallback = โมเดลกลาง)
   const tgt = new Map(
-    savedTargets ? Object.entries(savedTargets) : CATEGORY_TARGETS.map((t) => [t.category, t.percent] as [string, number]),
+    savedTargets ? Object.entries(savedTargets) : baseTargets.map((t) => [t.category, t.percent] as [string, number]),
   );
-  const targetNames = savedTargets ? Object.keys(savedTargets) : CATEGORY_TARGETS.map((t) => t.category);
+  const targetNames = savedTargets ? Object.keys(savedTargets) : baseTargets.map((t) => t.category);
   const names = [...new Set([...catAlloc.map((a) => a.type), ...targetNames])];
   const allocRows: AllocRow[] = names
     .map((name) => {
