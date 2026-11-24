@@ -36,7 +36,7 @@
 | QAR-WPN-002 | รายงานการประกันคุณภาพ — รอบ IA restructure (CR-WPN-009) | 01 | อนุมัติแล้ว | 2026-11-21 |
 | RVW-WPN-002 | รายงานผลการทบทวนโค้ด — รอบกราฟการเติบโต + rebrand (CR-WPN-011) | 00 | อนุมัติแล้ว | 2026-11-24 |
 | QAR-WPN-003 | รายงานการประกันคุณภาพ — รอบกราฟการเติบโต + rebrand (CR-WPN-011) | 00 | อนุมัติแล้ว | 2026-11-24 |
-| REL-WPN-001 | บันทึกการปล่อยของและแผนถอยกลับ — Cloudflare Pages (production) | 03 | อนุมัติแล้ว | 2026-11-23 |
+| REL-WPN-001 | บันทึกการปล่อยของและแผนถอยกลับ — Cloudflare Pages (production) | 04 | อนุมัติแล้ว | 2026-11-24 |
 
 สถานะที่ใช้ได้ — `ร่าง` · `รอทบทวน` · `อนุมัติแล้ว` · `ยกเลิก`
 
@@ -104,3 +104,4 @@ skill `document-control`
 | 2026-11-24 | — (migration) | รันแล้ว (prod) | รัน migration ทั้งสองใน Supabase: holdings.updated_at + portfolio_snapshots · ยืนยัน HTTP 200 ผ่าน PostgREST · ปิด Class B ของ CR-WPN-010 (updated_at) + CR-WPN-011 (snapshots) |
 | 2026-11-24 | RVW-WPN-002 | สร้าง+อนุมัติ | ทบทวนโค้ด CR-WPN-011 (buildGrowthSeries/GrowthChart/snapshot layer, rename, auth prompt) · **APPROVE** · 0 BLOCKER/MAJOR · 5 MINOR (DRY compact(), TZ nuance, snapshot-sort invariant, recordSnapshot await, auth refresh trade-off) → backlog |
 | 2026-11-24 | QAR-WPN-003 | สร้าง+อนุมัติ | QA CR-WPN-011 (functional/visual/a11y, static) · **PASS WITH ADVISORIES** · 0 BLOCKER/MAJOR · token ใช้ var ครบ (เลี่ยง --line เขียว LINE) · advisories: ตาราง a11y ที่เคารพ privacy, duplicate-sheet หลัง rename, ยังไม่รัน axe/Playwright · migration ยืนยัน 200 |
+| 2026-11-24 | REL-WPN-001 | แก้ไข (rev 04) | ปล่อย CR-WPN-011 ขึ้น production (deploy e73419d1 / code 9451142): กราฟการเติบโต, rename WealthPlanner, โลโก้ login, auth prompt · **GO** (RVW-002 APPROVE + QAR-003 PASS) · **ปิดเงื่อนไข migration ทั้งหมด** (updated_at + portfolio_snapshots รันแล้ว ยืนยัน 200) · rollback-safe เพราะ migration additive |

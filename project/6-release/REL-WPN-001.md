@@ -3,10 +3,10 @@
 | รายการ | รายละเอียด |
 |---|---|
 | รหัสเอกสาร | REL-WPN-001 |
-| ฉบับแก้ไขครั้งที่ | 03 |
-| วันที่มีผลบังคับใช้ | 2026-11-21 |
+| ฉบับแก้ไขครั้งที่ | 04 |
+| วันที่มีผลบังคับใช้ | 2026-11-24 |
 | สถานะ | อนุมัติแล้ว |
-| เอกสารอ้างอิง | QAR-WPN-002 rev 01 · RVW-WPN-001 rev 00 · docs/deploy-cloudflare.md |
+| เอกสารอ้างอิง | QAR-WPN-003 rev 00 · RVW-WPN-002 rev 00 · CR-WPN-011 · docs/deploy-cloudflare.md |
 | ผู้จัดทำ | devops-release (บทบาท, solo) |
 
 ---
@@ -66,7 +66,7 @@ Gate inputs: QA = PASS WITH ADVISORIES (ไม่มี BLOCK) · Review = APPRO
 
 4.3 เคยลองจริงเมื่อไหร่ — **ยังไม่เคย → ข้อแม้: ซ้อม 1 ครั้งหลัง deploy แรก** (preview จึงยอมรับได้เพราะไม่กระทบ production)
 
-4.4 สิ่งที่ถอยกลับไม่ได้ — ไม่มี (ไม่มี DB migration ในรอบนี้ · schema `holdings` ตั้งไว้แล้ว คงที่ · โค้ด edge rollback ได้เต็ม)
+4.4 สิ่งที่ถอยกลับไม่ได้ — ไม่มี · migration รอบ CR-WPN-010/011 (`holdings.updated_at`, ตาราง `portfolio_snapshots`) เป็น **additive ล้วน** (เพิ่มคอลัมน์/ตาราง ไม่ลบ/ไม่แก้ของเดิม) → บิลด์เก่าเพิกเฉยได้ ⇒ rollback โค้ดไป deployment ก่อนหน้าปลอดภัย **ไม่ต้อง down-migration** · โค้ด edge rollback ได้เต็มด้วย 1 คลิกใน Cloudflare
 
 ---
 
@@ -94,6 +94,15 @@ Deploy สำเร็จ 2026-11-21/22 · **Live: https://preview.wealthplaner.
 | วิธีแก้ | ตั้ง secrets ผ่าน `wrangler pages secret put` · **upgrade @cloudflare/next-on-pages 1.13.10 → 1.13.16** → `/` เรนเดอร์ปกติ |
 | สิ่งที่จะทำต่างไปครั้งหน้า | pin next-on-pages ≥1.13.16 · ตั้ง secrets ก่อน smoke test · (ก่อน production: ตั้ง OAuth/LINE console + เปิด KV/R2 สำหรับ F009) |
 
+### 6.1 รอบ CR-WPN-011 (2026-11-24)
+
+| รายการ | ค่า |
+|---|---|
+| ผลลัพธ์ | สำเร็จ ไม่ต้องถอย · deploy ต่อเนื่องหลายรอบ (โลโก้ dfb33cf5 · rename 29b51fbb · auth 41a0c2f1 · กราฟ e73419d1) ทุกรอบ build next-on-pages ผ่าน |
+| migration | รัน 2 ตัวใน Supabase แล้ว ยืนยัน **HTTP 200** ผ่าน PostgREST (holdings.updated_at + portfolio_snapshots) → ปุ่มแก้ไขเซฟได้ + กราฟเก็บประวัติได้ |
+| เฝ้าดู | หน้า `/` โหลด + กราฟเรนเดอร์ · recordSnapshot upsert ไม่ throw แม้ตารางเพิ่งสร้าง (best-effort) · ยืนยันด้วยตา (เจ้าของ) = เรียบร้อย |
+| ที่ต้องจำครั้งหน้า | DRY `compact()` (RVW minor) · snapshot อาจย้ายเป็น fire-and-forget ลด latency หน้าแรก |
+
 ---
 
 ## 7. ประวัติการแก้ไข
@@ -104,3 +113,4 @@ Deploy สำเร็จ 2026-11-21/22 · **Live: https://preview.wealthplaner.
 | 01 | 2026-11-22 | §6 | **Deploy สำเร็จ — live ที่ preview.wealthplaner.pages.dev** · แก้ 2 ปัญหา: ตั้ง 9 secrets + AUTH_TRUST_HOST, และ upgrade next-on-pages 1.13.10→1.13.16 (บั๊ก index route `/`→404) · ปิด KV/R2 binding (free, ไม่ใช้บัตร) · middleware matcher แคบลง | บันทึกผลจริงหลัง deploy |
 | 02 | 2026-11-22 | §1,§6 | **Production live ที่ https://wealthplaner.pages.dev (auth ทำงาน)** · แก้ "Server error / configuration": secrets ไปอยู่ production env ซึ่งผูกกับ **production branch = `feature/F008-login-sso`** (ตั้งตอน `npm run deploy` ครั้งแรก) — ต้อง deploy branch นั้น (ใช้ `npm run deploy` จาก branch ปัจจุบัน) ไม่ใช่ --branch preview/main · เพิ่ม `trustHost:true` ใน auth.ts · ลบ endpoint /api/envcheck ชั่วคราว · re-point rich menu → wealthplaner.pages.dev | แก้ปัญหา auth จริง |
 | 03 | 2026-11-23 | §3 | deploy งาน CR-WPN-010 ขึ้น production (commit 0e63261): แก้ไข/ลบสินทรัพย์, หน้าสินทรัพย์ accordion/กล่องแยก, F009 KV-free (ปิด R2), Option B (สลิปไม่พึ่ง Google), ส่งออกรายงาน Google Sheet · LINE login/สลิป + Google export + rich menu ใช้งานจริงบนมือถือ · KV SLIP_INDEX bound · ยังค้าง: รัน migration updated_at (ให้ปุ่มแก้ไขเซฟได้) | ส่งมอบฟีเจอร์ CR-010 |
+| 04 | 2026-11-24 | §1,§4.4,§6 | **ปล่อย CR-WPN-011 ขึ้น production (deploy e73419d1, code commit 9451142)** — กราฟการเติบโตของพอร์ต (ไฮบริด), เปลี่ยนชื่อแบรนด์ WealthPlanner, โลโก้ login ใหม่, ลดหน้าเตือน Google (prompt consent ครั้งแรก) · **GO** (gate: RVW-WPN-002 APPROVE · QAR-WPN-003 PASS WITH ADVISORIES) · **ปิดเงื่อนไข migration ทั้งหมด**: รัน `holdings.updated_at` + `portfolio_snapshots` ใน Supabase แล้ว ยืนยัน HTTP 200 (ไม่ค้างแล้ว) · rollback-safe เพราะ migration additive (§4.4) · docs commits ff8abf8/475851b ไม่แตะโค้ด (ไม่ต้อง redeploy) | ส่งมอบฟีเจอร์ CR-011 + ปิดหนี้ migration |
