@@ -37,3 +37,6 @@ grant all privileges on table public.holdings to service_role;
 
 -- แก้ไขรายการ (CR edit/delete) — updated_at ให้ "รายการล่าสุด" เด้งเมื่อแก้ (รันซ้ำได้)
 alter table holdings add column if not exists updated_at timestamptz not null default now();
+
+-- ticker/สัญลักษณ์ (CR-WPN-016) — ใช้ดึงราคาสด (คริปโต/หุ้น) แม่นแทนการเดาจากชื่อ (รันซ้ำได้)
+alter table holdings add column if not exists symbol text;

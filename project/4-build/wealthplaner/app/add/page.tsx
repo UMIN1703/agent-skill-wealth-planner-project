@@ -28,12 +28,12 @@ import { marketValueTHB } from '@/lib/portfolio.ts';
 const BROKERS = ['SCBS', 'KBank', 'IBKR', 'Bualuang', 'manual'];
 const baht = (n: number) => '฿' + new Intl.NumberFormat('th-TH', { maximumFractionDigits: 0 }).format(Math.round(n));
 
-const emptyDraft: AssetDraft = { name: '', type: '', quantity: null, costPrice: null, currentPrice: null, category: '', taxBucket: '', brokerChannel: '', note: '' };
+const emptyDraft: AssetDraft = { name: '', type: '', quantity: null, costPrice: null, currentPrice: null, category: '', taxBucket: '', brokerChannel: '', note: '', symbol: '' };
 
 // field → id ของ control (สำหรับเลื่อน focus ไปช่องแรกที่ผิด — F001 AC-E01)
 const FIELD_ID: Record<keyof AssetDraft, string> = {
   name: 'f-name', type: 'f-type', quantity: 'f-qty', costPrice: 'f-cost', currentPrice: 'f-cur',
-  category: 'f-cat', taxBucket: 'f-tax', brokerChannel: 'f-broker', note: 'f-note',
+  category: 'f-cat', taxBucket: 'f-tax', brokerChannel: 'f-broker', note: 'f-note', symbol: 'f-symbol',
 };
 const focusField = (f: keyof AssetDraft) => document.getElementById(FIELD_ID[f])?.focus();
 
@@ -56,6 +56,7 @@ function AddAssetInner() {
     taxBucket: '',
     brokerChannel: seedBroker,
     note: '',
+    symbol: '',
   };
   // โบรกจากสลิป (เช่น ttb) อาจไม่อยู่ในลิสต์มาตรฐาน → เติมเข้า option ให้เลือกได้
   const brokers = seedBroker && !BROKERS.includes(seedBroker) ? [seedBroker, ...BROKERS] : BROKERS;
@@ -162,6 +163,14 @@ function AddAssetInner() {
             id="f-name" type="text" className="input" placeholder="เช่น PTT, AAPL, ทองคำ 96.5%"
             value={draft.name} onChange={(e) => set('name', e.target.value)}
             aria-invalid={!!errFor('name')} aria-describedby={errFor('name') ? 'f-name-err' : undefined}
+          />
+        </Field>
+
+        <Field id="f-symbol" label="สัญลักษณ์ / Ticker (ไม่บังคับ)">
+          <input
+            id="f-symbol" type="text" className="input" placeholder="เช่น BTC, NVDA — ใช้ดึงราคาสดอัตโนมัติ"
+            value={draft.symbol ?? ''} onChange={(e) => set('symbol', e.target.value)}
+            autoCapitalize="characters" style={{ textTransform: 'uppercase' }}
           />
         </Field>
 

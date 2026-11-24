@@ -17,7 +17,7 @@ export default async function AssetsPage() {
 
   const rows: AssetRowData[] = assets.map((a) => ({
     id: a.id, name: a.name, broker: a.brokerChannel, group: a.category ?? a.type,
-    quantity: a.quantity, costPrice: a.costPrice, currentPrice: a.marketPrice, note: a.note,
+    quantity: a.quantity, costPrice: a.costPrice, currentPrice: a.marketPrice, note: a.note, symbol: a.symbol,
     valueTHB: marketValueTHB(a), pct: computeIncomePercent(a), stale: a.updatedMin > 15,
   }));
 

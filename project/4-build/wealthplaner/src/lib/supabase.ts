@@ -63,7 +63,7 @@ type HoldingRow = {
   name: string; type: string; broker_channel: string;
   quantity: number; cost_price: number; market_price: number | null;
   fx_to_thb: number; currency: string | null; source: string; note: string | null;
-  category: string | null; tax_bucket: string | null; created_at?: string; updated_at?: string;
+  category: string | null; tax_bucket: string | null; symbol: string | null; created_at?: string; updated_at?: string;
 };
 
 function rowToHeld(r: HoldingRow): DisplayAsset {
@@ -72,6 +72,7 @@ function rowToHeld(r: HoldingRow): DisplayAsset {
     quantity: r.quantity, costPrice: r.cost_price, marketPrice: r.market_price,
     fxToThb: r.fx_to_thb, currency: r.currency ?? undefined,
     note: r.note ?? undefined, category: r.category ?? undefined, taxBucket: r.tax_bucket ?? undefined,
+    symbol: r.symbol ?? undefined,
     source: r.source, updatedMin: 0, createdAt: r.created_at, updatedAt: r.updated_at ?? r.created_at,
   };
 }
@@ -79,7 +80,7 @@ function rowToHeld(r: HoldingRow): DisplayAsset {
 /** ฟิลด์ที่แก้ไขได้ (undefined = ไม่แก้) */
 export type HoldingPatch = {
   name?: string; brokerChannel?: string; quantity?: number;
-  costPrice?: number; currentPrice?: number | null; note?: string;
+  costPrice?: number; currentPrice?: number | null; note?: string; symbol?: string;
 };
 
 /** แก้ไขรายการถือครอง (เฉพาะของ user_key นั้น) · ตั้ง updated_at = now → เด้งขึ้น "ล่าสุด" */
@@ -92,6 +93,7 @@ export async function updateHolding(userKey: string, id: string, patch: HoldingP
   if (patch.costPrice !== undefined) row.cost_price = patch.costPrice;
   if (patch.currentPrice !== undefined) row.market_price = patch.currentPrice;
   if (patch.note !== undefined) row.note = patch.note || null;
+  if (patch.symbol !== undefined) row.symbol = patch.symbol.trim().toUpperCase() || null;
   const q = `${TABLE}?id=eq.${encodeURIComponent(id)}&user_key=eq.${encodeURIComponent(userKey)}`;
   await sb(q, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify(row) });
   return true;
@@ -116,7 +118,7 @@ export async function listHoldings(userKey: string): Promise<DisplayAsset[] | nu
 /** เพิ่มรายการถือครอง 1 แถว · คืน true เมื่อเขียนจริง, false เมื่อยังไม่ตั้งค่า Supabase */
 export async function insertHolding(
   userKey: string,
-  a: HeldAsset & { source?: string; note?: string; category?: string; taxBucket?: string },
+  a: HeldAsset & { source?: string; note?: string; category?: string; taxBucket?: string; symbol?: string },
 ): Promise<boolean> {
   if (!supabaseConfigured()) return false;
   const row = {
@@ -125,6 +127,7 @@ export async function insertHolding(
     quantity: a.quantity, cost_price: a.costPrice, market_price: a.marketPrice,
     fx_to_thb: a.fxToThb, currency: a.currency ?? null, source: a.source ?? 'manual',
     note: a.note ?? null, category: a.category ?? null, tax_bucket: a.taxBucket || null,
+    symbol: a.symbol?.trim().toUpperCase() || null,
   };
   await sb(TABLE, { method: 'POST', headers: { Prefer: 'return=minimal' }, body: JSON.stringify(row) });
   return true;

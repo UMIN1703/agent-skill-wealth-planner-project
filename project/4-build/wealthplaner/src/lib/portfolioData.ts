@@ -16,10 +16,14 @@ function tickerFromName(name: string): string | null {
   return m ? m[0] : null;
 }
 
+// สัญลักษณ์ที่ใช้ดึงราคา: ใช้ `symbol` ที่ผู้ใช้กรอก (แม่น) ก่อน ไม่งั้นค่อยเดาจากชื่อ (CR-WPN-016)
+const cryptoSymOf = (a: DisplayAsset) => (a.symbol?.trim().toUpperCase() || cryptoSymbolFromName(a.name));
+const stockSymOf = (a: DisplayAsset) => (a.symbol?.trim().toUpperCase() || tickerFromName(a.name));
+
 /** เติมราคา/เรตสดลงในรายการ (ไม่แก้ต้นทุน) — ล้มเหลว/ไม่มี key → คงราคาที่กรอกเอง */
 async function applyLivePrices(assets: DisplayAsset[]): Promise<{ assets: DisplayAsset[]; usdThb: number | null }> {
-  const cryptoSyms = assets.filter(isCrypto).map((a) => cryptoSymbolFromName(a.name)).filter((s): s is string => !!s);
-  const stockSyms = assets.filter(isForeignStock).map((a) => tickerFromName(a.name)).filter((s): s is string => !!s);
+  const cryptoSyms = assets.filter(isCrypto).map(cryptoSymOf).filter((s): s is string => !!s);
+  const stockSyms = assets.filter(isForeignStock).map(stockSymOf).filter((s): s is string => !!s);
 
   const [usdThb, cryptoPrices, stockQuotes] = await Promise.all([
     getUsdThb(),
@@ -32,14 +36,14 @@ async function applyLivePrices(assets: DisplayAsset[]): Promise<{ assets: Displa
     if (isUsd(a) && usdThb) copy.valueFx = usdThb; // มูลค่าสกุล USD → แปลงด้วยเรตสด (ต้นทุนคงเรตเดิม)
 
     if (isCrypto(a)) {
-      const sym = cryptoSymbolFromName(a.name);
+      const sym = cryptoSymOf(a);
       const p = sym ? cryptoPrices[sym] : undefined;
       if (p) {
         if (isUsd(a)) { copy.marketPrice = p.usd; if (usdThb) copy.valueFx = usdThb; }
         else { copy.marketPrice = p.thb; copy.valueFx = 1; } // สกุลบาท → ราคาเป็นบาทตรง
       }
     } else if (isForeignStock(a)) {
-      const sym = tickerFromName(a.name);
+      const sym = stockSymOf(a);
       const q = sym ? stockQuotes[sym] : undefined;
       if (q != null) { copy.marketPrice = q; if (usdThb) copy.valueFx = usdThb; } // Finnhub = USD
     }

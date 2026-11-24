@@ -11,7 +11,7 @@ import { categoryRiskRank } from '@/lib/portfolio.ts';
 
 export type AssetRowData = {
   id?: string; name: string; broker: string; group: string;
-  quantity: number; costPrice: number; currentPrice: number | null; note?: string;
+  quantity: number; costPrice: number; currentPrice: number | null; note?: string; symbol?: string;
   valueTHB: number; pct: number | null; stale: boolean;
 };
 
@@ -46,6 +46,7 @@ function EditForm({ row, onCancel, onSaved }: { row: AssetRowData; onCancel: () 
   const [cost, setCost] = useState(String(row.costPrice));
   const [cur, setCur] = useState(row.currentPrice == null ? '' : String(row.currentPrice));
   const [note, setNote] = useState(row.note ?? '');
+  const [symbol, setSymbol] = useState(row.symbol ?? '');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -65,7 +66,7 @@ function EditForm({ row, onCancel, onSaved }: { row: AssetRowData; onCancel: () 
     patch: {
       name: name.trim(), brokerChannel: broker.trim(),
       quantity: Number(qty), costPrice: Number(cost),
-      currentPrice: cur.trim() === '' ? null : Number(cur), note: note.trim(),
+      currentPrice: cur.trim() === '' ? null : Number(cur), note: note.trim(), symbol: symbol.trim(),
     },
   });
   const del = () => { if (confirm(`ลบ "${row.name}" ออกจากพอร์ต?`)) send('DELETE', { id: row.id }); };
@@ -78,6 +79,7 @@ function EditForm({ row, onCancel, onSaved }: { row: AssetRowData; onCancel: () 
         <Field label="จำนวนหน่วย"><input className="input num" inputMode="decimal" value={qty} onChange={(e) => setQty(e.target.value)} /></Field>
         <Field label="ต้นทุน/หน่วย"><input className="input num" inputMode="decimal" value={cost} onChange={(e) => setCost(e.target.value)} /></Field>
         <Field label="ราคาปัจจุบัน/หน่วย"><input className="input num" inputMode="decimal" placeholder="—" value={cur} onChange={(e) => setCur(e.target.value)} /></Field>
+        <Field label="สัญลักษณ์/Ticker"><input className="input" placeholder="เช่น BTC, NVDA" value={symbol} onChange={(e) => setSymbol(e.target.value)} style={{ textTransform: 'uppercase' }} /></Field>
         <Field label="โน้ต"><input className="input" value={note} onChange={(e) => setNote(e.target.value)} /></Field>
       </div>
       {err && <p className="note" style={{ color: 'var(--loss)', margin: '8px 2px 0' }}>{err}</p>}

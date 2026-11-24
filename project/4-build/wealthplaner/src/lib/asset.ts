@@ -26,6 +26,7 @@ export type AssetDraft = {
   taxBucket: TaxBucket | '';    // เว้นว่าง = ตามประเภท (ส่วนใหญ่ = ไม่มี)
   brokerChannel: string; // บริษัทโบรก เช่น SCBS, KBank (ระดับบริษัท — D1)
   note: string;          // บันทึกย่อต่อรายการ (ไม่บังคับ)
+  symbol?: string;       // ticker/สัญลักษณ์ (ไม่บังคับ) เช่น BTC, NVDA → ใช้ดึงราคาสด (CR-WPN-016)
 };
 
 export type FieldError = { field: keyof AssetDraft; message: string };
@@ -144,6 +145,7 @@ export function draftToDisplayAsset(d: AssetDraft): DisplayAsset {
     category: ASSET_CATEGORY_LABELS[cat],
     taxBucket: tax === 'none' ? '' : TAX_BUCKET_LABELS[tax],
     note: (d.note ?? '').trim(),
+    symbol: d.symbol?.trim().toUpperCase() || undefined, // เก็บเป็นตัวพิมพ์ใหญ่ (BTC/NVDA)
     source: 'manual',
     updatedMin: 0,
   };
